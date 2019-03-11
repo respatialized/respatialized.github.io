@@ -11,17 +11,17 @@
   Customizeable values
 |#
 
-(define opt-author-name  "Joel Dueck")         ; The name given for the feed's <author>
-(define opt-author-email "joel@jdueck.net")    ; Email for the feed's <author>
-(define opt-feed-title   "The Notepad")
-(define opt-feed-site    "https://thenotepad.org/") ; This should end with /
+(define opt-author-name  "Respatialized")         ; The name given for the feed's <author>
+(define opt-author-email "info@respatialized.net")    ; Email for the feed's <author>
+(define opt-feed-title   "respatialized")
+(define opt-feed-site    "https://respatialized.net/") ; This should end with /
 (define opt-feed-limit   50)                    ; Max items in feed
 
 #|
   You should customize the timezone/DST settings to match those of the
   computer that will be generating this feed.
 |#
-(define opt-feed-timezone -6)         ; Enter as an integer offset from GMT
+(define opt-feed-timezone -4)         ; Enter as an integer offset from GMT
 (define adjust-daylight-savings? #t)  ; Determines whether we add 1 to the
                                       ; offset for times that fall within DST
 

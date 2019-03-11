@@ -35,10 +35,9 @@
         <footer class="main">
             <ul>
                 <li><a class="rss" href="/feed.xml">RSS</a></li>
-                <li><a href="mailto:comments@thenotepad.org">comments@thenotepad.org</a></li>
-                <li>Source code <a href="https://github.com/otherjoel/thenotepad">on Github</a></li>
-                <li>Valid <a href="https://validator.w3.org/nu/?doc=https%3A%2F%2Fthenotepad.org%2F">HTML5</a> + CSS</li>
-            </ul>
+                <li><a href="mailto:info@respatialized.net">info@respatialized.net</a></li>
+                <li><a href="https://github.com/respatialized/">Github</a></li>
+                </ul>
         </footer>
     </body>
 </html>
