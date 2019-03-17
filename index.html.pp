@@ -6,13 +6,13 @@
         <meta charset="utf-8">
         <meta name="generator" content="Racket ◊(version) + Pollen ◊|pollen:version|">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>The Notepad</title>
+        <title>Respatialized</title>
         <link rel="stylesheet" href="/styles.css" media="screen">
         ◊|meta-favicons|
     </head>
     <body>
         <header class="main">
-            <p><a href="/" class="home">The Notepad</a> <span class="tagline">’s full&nbsp;of&nbsp;ballpoint&nbsp;hypertext</span></p>
+            <p><a href="/" class="home">Respatialized</a> <span class="tagline">is not a tree</span></p>
             <nav>
                 <ul>
                     <li class="current-section"><a href="/topics.html">Topics</a></li>
@@ -33,10 +33,9 @@
 
         <footer class="main">
             <ul>
-                <li><a href="/feed.xml" class="rss" title="Subscribe to feed">RSS</a></li>
-                <li><a href="mailto:comments@thenotepad.org">comments@thenotepad.org</a></li>
-                <li>Source code <a href="https://github.com/otherjoel/thenotepad">on Github</a></li>
-                <li>Valid <a href="https://validator.w3.org/nu/?doc=https%3A%2F%2Fthenotepad.org%2F">HTML5</a> + CSS</li>
+                <li><a href="/feed.xml" class="rss" title="RSS feed">RSS Feed</a></li>
+                <li><a href="mailto:info@respatialized.net">info@respatialized.net</a></li>
+                <li><a href="https://github.com/respatialized/">Github</a></li>
             </ul>
         </footer>
     </body>

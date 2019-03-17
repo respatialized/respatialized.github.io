@@ -38,7 +38,7 @@
   (define timestamp-raw (select-from-metas 'published metas))
   (define timestamp
     (cond [timestamp-raw
-           `("Scribbled " 
+           `("written" 
              (time [[datetime ,timestamp-raw]]
                    ,(pubdate->english timestamp-raw))
              nbsp middot nbsp)]
