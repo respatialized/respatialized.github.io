@@ -1,6 +1,6 @@
 #lang pollen
 
-◊(define-meta title "A Blog Is Not a Tree")
+◊(define-meta title "This Website Is Not a Tree")
 ◊(define-meta published "2019-03-10")
 ◊(define-meta topics "meta,writing")
 
