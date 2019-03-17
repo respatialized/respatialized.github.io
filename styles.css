@@ -17,15 +17,15 @@
     -ms-font-feature-settings: 'liga' 1;
     font-feature-settings: 'liga' 1;
 }
-.gridded {
-    background-image: linear-gradient(to bottom, hsla(200, 100%, 50%, .3) 1px, transparent 1px);
-    background-position: left -1px;
-    background-repeat: repeat;
-    background-size: 24px 24px;
-}
-.gridded body {
-    box-shadow: 1px 0px 0px hsla(200, 100%, 50%, .3), -1px 0px 0px hsla(200, 100%, 50%, .3);
-}
+/* .gridded { */
+/*     background-image: linear-gradient(to bottom, hsla(200, 100%, 50%, .3) 1px, transparent 1px); */
+/*     background-position: left -1px; */
+/*     background-repeat: repeat; */
+/*     background-size: 24px 24px; */
+/* } */
+/* .gridded body { */
+/*     box-shadow: 1px 0px 0px hsla(200, 100%, 50%, .3), -1px 0px 0px hsla(200, 100%, 50%, .3); */
+/* } */
 body {
     background-color: #ddd;
     font-family: "IBM Plex Sans", sans-serif;
@@ -168,6 +168,10 @@ header.main a.home {
     line-height: 2.16em;
     margin-top: 1.08em;
     margin-bottom: 0em;
+}
+
+header.main nav.ul{
+    font-family: "Armin Grotesk", sans-serif !important;
 }
 
 /* header.main a.home:before { */
@@ -424,7 +428,8 @@ blockquote.retweet {
 }
 
 code {
-    font-family: triplicate, monospace;
+    font-family: "League Mono", monospace;
+    font-size: 0.95em;
     background: #fafafa;
     border: solid #e0e0e0 1px;
     padding: 0 2px 0 2px;
@@ -455,7 +460,7 @@ pre.code {
     overflow-x: auto;
     margin: 2em 0;
     border: solid #cacaca 1px;
-    font-family: triplicate, monospace;
+    font-family: "League Mono", monospace;
     border-radius: 3px;
     background: #ffffef;
 }
@@ -571,7 +576,7 @@ dl.topic-list {
     width: 30%;
     margin-top: .4rem;
     margin-bottom: 0;
-    font-family: 'Barter Exchange', "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: 'IBM Plex Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: .8em;
     line-height: 1.5em;
     color: gray;
@@ -583,7 +588,7 @@ dl.topic-list {
 }
 .sidenote-number:after, .sidenote:before {
     content: counter(sidenote-counter) " ";
-    font-family: 'Barter Exchange', "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: 'IBM Plex Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
     position: relative;
     vertical-align: baseline;
 }
