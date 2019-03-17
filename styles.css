@@ -27,15 +27,18 @@
     box-shadow: 1px 0px 0px hsla(200, 100%, 50%, .3), -1px 0px 0px hsla(200, 100%, 50%, .3);
 }
 body {
-    background-color: #fff;
-    font-family: "Barter Exchange", sans-serif;
+    background-color: #ddd;
+    font-family: "IBM Plex Sans", sans-serif;
     color: #333;
     font-size: 0.75em;
     line-height: 1.5em;
+    letter-spacing: -0.005em;
     padding: 0 1em;
     margin: 0 auto;
     counter-reset: sidenote-counter;
 }
+
+
 @media (min-width: 749px) {
     body {
         font-size: 1em;
@@ -46,6 +49,7 @@ h1, h2, h3, h4, h5 {
     font-family:'Armin Grotesk', sans-serif;
     font-weight: 900;
 }
+
 
 h2 {
   font-size: 1.3888888888888888em;
@@ -103,28 +107,27 @@ sub {
     bottom: -0.25em;
 }
 a:link, a:visited {
+    font-size: 0.9em;
     color: inherit;
     text-decoration: none;
 }
 
 article a:link, article a:visited {
-    color: #0740e4;
+    font-family: "League Mono";
+    color: #4F1009;
 }
 
-h1 a:link, h1 a:visited {
-    color: #333;
-}
 
-a::after {
-    content: '★';
-    vertical-align: baseline;
-    position: relative;
-    top: -0.6em;
-    font-size:0.6em;
-    color: orange;
-    font-style: normal;
-    line-height: 1em;
-}
+/* a::after { */
+/*     content: '★'; */
+/*     vertical-align: baseline; */
+/*     position: relative; */
+/*     top: -0.6em; */
+/*     font-size:0.6em; */
+/*     color: orange; */
+/*     font-style: normal; */
+/*     line-height: 1em; */
+/* } */
 
 h1 a::after, a.home::after, a.rss::after {
     content: none;
@@ -147,16 +150,19 @@ footer.main, section.main, article {
 }
 header.main, footer.main {
     text-align: left;
+    /* background-color: #CF2A17; */
 }
 
 header.main p { margin-bottom: 0; }
 
 header.main a.home {
     text-decoration: none;
-    color: #700;
+    color: #CF2A17;
     font-family: "Armin Grotesk", sans-serif;
+    font-style: italic;
     font-weight: 900;
-    font-size: 1.3888888888888888em;
+    text-transform: uppercase;
+    font-size: 3em;
     line-height: 2.16em;
     margin-top: 1.08em;
     margin-bottom: 0em;
@@ -270,14 +276,15 @@ table.post-list td.post-col {
 }
 
 article header {
-    /* font-family: 'Armin Grotesk', Helvetica, Arial, sans-serif; */
     font-family: "League Mono", monospace;
     /* font-weight: 900; */
     margin-bottom: 1.5em;
 }
 
 article header h1 a {
-    text-decoration: none;
+    font-family: 'Armin Grotesk', Helvetica, Arial, sans-serif !important;
+
+    /* text-decoration: none; */
 }
 
 article header h1 a:hover {
@@ -287,7 +294,7 @@ article header h1 a:hover {
 }
 
 article header p, article header ul {
-    text-transform: uppercase;
+    /* text-transform: uppercase; */
     font-size: 0.75em;
     line-height: 2em;
     letter-spacing: .1em;
@@ -354,7 +361,7 @@ blockquote:before {
     content: '“';
     font-size: 4em;
     font-weight: bold;
-    color: #ddd;
+    color: #444;
     float: left;
     margin-left: -.7em;
     margin-top: .12em;
