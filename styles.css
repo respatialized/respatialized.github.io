@@ -154,9 +154,8 @@ header.main p { margin-bottom: 0; }
 header.main a.home {
     text-decoration: none;
     color: #700;
-    text-transform: uppercase;
-    letter-spacing: .1em;
-    font-family: triplicate, monospace;
+    font-family: "Armin Grotesk", sans-serif;
+    font-weight: 900;
     font-size: 1.3888888888888888em;
     line-height: 2.16em;
     margin-top: 1.08em;
@@ -258,7 +257,7 @@ table.post-list {
 
 table.post-list td.date-col {
     width: 8em;
-    font-family: triplicate;
+    font-family: "League Mono", monospace;
     font-size: 0.666666667em;
     line-height: 2.25em;
     text-align: right;
@@ -271,8 +270,9 @@ table.post-list td.post-col {
 }
 
 article header {
-    font-family: 'Armin Grotesk', Helvetica, Arial, sans-serif;
-    font-weight: 900;
+    /* font-family: 'Armin Grotesk', Helvetica, Arial, sans-serif; */
+    font-family: "League Mono", monospace;
+    /* font-weight: 900; */
     margin-bottom: 1.5em;
 }
 
