@@ -120,7 +120,7 @@ zap: spritz ## Does a spritz and also deletes all HTML and PDF output
 	rm posts/*.html posts/*.pdf; \
 	rm feed.xml; \
 	rm *.html *.pdf; \
-	rm -f notepad.sqlite; \
+	rm -f respatialized.sqlite; \
 	raco pollen reset
 
 post: ## Quickly start a new post from template

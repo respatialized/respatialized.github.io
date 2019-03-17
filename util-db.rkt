@@ -15,7 +15,7 @@
 ;; When you query it, it gives you rows as hash tables instead of vectors.
 ;; This is generic SQL stuff. None of it is provided outside the module.
 
-(define DBFILE (build-path (current-project-root) "notepad.sqlite"))
+(define DBFILE (build-path (current-project-root) "respatialized.sqlite"))
 (define QUERY-DEBUG (make-parameter #t))
 
 (define (backtick str) (format "`~a`" str))
