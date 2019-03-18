@@ -18,7 +18,7 @@
                     <li class="current-section"><a href="/topics.html">Topics</a></li>
                     <li><a href="/books.html">Books to Read</a></li>
                     <li><a href="/about.html">About</a></li>
-                    <li><a href="/feed.xml" class="rss" title="RSS feed">Use RSS?</a></li>
+                    <li><a href="/feed.xml" class="rss" title="RSS feed">RSS Feed</a></li>
                 </ul>
             </nav>
         </header>
