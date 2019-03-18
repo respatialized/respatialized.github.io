@@ -110,13 +110,19 @@ a:link, a:visited {
     color: inherit;
     text-decoration: none;
 
-    font-size: 0.95em;
-    font-family: "League Mono";
+    font-family: inherit;
+    font-weight: 600;
     color: #4F1009;
 }
 
 article a:link, article a:visited {
 
+}
+
+.tech {
+    font-family: "League Mono" !important;
+    font-size: 0.96em;
+    vertical-align: 0.04em !important;
 }
 
 
@@ -288,7 +294,8 @@ article header {
 }
 
 article header h1 a {
-    font-family: 'Armin Grotesk', Helvetica, Arial, sans-serif !important;
+    font-family: 'Armin Grotesk', Helvetica, Arial, sans-serif;
+    font-weight: 900 !important;
 
     /* text-decoration: none; */
 }
