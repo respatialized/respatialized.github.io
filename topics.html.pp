@@ -13,7 +13,7 @@
     </head>
     <body>
         <header class="main">
-            <p><a href="/" class="home">The Notepad</a>’s full of ballpoint hypertext</p>
+            <p><a href="/" class="home">Respatialized</a>is not a tree</p>
             <nav>
                 <ul>
                     <li><a href="/topics.html">Topics</a></li>
@@ -38,10 +38,9 @@
         </section>
         <footer class="main">
             <ul>
-                <li><a href="/feed.xml" class="rss" title="Subscribe to feed">RSS</a></li>
-                <li><a href="mailto:comments@thenotepad.org">comments@thenotepad.org</a></li>
-                <li>Source code <a href="https://github.com/otherjoel/thenotepad">on Github</a></li>
-                <li>Valid <a href="https://validator.w3.org/nu/?doc=https%3A%2F%2Fthenotepad.org%2F">HTML5</a> + CSS</li>
+                <li><a href="/feed.xml" class="rss" title="RSS feed">RSS</a></li>
+                <li><a href="mailto:info@respatialized.net">comments@thenotepad.org</a></li>
+                <li>Source code <a href="https://github.com/respatialized/">Github</a></li>
             </ul>
         </footer>
     </body>
