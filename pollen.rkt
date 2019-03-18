@@ -78,9 +78,6 @@
 ; aligned column, and a center-aligned column (4 columns total).
 (poly-branch-tag table (columns #f))
       
-(define (amazon product-id . contents)
-  (define affiliate-id "thloya-20")
-  (apply link (format "https://amzn.com/~a/?tag=~a" product-id affiliate-id) contents))
 
 (define-syntax (for/s stx)
   (syntax-case stx ()
