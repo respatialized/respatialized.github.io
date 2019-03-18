@@ -3,7 +3,7 @@
 ◊(define-meta title "Books to Read")
 ◊(define-meta updated "2019-03-17")
 
-◊strong{"Best-of" Lists:}
+◊strong{In Progress}
 
 ◊ul{
     ◊item{The Warmth Of Other Suns}
