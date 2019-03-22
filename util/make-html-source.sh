@@ -8,7 +8,7 @@ cat << EOF
 <head>
   <meta charset="utf-8"/>
   <title>Pollen Source: $FILENAME</title>
-  <link rel="stylesheet" href="/styles.css" media="screen" charset="utf-8">
+  <link rel="stylesheet" href="/raster.css" media="screen" charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style type="text/css">
     pre.sourcebox {
