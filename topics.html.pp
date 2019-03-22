@@ -8,7 +8,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="generator" content="Racket ◊(version) + Pollen ◊|pollen:version|">
-        <title>Topics (The Notepad)</title>
+        <title>Respatialized: topics</title>
         <link rel="stylesheet" href="/styles.css" media="screen">
     </head>
     <body>
@@ -28,7 +28,7 @@
               ◊for/s[topic (topic-list)]{
               <tr>
                 <td><a name="◊(car topic)">◊(car topic)</a></td>
-                <td><ul>                   
+                <td><ul>
                  ◊for/s[post (cdr topic)]{
                   <li><a href="/◊(list-ref post 0)">◊(list-ref post 1)</a></li>
                  }</ul></td>
