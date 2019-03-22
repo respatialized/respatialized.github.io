@@ -296,6 +296,7 @@ article header {
 article header h1 a {
     font-family: 'Armin Grotesk', Helvetica, Arial, sans-serif;
     font-weight: 900 !important;
+    letter-spacing: 0.01em;
 
     /* text-decoration: none; */
 }
@@ -325,7 +326,7 @@ article header li {
     display: inline;
     text-transform: none;
     letter-spacing: 0;
-    font-family: triplicate;
+    font-family: "League Mono";
     padding: 0 1em 0 0;
     margin: 0;
 }
@@ -393,7 +394,7 @@ blockquote.tweet:before, blockquote.retweet:before { content: none; }
 blockquote.tweet {
     border: solid #9ae4e8 .5em; /* or 00aced */
     border-radius: 5px;
-    font-family: "Barter Exchange", Helvetica, Arial, sans-serif;
+    font-family: "IBM Plex Sans", Helvetica, Arial, sans-serif;
     font-weight: 300;
     padding: 1em;
     background: #fff;
