@@ -11,16 +11,20 @@
         ◊|meta-favicons|
     </head>
     <body>
-        <header class="main">
-            <p><a href="/" class="home">Respatialized</a> <span class="tagline">is not a tree</span></p>
+      <header class="main">
+        <grid columns="7">
+          <c span=1-2 span-s=row class="h1"><a href="/" class="home">Respatialized</a></c>
+          <c></c>
+          <c span=2-1 class="tagline">is not a tree</span></c>
             <nav>
                 <ul>
-                    <li class="current-section"><a href="/topics.html">Topics</a></li>
-                    <li><a href="/books.html">Books to Read</a></li>
-                    <li><a href="/about.html">About</a></li>
+                    <c><li class="current-section"><a href="/topics.html">Topics</a></li></c>
+                    <c><li><a href="/books.html">Books to Read</a></li></c>
+                    <c><li><a href="/about.html">About</a></li></c>
                     <li><a href="/feed.xml" class="rss" title="RSS feed">RSS Feed</a></li>
                 </ul>
             </nav>
+            </grid>
         </header>
         
         ◊for/s[post (latest-posts 10)]{
