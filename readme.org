@@ -1,0 +1,5 @@
+* Respatialized
+
+This repository contains code to generate a blog using Matthew Butterick's ~pollen~ markup language and ~thenotepad~, Joel Dueck's extensions for it to make it more blog-friendly.
+
+The source code that generates this blog is licensed under the MIT License. See ~LICENSE.MD~ for more details.
