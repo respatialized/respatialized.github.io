@@ -296,7 +296,6 @@ article header {
 article header h1 a {
     font-family: 'Armin Grotesk', Helvetica, Arial, sans-serif;
     font-weight: 900 !important;
-    letter-spacing: 0.01em;
 
     /* text-decoration: none; */
 }

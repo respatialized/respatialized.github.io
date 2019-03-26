@@ -18,8 +18,8 @@ cat << EOF
         font-size: smaller;
         width: auto;
         }
-    body { font-family: triplicate; }
-    h1 { font-family: triplicate; }
+    body { font-family: league mono; }
+    h1 { font-family: league mono; }
     article { width: 90%; max-width: 55rem; }
     header { margin-bottom: 1em; }
   </style>
@@ -30,7 +30,7 @@ cat << EOF
           <p>
             <a href="/$(echo $FILENAME | sed -e "s/poly\.pm/html/g;s/html\.pm/html/g")">Back to page</a>
             &middot;
-            <a href="https://github.com/otherjoel/thenotepad/commits/master/$FILENAME">View history on Github</a>
+            <a href="https://github.com/respatialized/site/commits/master/$FILENAME">View history on Github</a>
           </p>
         </header>
         <div class="listing-filename">&#128196; $FILENAME</div>
