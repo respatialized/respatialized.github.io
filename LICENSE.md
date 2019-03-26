@@ -1,6 +1,6 @@
 # License
 
-* The *source code* — comprised of all `.rkt` files and `makefile`, plus all `.pp`, `.p`, and `.css` files — is licensed under the MIT license (a copy of which is included below). This allows you to reuse this code in your own projects in any way you like as long as you A) provide attribution to me, and B) don’t hold me liable for anything.
+* The *source code* — comprised of all `.rkt` files and `makefile`, plus all `.pp`, `.p`, and `.css` files — is licensed under the MIT license (a copy of which is included below). This allows you to reuse this code in your own projects in any way you like as long as you A) provide attribution to Joel Dueck and myself, and B) don’t hold either of us liable for anything.
 
 * All *prose writing*, as well as the actual HTML and PDF output files containing this prose, and all photos and screenshots not otherwise attributed, are not licensed for reuse.
 
