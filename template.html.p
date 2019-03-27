@@ -15,17 +15,22 @@
         ◊|meta-favicons|
     </head>
     <body>
-        <header class="main">
-            <p><a href="/index.html" class="home">Respatialized</a> <span class="tagline">actual / potential spaces</span></p>
-            <nav>
-                <ul>
-                    <li><a href="/topics.html">Topics</a></li>
-                    <li><a href="/books.html">Books to Read</a></li>
-                    <li><a href="/about.html">About</a></li>
-                    <li><a href="/feed.xml" class="rss">RSS Feed</a></li>
-                </ul>
-            </nav>
-        </header>
+      <header class="main">
+        <grid columns="6" columns-s="4">
+          <c span=1-4 span-s=row>
+            <p><a href="/index.html" class="h1">Respatialized</a></p>
+        actual / potential spaces
+          </c>
+          <c span=5-6 span-s=row >
+          <grid columns=2 class="compact">
+              <c span=1><a href="/topics.html">Topics</a></c>
+              <c span=1><a href="/books.html">Books</a></c>
+              <c span=1><a href="/about.html">About</a></c>
+              <c span=1><a href="/feed.xml" class="rss">RSS Feed</a></c>
+          </grid>
+          </c>
+        </grid>
+      </header>
 
         <article>
             ◊doc-header

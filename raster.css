@@ -3,8 +3,8 @@
 @import url("https://rsms.me/res/fonts/ibm-plex-mono.css");
 
 :root {
-    --fontSize: 22px;
-    --lineHeight: calc(var(--fontSize)*1.5);
+    --fontSize: 20px;
+    --lineHeight: calc(var(--fontSize)*1.4);
     --baseline: calc(var(--lineHeight)/2);
     --blockSpacingTop: 0px;
     --blockSpacingBottom: calc(var(--lineHeight)*1);
@@ -1544,12 +1544,12 @@ grid.debug>:nth-child(6n+7) {
 }
 
 html {
-    font-family: "Armin Grotesk", -system-ui, system-ui, sans-serif
+    font-family: "Barter Exchange", -system-ui, system-ui, sans-serif
 }
 
 @supports (font-variation-settings:normal) {
     html {
-        font-family: "Armin Grotesk"var, -system-ui, system-ui, sans-serif
+        font-family: "Barter Exchange"var, -system-ui, system-ui, sans-serif
     }
 }
 
@@ -1573,13 +1573,13 @@ body {
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
     overflow-x: hidden;
-    padding: calc(var(--lineHeight)*2);
+    padding: calc(var(--lineHeight)/2);
     padding-bottom: calc(var(--lineHeight)*3)
 }
 
 @media only screen and (max-width:600px) {
     body {
-        padding: var(--lineHeight);
+        padding: calc(var(--lineHeight)/3);
         padding-bottom: calc(var(--lineHeight)*2)
     }
 }
@@ -1801,7 +1801,7 @@ code,
 pre,
 textarea.code,
 tt {
-    font-family: IBM Plex Mono, monospace;
+    font-family: League Mono, monospace;
     -webkit-font-feature-settings: "ss02"1, "zero"1;
     font-feature-settings: "ss02"1, "zero"1
 }
