@@ -3,7 +3,7 @@
 @import url("https://rsms.me/res/fonts/ibm-plex-mono.css");
 
 :root {
-    --fontSize: 20px;
+    --fontSize: 16px;
     --lineHeight: calc(var(--fontSize)*1.45);
     --baseline: calc(var(--lineHeight)/2);
     --blockSpacingTop: 0px;
@@ -167,6 +167,10 @@ a,
 a:active,
 a:visited {
     color: inherit
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Optician Sans";
 }
 
 grid {
@@ -1544,12 +1548,12 @@ grid.debug>:nth-child(6n+7) {
 }
 
 html {
-    font-family: "Barter Exchange", -system-ui, system-ui, sans-serif
+    font-family: "Overpass", -system-ui, system-ui, sans-serif
 }
 
 @supports (font-variation-settings:normal) {
     html {
-        font-family: "Barter Exchange"var, -system-ui, system-ui, sans-serif
+        font-family: "Overpass"var, -system-ui, system-ui, sans-serif
     }
 }
 
@@ -1575,6 +1579,15 @@ body {
     overflow-x: hidden;
     padding: calc(var(--lineHeight)/2);
     padding-bottom: calc(var(--lineHeight)*3)
+}
+
+/* body text scales */
+body-text-small {
+    
+}
+
+body-text {
+    
 }
 
 @media only screen and (max-width:600px) {
