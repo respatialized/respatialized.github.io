@@ -15,21 +15,18 @@
         ◊|meta-favicons|
     </head>
     <body>
+      <grid columns="8" columns-s="6">
       <header class="main">
-        <grid columns="6" columns-s="4">
           <c span=1-4 span-s=row>
             <p><a href="/index.html" class="h1">Respatialized</a></p>
-        actual / potential spaces
+            <c-span=2-1 class="tagline">actual / potential spaces</span></c>
           </c>
           <c span=5-6 span-s=row >
-          <grid columns=2 class="compact">
               <c span=1><a href="/topics.html">Topics</a></c>
               <c span=1><a href="/books.html">Books</a></c>
               <c span=1><a href="/about.html">About</a></c>
               <c span=1><a href="/feed.xml" class="rss">RSS Feed</a></c>
-          </grid>
           </c>
-        </grid>
       </header>
 
         <article>
@@ -37,6 +34,7 @@
             ◊doc-body-html
             ◊(->html comments)
         </article>
+
         <footer class="main">
             <ul>
                 <li><a class="rss" href="/feed.xml">RSS</a></li>
@@ -44,6 +42,9 @@
                 <li><a href="https://github.com/respatialized/">Github</a></li>
                 </ul>
         </footer>
+
+    </body>
+        </grid>
 
   <!-- ---- internal only -- not part of raster ---- -->
   <script>(function(){
@@ -176,5 +177,4 @@ updateInvertedLabel()
 updateSizeModeLabel()
 updateComputedValueLabels()
 })();</script>
-    </body>
 </html>
