@@ -5,7 +5,7 @@
 ◊(define doc-header (->html (post-header here metas)))
 ◊(cond [(select-from-metas 'published metas) (save-post here metas doc-header doc-body-html)])
 <!DOCTYPE html>
-<html lang="en" class="gridded">
+<html lang="en">
     <head>
         <meta charset="utf-8">
         <meta name="generator" content="Racket ◊(version) + Pollen ◊|pollen:version|">
@@ -15,36 +15,38 @@
         ◊|meta-favicons|
     </head>
     <body>
-      <grid columns="8" columns-s="6">
-      <header class="main">
-          <c span=1-4 span-s=row>
+        <grid columns=8 columns-s=6>
+            <header class="main">
+                    <c span=row>
             <p><a href="/index.html" class="h1">Respatialized</a></p>
-            <c-span=2-1 class="tagline">actual / potential spaces</span></c>
-          </c>
-          <c span=5-6 span-s=row >
-              <c span=1><a href="/topics.html">Topics</a></c>
-              <c span=1><a href="/books.html">Books</a></c>
-              <c span=1><a href="/about.html">About</a></c>
-              <c span=1><a href="/feed.xml" class="rss">RSS Feed</a></c>
+            <span class="tagline">actual / potential spaces</span>
+              <span><a href="/topics.html">Topics</a></span>
+              <span><a href="/books.html">Books</a></span>
+              <span><a href="/about.html">About</a></span>
+              <span><a href="/feed.xml" class="rss">RSS Feed</a></span>
           </c>
       </header>
-
-        <article>
-            ◊doc-header
-            ◊doc-body-html
-            ◊(->html comments)
+      <hr>
+      <c span=row>
+      <article>
+          <c span=row> ◊doc-header </c>
+          <br>
+              <c span=row> ◊doc-body-html </c>
+              <c span=row> ◊(->html comments) </c>
         </article>
-
+        </c>
+        <hr>
         <footer class="main">
+                <c span=row >
             <ul>
                 <li><a class="rss" href="/feed.xml">RSS</a></li>
                 <li><a href="mailto:info@respatialized.net">info@respatialized.net</a></li>
                 <li><a href="https://github.com/respatialized/">Github</a></li>
-                </ul>
+            </ul>
+                </c>
         </footer>
-
-    </body>
         </grid>
+    </body>
 
   <!-- ---- internal only -- not part of raster ---- -->
   <script>(function(){

@@ -3,7 +3,7 @@
 @import url("https://rsms.me/res/fonts/ibm-plex-mono.css");
 
 :root {
-    --fontSize: 16px;
+    --fontSize: 18px;
     --lineHeight: calc(var(--fontSize)*1.45);
     --baseline: calc(var(--lineHeight)/2);
     --blockSpacingTop: 0px;
@@ -168,6 +168,7 @@ a:active,
 a:visited {
     color: inherit
 }
+
 
 h1, h2, h3, h4, h5, h6 {
     font-family: "Optician Sans";

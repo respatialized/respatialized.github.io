@@ -1,7 +1,7 @@
 #lang pollen
 ◊(require racket/list pollen/pagetree pollen/template pollen/private/version)
 <!DOCTYPE html>
-<html lang="en" class="gridded">
+<html lang="en">
     <head>
         <meta charset="utf-8">
         <meta name="generator" content="Racket ◊(version) + Pollen ◊|pollen:version|">
@@ -11,10 +11,10 @@
         ◊|meta-favicons|
     </head>
     <body>
-      <grid columns="8" columns-s="6">
+        <grid columns=8 columns-s=6>
+            <c span=row>
       <header class="main">
-          <c span=1-2 span-s=row class="h1"><a href="/" class="home">Respatialized</a></c>
-          <c></c>
+          <p><a href="/index.html" class="h1">Respatialized</a></p>
           <c span=2-1 class="tagline">is not a tree</span></c>
             <nav>
                 <ul>
@@ -24,16 +24,22 @@
                     <li><a href="/feed.xml" class="rss" title="RSS feed">RSS Feed</a></li>
                 </ul>
             </nav>
-        </header>
-        
+      </header>
+            </c>
+      <hr>
+
+      <c span=row>
         ◊for/s[post (latest-posts 10)]{
            <article>
            ◊(hash-ref post 'header_html)
            ◊(hash-ref post 'html)
            </article>
            <hr>
-        }
+           }
+      </c>
+      <br>
 
+      <c span=row>
         <footer class="main">
             <ul>
                 <li><a href="/feed.xml" class="rss" title="RSS feed">RSS Feed</a></li>
@@ -41,6 +47,7 @@
                 <li><a href="https://github.com/respatialized/">Github</a></li>
             </ul>
         </footer>
+      </c>
     </body>
   </grid>
 
