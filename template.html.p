@@ -27,13 +27,11 @@
           </c>
       </header>
       <hr>
-      <c span=row>
-      <article>
+
           <c span=row> ◊doc-header </c>
           <br>
-              <c span=row> ◊doc-body-html </c>
+              <c span=1-4> ◊doc-body-html </c>
               <c span=row> ◊(->html comments) </c>
-        </article>
         </c>
         <hr>
         <footer class="main">
@@ -43,7 +41,6 @@
                 <li><a href="mailto:info@respatialized.net">info@respatialized.net</a></li>
                 <li><a href="https://github.com/respatialized/">Github</a></li>
             </ul>
-                </c>
         </footer>
         </grid>
     </body>
