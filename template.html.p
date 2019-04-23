@@ -29,10 +29,8 @@
       <hr>
 
           <c span=row> ◊doc-header </c>
-          <br>
-              <c span=1-4> ◊doc-body-html </c>
-              <c span=row> ◊(->html comments) </c>
-        </c>
+          <c span=row> ◊doc-body-html </c>
+          <c span=row> ◊(->html comments) </c>
         <hr>
         <footer class="main">
                 <c span=row >
