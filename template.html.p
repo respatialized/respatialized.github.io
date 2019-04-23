@@ -27,10 +27,13 @@
           </c>
       </header>
       <hr>
-
-          <c span=row> ◊doc-header </c>
-          <c span=row> ◊doc-body-html </c>
-          <c span=row> ◊(->html comments) </c>
+     <grid columns=8 columns-s=6>
+         <c span=row> ◊doc-header </c>
+         <br>
+         ◊doc-body-html
+         <br>
+         <c span=row> ◊(->html comments) </c>
+     </grid>
         <hr>
         <footer class="main">
                 <c span=row >
