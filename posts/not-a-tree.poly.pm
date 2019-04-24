@@ -4,6 +4,8 @@
 ◊(define-meta published "2019-03-10")
 ◊(define-meta topics "meta,writing")
 
+◊c[#:span "8"]{
+
 ◊section{Preliminaries}
 
 ◊blockquote{It must be emphasized, lest the orderly mind shrink in horror from anything that is not clearly articulated and categorized in tree form, that the idea of overlap, ambiguity, multiplicity of aspect and the semilattice are not less orderly than the rigid tree, but more so. They represent a thicker, tougher, more subtle and more complex view of structure.}
@@ -16,3 +18,4 @@ This is the first post of respatialized, a website about actual and potential sp
 
 It would have taken me even longer to get started if Joel Dueck hadn't already done the excellent work of creating ◊a[#:href "https://github.com/otherjoel/thenotepad" #:class "tech"]{thenotepad}, which includes functions to produce many of the things we expect from blogs, like sequential indices and RSS feeds, and many that we should expect, but don't (like the ability to generate a PDF from the blog). The code that generates this blog is forked from ◊a[#:href "https://github.com/otherjoel/thenotepad" #:class "tech"]{thenotepad} and licensed under the MIT License.
 
+}

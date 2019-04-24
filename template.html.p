@@ -17,23 +17,23 @@
     <body>
         <grid columns=8 columns-s=6>
             <header class="main">
-                    <c span=row>
+                <c span=row>
             <p><a href="/index.html" class="h1">Respatialized</a></p>
             <span class="tagline">actual / potential spaces</span>
-              <span><a href="/topics.html">Topics</a></span>
-              <span><a href="/books.html">Books</a></span>
-              <span><a href="/about.html">About</a></span>
-              <span><a href="/feed.xml" class="rss">RSS Feed</a></span>
+              <a href="/topics.html">Topics</a>
+              <a href="/books.html">Books</a>
+              <a href="/about.html">About</a>
+              <a href="/feed.xml" class="rss">RSS Feed</a>
           </c>
       </header>
       <hr>
-     <grid columns=8 columns-s=6>
-         <c span=row> ◊doc-header </c>
+        <c span="row">
+         ◊doc-header
+        </c> 
          <br>
          ◊doc-body-html
          <br>
          <c span=row> ◊(->html comments) </c>
-     </grid>
         <hr>
         <footer class="main">
                 <c span=row >
@@ -42,6 +42,7 @@
                 <li><a href="mailto:info@respatialized.net">info@respatialized.net</a></li>
                 <li><a href="https://github.com/respatialized/">Github</a></li>
             </ul>
+                </c>
         </footer>
         </grid>
     </body>
