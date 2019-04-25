@@ -27,16 +27,14 @@
       </header>
             </c>
       <hr>
-
-      <c span=row>
-        ◊for/s[post (latest-posts 10)]{
-           <article>
-           ◊(hash-ref post 'header_html)
+      ◊for/s[post (latest-posts 10)]{
+      <c span="row" >
+          ◊(hash-ref post 'header_html)
+      </c>
+      <br>
            ◊(hash-ref post 'html)
-           </article>
            <hr>
            }
-      </c>
       <br>
 
       <c span=row>
