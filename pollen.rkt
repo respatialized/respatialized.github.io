@@ -56,7 +56,7 @@
 
 ; Note that because of the need to escape backslashes in LaTeX, you
 ; cannot use any other commands inside a ◊code tag
-(poly-branch-tag code)
+;; (poly-branch-tag code)
 (poly-branch-tag noun)
 (poly-branch-tag blockcode (filename ""))
 

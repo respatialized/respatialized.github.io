@@ -13,6 +13,15 @@
         <title>◊(select-from-metas 'title here)</title>
         <link rel="stylesheet" href="/raster.css" media="screen">
         ◊|meta-favicons|
+
+        <link rel="stylesheet" type="text/css" href="http://app.klipse.tech/css/codemirror.css">
+
+        <script>
+         window.klipse_settings = {
+             selector: '.language-klipse'// css selector for the html elements you want to klipsify
+         };
+        </script>
+        <script src="http://app.klipse.tech/plugin/js/klipse_plugin.js"></script>
     </head>
     <body>
       <grid columns="8" columns-s="6">
@@ -43,8 +52,8 @@
                 </ul>
         </footer>
 
+      </grid>
     </body>
-        </grid>
 
   <!-- ---- internal only -- not part of raster ---- -->
   <script>(function(){
