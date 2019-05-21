@@ -13,9 +13,10 @@
         <title>◊(select-from-metas 'title here)</title>
         ◊|meta-favicons|
 
-<link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
 
-<link rel="stylesheet" href="/raster.css" media="screen">
+        <link rel="stylesheet" href="/raster.css" media="screen">
+
+        <link rel="stylesheet" type="text/css" href="/krtheme.css">
 
         <script>
          window.klipse_settings = {
