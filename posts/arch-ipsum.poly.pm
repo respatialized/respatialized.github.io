@@ -13,12 +13,13 @@ Owing to ignorance, prejudices against loam are still widespread. Many people ha
 }
 ◊c[#:span "row"]{
 ◊h1{19 ■ Properties of earth}
-◊h2{Composition}}
-◊c[#:span "3" #:span-s "row"]{
+◊h2{Composition}
+}
+◊c[#:span "1-3" #:span-s "row"]{
 ◊h3{General}
 Loam is a product of erosion from rock in the earth's crust. This erosion occurs mainly through the mechanical grinding of rock via the movement of glaciers, water and wind, or through thermal expansion and contraction of rock, or through the expansion of freezing water in the crevices of the rock. Due to organic acids prevalent in plants, moreover, chemical reactions due to water and oxygen also lead to rock erosion. The composition and varying properties of loam depend on local conditions. Gravelly mountainous loams, for instance, are more suitable for rammed earth (provided they contain sufficient clay), while riverside loams are often siltier and are therefore less weather-resistant and weaker in compression. Loam is a mixture of clay, silt and sand, and sometimes contains larger aggregates like gravel and stones. Engineering science defines its particles according to diameter: particles with diameters smaller than 0.002 mm are termed clay, those between 0.002 and 0.06 mm are called silt, and those between 0.06 and 2 mm are called sand. Particles of larger diameter are termed gravels and stones. Like cement in concrete, clay acts as a binder for all larger particles in the loam. Silt, sand and aggregates constitute the fillers in the loam. Depending on which of the three components is dominant, we speak of a clayey, silty or sandy loam. In traditional soil mechanics, if the clay content is less than 15% by weight, the soil is termed a lean clayey soil. If it is more than 30% by weight, it is termed a rich clayey soil. Components that form less than 5% of the total by weight are not mentioned when naming the soils. Thus, for instance, a rich silty, sandy, lean clayey soil contains more than 30% silt, 15% to 30% sand, and less than 15% clay with less than 5% gravel or rock. However, in earth construction engineering, this method of naming soils is less accurate because, for example, a loam with 14% clay which would be called lean clayey in soil mechanics, would be considered a rich clayey soil from the point of view of earth construction.
 }
-◊c[#:span "3" #:span-s "row"]{
+◊c[#:span "4-6" #:span-s "row"]{
 ◊h3{Organic constituents}
 Soil dug from depths of less than 40 cm usually contains plant matter and humus (the product of rotting plants), which consists mainly of colloidal particles and is acidic (pH-value less than 6). Earth as building material should be free of humus and plant matter. Under certain conditions, plant matter like straw can be added, provided it is dry and there is no danger of later deterioration (see p. 83).
 ◊h3{Water}

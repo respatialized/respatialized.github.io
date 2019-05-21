@@ -15,17 +15,17 @@ First, we'll establish a layout.
 
 A good use case for side-by-side columns is annotating code.
 }
-◊c[#:span "3" #:span-s "2"]{
+◊c[#:span "3" #:span-s "row"]{
 this is the annotation for our function in two cols
 
 the code can be seen to the right
 
 using the columns, we can comment on the code to the side of what we're writing
-} ◊c[#:span "3" #:span-s "2" #:class "codeblock"]{
+} ◊c[#:span "3" #:span-s "row" #:class "codeblock"]{
 ◊code{
 (define (sample-func arg1 arg2 rest)
 
-  (blah (blah-blah (do-something (map some-func rest)))))
+(blah (blah-blah (do-something (map some-func rest))))
 
 (define res1 (sample-func "a" "b" '(1 2 3 4)))
 }}

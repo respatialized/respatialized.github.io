@@ -3,6 +3,7 @@
 ◊(define-meta title "Clojure is My TI-83, part 1")
 ◊(define-meta published "2019-05-20")
 ◊(define-meta topics "math,clojure")
+
 ◊c[#:span "1-3"]{
 I was brushing up on some statistics using the ◊link["https://openstax.org/details/books/introductory-statistics"]{OpenStax Introductory Statistics} free textbook. The exercises call for punching in functions on a TI-83 to generate random numbers and compute correlation coefficients. I have a much more powerful tool at my disposal: Clojure. 
 ◊blockquote{Lisp is a high level language, but you can still feel the bits between your fingers.} [source needed]

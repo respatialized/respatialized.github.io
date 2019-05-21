@@ -1585,7 +1585,8 @@ body {
     overflow-x: auto;
     overflow-wrap: normal;
     padding: calc(var(--lineHeight)/2);
-    padding-bottom: calc(var(--lineHeight)*3)
+    padding-bottom: calc(var(--lineHeight)*3);
+    text-align: justify;
 }
 
 /* body text scales */
