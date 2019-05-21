@@ -161,6 +161,11 @@ table {
     border-spacing: 0
 }
 
+.codeblock {
+    padding: 0.5em;
+    border-left: 2px solid #222;
+}
+
 a,
 a:active,
 a:visited {
@@ -169,7 +174,9 @@ a:visited {
 
 
 h1, h2, h3, h4, h5, h6 {
-    font-family: "Optician Sans";
+    font-family: "ETC Trispace";
+    text-transform: "uppercase";
+    font-weight: 900;
 }
 
 grid {
@@ -1547,19 +1554,19 @@ grid.debug>:nth-child(6n+7) {
 }
 
 html {
-    font-family: "Overpass", -system-ui, system-ui, sans-serif
+    font-family: "Gangster Grotesk", -system-ui, system-ui, sans-serif
 }
 
 @supports (font-variation-settings:normal) {
     html {
-        font-family: "Overpass"var, -system-ui, system-ui, sans-serif
+        font-family: "Gangster Grotesk"var, -system-ui, system-ui, sans-serif
     }
 }
 
 html {
     font-size: var(--fontSize);
     line-height: var(--lineHeight);
-    background: #fff;
+    background: #aa9b8a;
     color: #000;
     letter-spacing: -.01em;
     -webkit-text-size-adjust: 100%;
@@ -1575,7 +1582,8 @@ html {
 body {
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
-    overflow-x: hidden;
+    overflow-x: auto;
+    overflow-wrap: normal;
     padding: calc(var(--lineHeight)/2);
     padding-bottom: calc(var(--lineHeight)*3)
 }
@@ -1813,7 +1821,7 @@ code,
 pre,
 textarea.code,
 tt {
-    font-family: League Mono, monospace;
+    font-family: "League Mono", monospace;
     -webkit-font-feature-settings: "ss02"1, "zero"1;
     font-feature-settings: "ss02"1, "zero"1
 }
@@ -1860,7 +1868,7 @@ h1 {
     font-size: var(--h1-size);
     line-height: calc(var(--lineHeight)*2);
     margin-left: calc(var(--h1-size)/-22);
-    margin-top: calc(var(--lineHeight)*2);
+    margin-top: calc(var(--lineHeight)*1);
     margin-bottom: var(--lineHeight);
     word-break: break-word
 }

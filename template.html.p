@@ -17,14 +17,18 @@
     <body>
         <grid columns=8 columns-s=6>
             <header class="main">
-                <c span=row>
-            <p><a href="/index.html" class="h1">Respatialized</a></p>
-            <span class="tagline">actual / potential spaces</span>
-              <a href="/topics.html">Topics</a>
-              <a href="/books.html">Books</a>
-              <a href="/about.html">About</a>
-              <a href="/feed.xml" class="rss">RSS Feed</a>
-          </c>
+                <c span="row">
+                    <p><h1 class="large"><a href="/index.html">Respatialized</a></h1></p>
+                    <span class="tagline">is not a tree</span>
+                    <nav>
+                        <ul class="compact">
+                            <c><li class="current-section"><a href="/topics.html">Topics</a></li></c>
+                            <c><li><a href="/books.html">Books to Read</a></li></c>
+                            <c><li><a href="/about.html">About</a></li></c>
+                            <li><a href="/feed.xml" class="rss" title="RSS feed">RSS Feed</a></li>
+                        </ul>
+                    </nav>
+                </c>
       </header>
       <hr>
         <c span="row">
@@ -37,7 +41,7 @@
         <hr>
         <footer class="main">
                 <c span=row >
-            <ul>
+            <ul class="compact">
                 <li><a class="rss" href="/feed.xml">RSS</a></li>
                 <li><a href="mailto:info@respatialized.net">info@respatialized.net</a></li>
                 <li><a href="https://github.com/respatialized/">Github</a></li>
