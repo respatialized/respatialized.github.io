@@ -174,7 +174,7 @@ a:visited {
 
 
 h1, h2, h3, h4, h5, h6 {
-    font-family: "ETC Trispace";
+    font-family: "Armin Grotesk";
     text-transform: "uppercase";
     font-weight: 900;
 }
@@ -1554,19 +1554,19 @@ grid.debug>:nth-child(6n+7) {
 }
 
 html {
-    font-family: "Gangster Grotesk", -system-ui, system-ui, sans-serif
+    font-family: "IBM Plex Sans", -system-ui, system-ui, sans-serif
 }
 
 @supports (font-variation-settings:normal) {
     html {
-        font-family: "Gangster Grotesk"var, -system-ui, system-ui, sans-serif
+        font-family: "IBM Plex Sans", -system-ui, system-ui, sans-serif
     }
 }
 
 html {
     font-size: var(--fontSize);
     line-height: var(--lineHeight);
-    background: #aa9b8a;
+    background: #bbb;
     color: #000;
     letter-spacing: -.01em;
     -webkit-text-size-adjust: 100%;
