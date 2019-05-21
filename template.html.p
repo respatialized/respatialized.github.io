@@ -11,20 +11,20 @@
         <meta name="generator" content="Racket ◊(version) + Pollen ◊|pollen:version|">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>◊(select-from-metas 'title here)</title>
-        <link rel="stylesheet" href="/raster.css" media="screen">
         ◊|meta-favicons|
 
-        <link rel="stylesheet" type="text/css" href="http://app.klipse.tech/css/codemirror.css">
+<link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
+
+<link rel="stylesheet" href="/raster.css" media="screen">
 
         <script>
          window.klipse_settings = {
              selector: '.language-klipse'// css selector for the html elements you want to klipsify
          };
         </script>
-        <script src="http://app.klipse.tech/plugin/js/klipse_plugin.js"></script>
     </head>
     <body>
-        <grid columns=8 columns-s=6>
+        <grid columns="8" columns-s="6">
             <header class="main">
                 <c span="row">
                     <p><h1 class="large"><a href="/index.html">Respatialized</a></h1></p>
@@ -49,7 +49,7 @@
          <c span=row> ◊(->html comments) </c>
         <hr>
         <footer class="main">
-                <c span=row >
+                <c span="row">
             <ul class="compact">
                 <li><a class="rss" href="/feed.xml">RSS</a></li>
                 <li><a href="mailto:info@respatialized.net">info@respatialized.net</a></li>
@@ -58,6 +58,7 @@
                 </c>
         </footer>
         </grid>
+<script src="https://storage.googleapis.com/app.klipse.tech/plugin/js/klipse_plugin.js"></script>
     </body>
 
   <!-- ---- internal only -- not part of raster ---- -->
