@@ -15,8 +15,7 @@
 
 
         <link rel="stylesheet" href="/raster.css" media="screen">
-
-        <link rel="stylesheet" type="text/css" href="/krtheme.css">
+        <link rel="stylesheet" type="text/css" href="/codemirror.css">
 
         <script>
          window.klipse_settings = {
