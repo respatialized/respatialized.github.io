@@ -7,7 +7,7 @@
     --blockSpacingTop: 0px;
     --blockSpacingBottom: calc(var(--lineHeight)*1);
     --hrThickness: 2px;
-    --h1-size: 2.0rem;
+    --h1-size: 1.8rem;
     --h2-size: 1.4rem;
     --h3-size: 1.2rem;
     --h4-size: 1.1rem;
@@ -143,6 +143,19 @@ video {
     vertical-align: baseline
 }
 
+@media only screen and (max-width:800px) {
+    blockquote {
+        font-size: 1.1rem;
+        letter-spacing: 0.0003em;
+        line-height: var(--lineHeight)
+    }
+}
+
+blockquote {
+    
+    text-align: left;
+}
+
 blockquote,
 q {
     quotes: none
@@ -175,7 +188,6 @@ a:visited {
 
 h1, h2, h3, h4, h5, h6 {
     font-family: "Armin Grotesk";
-    text-transform: "uppercase";
     font-weight: 900;
 }
 
@@ -636,7 +648,7 @@ grid>c[span=row] {
     grid-column: 1/-1
 }
 
-@media only screen and (max-width:600px) {
+@media only screen and (max-width:800px) {
     grid[columns-s="1"] {
         --grid-tc: repeat(1, 1fr)
     }
@@ -1568,7 +1580,7 @@ html {
     line-height: var(--lineHeight);
     background: #bbb;
     color: #000;
-    letter-spacing: -.01em;
+    /* letter-spacing: -.01em; */
     -webkit-text-size-adjust: 100%;
     -moz-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
@@ -1589,6 +1601,10 @@ body {
     text-align: justify;
 }
 
+header {
+    text-align: left;
+}
+
 /* body text scales */
 body-text-small {
     
@@ -1598,7 +1614,7 @@ body-text {
     
 }
 
-@media only screen and (max-width:600px) {
+@media only screen and (max-width:800px) {
     body {
         padding: calc(var(--lineHeight)/3);
         padding-bottom: calc(var(--lineHeight)*2)
@@ -1654,7 +1670,7 @@ body-text {
     column-count: 8
 }
 
-@media only screen and (max-width:600px) {
+@media only screen and (max-width:800px) {
     [flow-cols-s="1"] {
         -webkit-column-count: 1;
         column-count: 1
@@ -1865,9 +1881,9 @@ h {
 h,
 h1 {
     font-weight: 720;
-    letter-spacing: -.05em;
+    letter-spacing: -.02em;
     font-size: var(--h1-size);
-    line-height: calc(var(--lineHeight)*2);
+    line-height: calc(var(--baseline)*3);
     margin-left: calc(var(--h1-size)/-22);
     margin-top: calc(var(--lineHeight)*1);
     margin-bottom: var(--lineHeight);
@@ -1893,7 +1909,7 @@ h2 {
     font-weight: 700;
     letter-spacing: -.03em;
     font-size: var(--h2-size);
-    line-height: calc(var(--lineHeight)*2);
+    line-height: calc(var(--baseline)*3);
     margin-left: calc(var(--h2-size)/-26);
     margin-bottom: var(--lineHeight)
 }
@@ -2151,7 +2167,7 @@ ol>li:before {
     text-align: left
 }
 
-@media only screen and (max-width:600px) {
+@media only screen and (max-width:800px) {
     .only-large-window {
         display: none
     }

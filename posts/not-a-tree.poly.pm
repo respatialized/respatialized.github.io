@@ -4,14 +4,12 @@
 ◊(define-meta published "2019-03-10")
 ◊(define-meta topics "meta,writing")
 
-◊c[#:span "1-4"]{
+◊c[#:span "1-4" #:span-s "row"]{
 ◊section{Preliminaries}
 
-◊blockquote{It must be emphasized, lest the orderly mind shrink in horror from anything that is not clearly articulated and categorized in tree form, that the idea of overlap, ambiguity, multiplicity of aspect and the semilattice are not less orderly than the rigid tree, but more so. They represent a thicker, tougher, more subtle and more complex view of structure.}
+◊h1{◊blockquote{It must be emphasized, lest the orderly mind shrink in horror from anything that is not clearly articulated and categorized in tree form, that the idea of overlap, ambiguity, multiplicity of aspect and the semilattice are not less orderly than the rigid tree, but more so. They represent a thicker, tougher, more subtle and more complex view of structure.}}
 Christopher Alexander, ◊link["https://www.patternlanguage.com/archive/cityisnotatree.html"]{"A City Is Not A Tree"}
-◊numbered-note{essential reading.}
-
-abcdefghijklmnopqrstuvwxyzabcdefghijklmn
+◊span[#:class "xsmall"]{(essential reading.)}
 
 This is the first post of respatialized, a website about actual and potential spaces. Part of the reason it took me so long to launch it is because nearly every static site generator forces your writing into a tree-like structure. Only one lets you extend the site generation methods to reflect your own ideas: Matthew Butterick's ◊a[#:href "https://docs.racket-lang.org/pollen/" #:class "tech"]{pollen}. Because I want to combine the sequential and additive writing style of a blog with the associational and iterative nature of a wiki, this was the only choice.
 
