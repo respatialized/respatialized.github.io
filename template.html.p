@@ -13,9 +13,10 @@
         <title>◊(select-from-metas 'title here)</title>
         ◊|meta-favicons|
 
-<link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
 
-<link rel="stylesheet" href="/raster.css" media="screen">
+        <link rel="stylesheet" href="/raster.css" media="screen">
+
+        <link rel="stylesheet" type="text/css" href="/krtheme.css">
 
         <script>
          window.klipse_settings = {
@@ -25,8 +26,8 @@
     </head>
     <body>
         <grid columns="8" columns-s="6">
-            <header class="main">
-                <c span="row">
+            <c span="row">
+                <header class="main">
                     <p><h1 class="large"><a href="/index.html">Respatialized</a></h1></p>
                     <span class="tagline">is not a tree</span>
                     <nav>
@@ -37,8 +38,8 @@
                             <li><a href="/feed.xml" class="rss" title="RSS feed">RSS Feed</a></li>
                         </ul>
                     </nav>
-                </c>
-      </header>
+                </header>
+            </c>
       <hr>
         <c span="row">
          ◊doc-header
@@ -58,7 +59,8 @@
                 </c>
         </footer>
         </grid>
-<script src="https://storage.googleapis.com/app.klipse.tech/plugin/js/klipse_plugin.js"></script>
+        <script src="https://storage.googleapis.com/app.klipse.tech/plugin/js/klipse_plugin.js">
+        </script>
     </body>
 
   <!-- ---- internal only -- not part of raster ---- -->

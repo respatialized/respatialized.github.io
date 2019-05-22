@@ -12,20 +12,20 @@
     </head>
     <body>
         <grid columns=8 columns-s=6>
-            <header class="main">
-                <c span="row">
-          <p><h1 class="large"><a href="/index.html">Respatialized</a></h1></p>
-          <span class="tagline">is not a tree</span>
-            <nav>
-                <ul class="compact">
-                    <c><li class="current-section"><a href="/topics.html">Topics</a></li></c>
-                    <c><li><a href="/books.html">Books to Read</a></li></c>
-                    <c><li><a href="/about.html">About</a></li></c>
-                    <li><a href="/feed.xml" class="rss" title="RSS feed">RSS Feed</a></li>
-                </ul>
-            </nav>
-                </c>
-            </header>
+            <c span="row">
+                <header class="main">
+                    <p><h1 class="large"><a href="/index.html">Respatialized</a></h1></p>
+                    <span class="tagline">is not a tree</span>
+                    <nav>
+                        <ul class="compact">
+                            <c><li class="current-section"><a href="/topics.html">Topics</a></li></c>
+                            <c><li><a href="/books.html">Books to Read</a></li></c>
+                            <c><li><a href="/about.html">About</a></li></c>
+                            <li><a href="/feed.xml" class="rss" title="RSS feed">RSS Feed</a></li>
+                        </ul>
+                    </nav>
+                </header>
+            </c>
       <hr>
       ◊for/s[post (latest-posts 10)]{
       <c span="row" >
