@@ -1854,10 +1854,6 @@ pre {
     white-space: pre-wrap
 }
 
-code {
-    white-space: nowrap
-}
-
 .bold,
 b,
 strong {
