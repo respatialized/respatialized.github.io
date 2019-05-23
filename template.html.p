@@ -15,7 +15,7 @@
 
 
         <link rel="stylesheet" href="/raster.css" media="screen">
-        <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
+        <link rel="stylesheet" type="text/css" href="/codemirror.css">
         <link rel="stylesheet" type="text/css" href="/cmtheme.css">
 
         <script>
