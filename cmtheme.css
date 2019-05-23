@@ -11,12 +11,18 @@
   content: "Code:";
   display: block;
   font-family: "IBM Plex Sans", sans-serif;
-  font-style: italic; 
 }
 
 /* Modify the console area (i.e. the area beneath 'Output:') */
 .CodeMirror:last-child {
   /* border: 2px solid #ddd !important; */
+}
+
+.klipse-container {
+    height: 0px; /* var(--baseline); */
+}
+.klipse-separator {
+    height: 0px; /* var(--baseline); */
 }
 
 
@@ -27,12 +33,12 @@
 */
 
 .cm-s-default {
-	font-size: 1em;
-	line-height: 1.5em;
-	font-family: inconsolata, monospace;
+
+  font-size: var(--fontSize);
+  line-height: var(--lineHeight);
 	letter-spacing: 0.3px;
 	word-spacing: 1px;
-	background: #E8E9E8;
+	background: transparent;
 	color: #363636;
 }
 .cm-s-default .CodeMirror-lines {

@@ -85,8 +85,9 @@
 }
 
 .CodeMirror-lines {
-  cursor: text;
-  min-height: 1px; /* prevents collapsing before first draw */
+    cursor: text;
+    line-height: calc(var(--baseline)*2);
+    min-height: 1px; /* prevents collapsing before first draw */
 }
 .CodeMirror pre {
   /* Reset some styles that the rest of the page might have set */
@@ -98,7 +99,7 @@
   margin: 0;
   white-space: pre;
   word-wrap: normal;
-  line-height: inherit;
+  line-height: calc(var(--baseline)*2);
   color: inherit;
   z-index: 2;
   position: relative;
