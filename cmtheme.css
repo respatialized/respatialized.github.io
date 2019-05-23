@@ -2,7 +2,7 @@
 
 /* Modify the Code editor's borders */
 .CodeMirror {
-    padding: 10px; 
+    padding-left: 3px;
     border: none !important;
 }
 
@@ -10,8 +10,6 @@
 .CodeMirror:last-child::before {
   content: "Code:";
   display: block;
-  margin: -10px;
-  padding: 15px 10px 5px 10px;
   font-family: "IBM Plex Sans", sans-serif;
   font-style: italic; 
 }
@@ -38,7 +36,7 @@
 	color: #363636;
 }
 .cm-s-default .CodeMirror-lines {
-	padding: 8px 0;
+	/* padding: 8px 0; */
 }
 .cm-s-default .CodeMirror-gutters {
 	box-shadow: 1px 0 2px 0 rgba(0, 0, 0, 0.5);
