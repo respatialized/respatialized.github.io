@@ -1621,13 +1621,6 @@ body-text {
     
 }
 
-@media only screen and (max-width:800px) {
-    body {
-        padding: calc(var(--lineHeight)/3);
-        padding-bottom: calc(var(--lineHeight)*2)
-    }
-}
-
 [flow-cols-l],
 [flow-cols-s],
 [flow-cols] {
