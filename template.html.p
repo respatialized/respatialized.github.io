@@ -20,7 +20,13 @@
 
         <script>
          window.klipse_settings = {
-             selector: '.language-klipse'// css selector for the html elements you want to klipsify
+             selector: '.language-klipse', // css selector for the html elements you want to klipsify
+             codemirror_options_in: {
+                 lineNumbers: true,
+             },
+             codemirror_options_out: {
+                 lineNumbers: true
+             }
          };
         </script>
     </head>
@@ -60,6 +66,8 @@
         </footer>
         </grid>
         <script src="https://storage.googleapis.com/app.klipse.tech/plugin/js/klipse_plugin.js">
+        </script>
+        <script src="/codemirror.js">
         </script>
     </body>
 
