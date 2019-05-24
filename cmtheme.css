@@ -38,25 +38,22 @@
   line-height: var(--lineHeight);
 	letter-spacing: 0.3px;
 	word-spacing: 1px;
-	background: transparent;
+	background: #E8E9E8;
 	color: #363636;
 }
 .cm-s-default .CodeMirror-lines {
 	/* padding: 8px 0; */
 }
 .cm-s-default .CodeMirror-gutters {
-	box-shadow: 1px 0 2px 0 rgba(0, 0, 0, 0.5);
-	-webkit-box-shadow: 1px 0 2px 0 rgba(0, 0, 0, 0.5);
-	background-color: #E8E9E8;
-	padding-right: 10px;
-	z-index: 3;
-	border: none;
+    color: inherit;
+    padding-right: 0.2em;
+	  z-index: 3;
 }
 .cm-s-default div.CodeMirror-cursor {
 	border-left: 3px solid #363636;
 }
 .cm-s-default .CodeMirror-activeline-background {
-	background: #CBDC2F38;
+	  background: #CBDC2F38 !important;
 }
 .cm-s-default .CodeMirror-selected {
 	background: #F5AA0091;
@@ -84,5 +81,6 @@
 	color: null;
 }
 .cm-s-default .CodeMirror-linenumber {
-	color: #949494E8;
+	  color: #949494E8;
+    box-shadow: none;
 }

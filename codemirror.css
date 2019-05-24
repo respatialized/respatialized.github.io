@@ -93,7 +93,6 @@
   /* Reset some styles that the rest of the page might have set */
   -moz-border-radius: 0; -webkit-border-radius: 0; border-radius: 0;
   border-width: 0;
-  background: transparent;
   font-family: inherit;
   font-size: inherit;
   margin: 0;
@@ -223,7 +222,7 @@ span.CodeMirror-selectedtext { background: none; }
   padding: 0 4px;
   border-radius: 2px;
   white-space: pre;
-  color: black;
+  color: inherit;
   cursor: pointer;
 }
 
