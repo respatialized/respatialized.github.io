@@ -9,6 +9,22 @@
         <title>Respatialized</title>
         <link rel="stylesheet" href="/raster.css" media="screen">
         ◊|meta-favicons|
+
+        <link rel="stylesheet" href="/raster.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="/codemirror.css">
+        <link rel="stylesheet" type="text/css" href="/cmtheme.css">
+
+        <script>
+         window.klipse_settings = {
+             selector: '.language-klipse', // css selector for the html elements you want to klipsify
+             codemirror_options_in: {
+                 lineNumbers: true,
+             },
+             codemirror_options_out: {
+                 lineNumbers: true
+             }
+         };
+        </script>
     </head>
     <body>
         <grid columns=8 columns-s=6>
@@ -46,6 +62,8 @@
             </ul>
         </footer>
       </c>
+      <script src="https://storage.googleapis.com/app.klipse.tech/plugin/js/klipse_plugin.js">
+      </script>
     </body>
   </grid>
 
