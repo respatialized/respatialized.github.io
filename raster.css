@@ -19,10 +19,11 @@
     --h4-size: 1.1rem;
     --columnGap: var(--lineHeight);
     --rowGap: var(--lineHeight);
-    --red: #ee2711;
-    --blue: #1871e9;
-    --green: #12c05b;
-    --yellow: #f9bf0f;
+    --bg: #ddd;
+    --red: #cd2626;
+    --blue: #4f94cd;
+    --green: #548b54;
+    --yellow: #eead0e;
     --displayScale: 1;
     --pixel: 1px
 }
@@ -1585,7 +1586,7 @@ html {
 html {
     font-size: var(--fontSize);
     line-height: var(--lineHeight);
-    background: #bbb;
+    background: (--bg);
     color: #000;
     /* letter-spacing: -.01em; */
     -webkit-text-size-adjust: 100%;
@@ -2054,7 +2055,7 @@ a {
 }
 
 a:hover {
-    color: var(--blue)
+    color: var(--green)
 }
 
 .h1>a,
@@ -2132,11 +2133,37 @@ ol,
 ul {
     list-style-position: outside
 }
-
 ol.compact>li,
 ul.compact>li {
-    margin: 0
+    margin: 0;
 }
+
+.post-header ul {
+    font-size: .85rem;
+    padding-left: 0;
+    list-style: none;
+    overflow: hidden;
+    font-family: "Armin Grotesk", sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+.post-header li {
+    margin: 0;
+    padding-right: 0.6em;
+    display: inline-block;
+    float: left;
+}
+.post-header li a {
+    text-decoration: none;
+    background-color: var(--yellow);
+    padding: 4px;
+}
+
+.post-header li a:hover {
+    color: #fff;
+}
+
+
 
 ul {
     padding-left: 1.3em

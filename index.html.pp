@@ -44,7 +44,7 @@
             </c>
       <hr>
       ◊for/s[post (latest-posts 10)]{
-      <c span="row" >
+      <c span="row" class="post-header">
           ◊(hash-ref post 'header_html)
       </c>
       <br>

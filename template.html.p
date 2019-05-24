@@ -47,7 +47,7 @@
                 </header>
             </c>
       <hr>
-        <c span="row">
+        <c span="row" class="post-header">
          ◊doc-header
         </c> 
          <br>
