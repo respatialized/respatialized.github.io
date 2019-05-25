@@ -150,14 +150,6 @@ video {
     vertical-align: baseline
 }
 
-@media only screen and (max-width:800px) {
-    blockquote {
-        font-size: 1.2rem;
-        letter-spacing: 0.0003em;
-        line-height: var(--lineHeight)
-    }
-}
-
 blockquote {
     font-family: "Armin Grotesk";
     font-weight: 800;
@@ -182,9 +174,17 @@ table {
     border-spacing: 0
 }
 
+header .tagline {
+    text-align: right !important;
+    font-family: "Armin Grotesk", sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
 .codeblock {
-    padding: 0.5em;
-    border-left: 2px solid #222;
+    /* padding-top: var(--baseline); */
+    /* padding-bottom: var(--baseline); */
+    background: #E8E9E8;
 }
 
 a,
@@ -196,7 +196,7 @@ a:visited {
 
 h1, h2, h3, h4, h5, h6 {
     font-family: "Armin Grotesk";
-    font-weight: 900;
+    font-weight: 800;
 }
 
 grid {
@@ -1602,8 +1602,8 @@ html {
 body {
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
-    overflow-x: auto;
     overflow-wrap: normal;
+    overflow-x: auto;
     padding-left: calc(var(--lineHeight)*0.5);
     padding-right: calc(var(--lineHeight)*0.5);
     /* padding: calc(var(--lineHeight)/2); */
@@ -1906,7 +1906,7 @@ h1.single-line:first-child {
 .h2,
 h2 {
     font-weight: 700;
-    letter-spacing: -.03em;
+    letter-spacing: -.015em;
     font-size: var(--h2-size);
     line-height: calc(var(--baseline)*3);
     margin-left: calc(var(--h2-size)/-26);
@@ -2000,7 +2000,7 @@ h6 {
 h1.large {
     --h1-size: 4rem;
     line-height: calc(var(--lineHeight)*3);
-    font-weight: 730
+    font-weight: 800;
 }
 
 .h1.xlarge,
@@ -2047,11 +2047,30 @@ h1.xxxlarge {
     padding-bottom: calc(var(--lineHeight)*0.25)
 }
 
+@media only screen and (max-width:800px) {
+    blockquote {
+        font-size: 1.2rem;
+        letter-spacing: 0.0003em;
+        line-height: var(--lineHeight)
+    }
+
+    header h1 {
+        font-size: 1.6rem;
+    }
+
+    .h1.large,
+    h1.large {
+        font-size: 3rem;
+        line-height: calc(var(--lineHeight)*3);
+        font-weight: 800;
+    }
+}
+
+
 a {
     text-decoration: underline;
     -webkit-text-decoration: underline rgba(0, 0, 0, .3);
     text-decoration: underline rgba(0, 0, 0, .3);
-    white-space: nowrap
 }
 
 a:hover {
@@ -2156,7 +2175,7 @@ ul.compact>li {
 .post-header li a {
     text-decoration: none;
     background-color: var(--yellow);
-    padding: 4px;
+    padding: 2px;
 }
 
 .post-header li a:hover {

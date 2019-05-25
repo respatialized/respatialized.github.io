@@ -23,19 +23,21 @@
              selector: '.language-klipse', // css selector for the html elements you want to klipsify
              codemirror_options_in: {
                  lineNumbers: true,
+                 styleActiveLine: true
              },
              codemirror_options_out: {
-                 lineNumbers: true
+                 lineNumbers: true,
+                 styleActiveLine: true
              }
          };
         </script>
     </head>
     <body>
         <grid columns="8" columns-s="6">
-            <c span="row">
+            <c span="4" span-s="row">
                 <header class="main">
-                    <p><h1 class="large"><a href="/index.html">Respatialized</a></h1></p>
-                    <span class="tagline">is not a tree</span>
+                    <p><h1 class="page-title large"><a href="/index.html">Respatialized</a></h1></p>
+                    <span class="tagline">actual/potential spaces</span>
                     <nav>
                         <ul class="compact">
                             <c><li class="current-section"><a href="/topics.html">Topics</a></li></c>
@@ -66,8 +68,6 @@
         </footer>
         </grid>
         <script src="https://storage.googleapis.com/app.klipse.tech/plugin/js/klipse_plugin.js">
-        </script>
-        <script src="/codemirror.js">
         </script>
     </body>
 
