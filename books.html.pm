@@ -1,6 +1,6 @@
 #lang pollen
 
-◊(define-meta title "Books to Read")
+◊(define-meta title "Books")
 ◊(define-meta updated "2019-03-17")
 
 ◊strong{In Progress}
