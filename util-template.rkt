@@ -17,6 +17,9 @@
 
 (define (pdfname page) (string-replace (path->string (file-name-from-path page))
                                        "poly.pm" "pdf"))
+
+(define (sourcename page) (string-replace (path->string (file-name-from-path page))
+                                       "poly.pm" "pollen.html"))
                                        
 (define (source-listing p)
   (regexp-replace #px"(\\.html$)" (symbol->string p) ".pollen.html"))
@@ -52,7 +55,7 @@
            [href ,(string-append "/posts/" (pdfname (select-from-metas 'here-path metas)))]]
           "PDF")
        nbsp middot nbsp
-       (a [[class "source-link"] [href ,(source-listing post)]]
+       (a [[class "source-link"] [href ,(string-append "/posts/" (sourcename (select-from-metas 'here-path metas)))]]
           loz "Pollen" nbsp "source"))
     ,topics-xexpr))
 
