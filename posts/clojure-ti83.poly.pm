@@ -14,6 +14,6 @@ Clojure is an unusually expressive programming language. Its minimal syntax and 
 ;(#{3 4 5} 2)
 ;(map #{3 4 5} [1 2 3 4 5])
 (filter #{3 4 5} [1 2 3 4 5])}}}
-◊c[#:span "2" #:span-s "row"]{
+◊c[#:span "2" #:span-s "row" #:class "small"]{
 Just like that. As soon as the idea came to me I found that I could call a data structure as a function and filter the data I wanted with no syntactic overhead. This expressive power means that it basically takes me as long to ◊em{implement} a function as it does to look up how it might be done on a graphing calculator.}
 ◊c[#:span "1-3" #:span-s "row"]{Further experiments and exercises confirmed that I could indeed feel the data sliding between my toes.}
