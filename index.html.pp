@@ -37,9 +37,9 @@
                     <span class="tagline">is not a tree</span>
                     <nav>
                         <ul class="compact">
-                            <c><li class="current-section"><a href="/topics.html">Topics</a></li></c>
-                            <c><li><a href="/books.html">Books</a></li></c>
-                            <c><li><a href="/about.html">About</a></li></c>
+                            <li class="current-section"><a href="/topics.html">Topics</a></li>
+                            <li><a href="/books.html">Books</a></li>
+                            <li><a href="/about.html">About</a></li>
                             <li><a href="/feed.xml" class="rss" title="RSS feed">RSS</a></li>
                         </ul>
                     </nav>
@@ -54,10 +54,9 @@
            ◊(hash-ref post 'html)
            <hr>
            }
-      <br>
 
       <footer class="main">
-          <c span="row">
+          <c span="row" class="global-footer">
             <ul class="compact">
                 <li><a href="/feed.xml" class="rss" title="RSS feed">RSS</a></li>
                 <li><a href="mailto:info@respatialized.net">info@respatialized.net</a></li>
