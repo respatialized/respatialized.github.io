@@ -1883,10 +1883,8 @@ h1 {
     letter-spacing: -.02em;
     font-size: var(--h1-size);
     line-height: calc(var(--baseline)*3);
-    margin-left: calc(var(--h1-size)/-22);
     margin-top: calc(var(--lineHeight)*1);
     margin-bottom: var(--lineHeight);
-    word-break: break-word
 }
 
 h1.single-line {
@@ -1896,7 +1894,7 @@ h1.single-line {
 
 h1.single-line,
 h1.single-line:first-child {
-    padding-bottom: calc(var(--lineHeight)*0.5)
+    padding-bottom: var(--baseline);
 }
 
 h1.single-line:first-child {
@@ -2157,9 +2155,40 @@ ul.compact>li {
     margin: 0;
 }
 
+nav ul {
+    font-size: .85rem;
+    padding-left: 0;
+    list-style: none;
+    overflow: hidden;
+    font-family: "Armin Grotesk", sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+nav li {
+    margin: 0;
+    padding-right: 0.6em;
+    display: inline-block;
+    float: left;
+}
+nav li a {
+    text-decoration: none;
+    background-color: var(--yellow);
+    padding-left: 0.3em;
+    padding-right: 0.3em;
+}
+
+nav li a:hover {
+    color: #fff;
+}
+
+.post-header {
+    line-height: var(--lineHeight);
+}
+
 .post-header ul {
     font-size: .85rem;
     padding-left: 0;
+    line-height: var(--lineHeight);
     list-style: none;
     overflow: hidden;
     font-family: "Armin Grotesk", sans-serif;
@@ -2175,7 +2204,8 @@ ul.compact>li {
 .post-header li a {
     text-decoration: none;
     background-color: var(--yellow);
-    padding: 2px;
+    padding-left: 2px;
+    padding-right: 2px;
 }
 
 .post-header li a:hover {
