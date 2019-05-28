@@ -2172,7 +2172,7 @@ nav li {
 }
 nav li a {
     text-decoration: none;
-    background-color: var(--yellow);
+    background-color: var(--green);
     padding-left: 0.3em;
     padding-right: 0.3em;
 }
@@ -2180,6 +2180,33 @@ nav li a {
 nav li a:hover {
     color: #fff;
 }
+
+.global-footer ul {
+    font-size: .85rem;
+    padding-left: 0;
+    list-style: none;
+    overflow: hidden;
+    font-family: "Armin Grotesk", sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+.global-footer li {
+    margin: 0;
+    padding-right: 0.6em;
+    display: inline-block;
+    float: left;
+}
+.global-footer li a {
+    text-decoration: none;
+    background-color: var(--green);
+    padding-left: 0.3em;
+    padding-right: 0.3em;
+}
+
+.global-footer li a:hover {
+    color: #fff;
+}
+
 
 .post-header {
     line-height: var(--lineHeight);
