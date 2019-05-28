@@ -7,7 +7,6 @@
         <meta name="generator" content="Racket ◊(version) + Pollen ◊|pollen:version|">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Respatialized</title>
-        <link rel="stylesheet" href="/raster.css" media="screen">
         ◊|meta-favicons|
 
         <link rel="stylesheet" href="/raster.css" media="screen">
@@ -19,32 +18,36 @@
              selector: '.language-klipse', // css selector for the html elements you want to klipsify
              codemirror_options_in: {
                  lineNumbers: true,
+                 styleActiveLine: true,
+                 lineWrapping: true
              },
              codemirror_options_out: {
-                 lineNumbers: true
+                 lineNumbers: true,
+                 styleActiveLine: true,
+                 lineWrapping: true
              }
          };
         </script>
     </head>
     <body>
-        <grid columns=8 columns-s=6>
-            <c span="row">
+        <grid columns="8" columns-s="6">
+            <c span="4" span-s="row">
                 <header class="main">
-                    <p><h1 class="large"><a href="/index.html">Respatialized</a></h1></p>
+                    <p><h1 class="page-title large"><a href="/index.html">Respatialized</a></h1></p>
                     <span class="tagline">is not a tree</span>
                     <nav>
                         <ul class="compact">
                             <c><li class="current-section"><a href="/topics.html">Topics</a></li></c>
-                            <c><li><a href="/books.html">Books to Read</a></li></c>
+                            <c><li><a href="/books.html">Books</a></li></c>
                             <c><li><a href="/about.html">About</a></li></c>
-                            <li><a href="/feed.xml" class="rss" title="RSS feed">RSS Feed</a></li>
+                            <li><a href="/feed.xml" class="rss" title="RSS feed">RSS</a></li>
                         </ul>
                     </nav>
                 </header>
             </c>
       <hr>
       ◊for/s[post (latest-posts 10)]{
-      <c span="row" class="post-header">
+      <c span="4" span-s="row" class="post-header">
           ◊(hash-ref post 'header_html)
       </c>
       <br>
@@ -53,19 +56,19 @@
            }
       <br>
 
-      <c span=row>
-        <footer class="main">
+      <footer class="main">
+          <c span="row">
             <ul class="compact">
-                <li><a href="/feed.xml" class="rss" title="RSS feed">RSS Feed</a></li>
+                <li><a href="/feed.xml" class="rss" title="RSS feed">RSS</a></li>
                 <li><a href="mailto:info@respatialized.net">info@respatialized.net</a></li>
                 <li><a href="https://github.com/respatialized/">Github</a></li>
             </ul>
-        </footer>
-      </c>
-      <script src="https://storage.googleapis.com/app.klipse.tech/plugin/js/klipse_plugin.js">
-      </script>
+          </c>
+      </footer>
+        </grid>
+        <script src="https://storage.googleapis.com/app.klipse.tech/plugin/js/klipse_plugin.js">
+        </script>
     </body>
-  </grid>
 
   <!-- ---- internal only -- not part of raster ---- -->
   <script>(function(){

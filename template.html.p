@@ -23,11 +23,13 @@
              selector: '.language-klipse', // css selector for the html elements you want to klipsify
              codemirror_options_in: {
                  lineNumbers: true,
-                 styleActiveLine: true
+                 styleActiveLine: true,
+                 lineWrapping: true
              },
              codemirror_options_out: {
                  lineNumbers: true,
-                 styleActiveLine: true
+                 styleActiveLine: true,
+                 lineWrapping: true
              }
          };
         </script>
@@ -41,29 +43,30 @@
                     <nav>
                         <ul class="compact">
                             <c><li class="current-section"><a href="/topics.html">Topics</a></li></c>
-                            <c><li><a href="/books.html">Books to Read</a></li></c>
+                            <c><li><a href="/books.html">Books</a></li></c>
                             <c><li><a href="/about.html">About</a></li></c>
-                            <li><a href="/feed.xml" class="rss" title="RSS feed">RSS Feed</a></li>
+                            <li><a href="/feed.xml" class="rss" title="RSS feed">RSS</a></li>
                         </ul>
                     </nav>
                 </header>
             </c>
       <hr>
-        <c span="row" class="post-header">
+        <c span="4" span-s="row" class="post-header">
          ◊doc-header
         </c> 
          <br>
          ◊doc-body-html
          <br>
          <c span=row> ◊(->html comments) </c>
-        <hr>
+         <hr>
+
         <footer class="main">
                 <c span="row">
-            <ul class="compact">
-                <li><a class="rss" href="/feed.xml">RSS</a></li>
-                <li><a href="mailto:info@respatialized.net">info@respatialized.net</a></li>
-                <li><a href="https://github.com/respatialized/">Github</a></li>
-            </ul>
+                    <ul class="compact">
+                        <li><a class="rss" href="/feed.xml">RSS</a></li>
+                        <li><a href="mailto:info@respatialized.net">info@respatialized.net</a></li>
+                        <li><a href="https://github.com/respatialized/">Github</a></li>
+                    </ul>
                 </c>
         </footer>
         </grid>
