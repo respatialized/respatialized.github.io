@@ -19,7 +19,6 @@ posts-pdf := $(patsubst %.poly.pm,%.pdf,$(posts-sourcefiles))
 # I want to show off my Pollen source files, so I name them .pollen.html
 posts-sourcelistings := $(patsubst %.poly.pm,%.pollen.html,$(posts-sourcefiles))
 
-other-sourcefiles := books.html.pm about.html.pm
 other-html := $(patsubst %.html.pm,%.html,$(other-sourcefiles))
 other-sourcelistings := $(patsubst %.html.pm,%.pollen.html,$(other-sourcefiles))
 

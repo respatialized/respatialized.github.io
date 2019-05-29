@@ -27,6 +27,7 @@
                     </nav>
                 </header>
             </c>
+            <hr>
             <c span="row" class="topics"></c>
             ◊for/s[topic (topic-list)]{
             <c span="1-2">
