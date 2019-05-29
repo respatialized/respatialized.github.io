@@ -108,7 +108,7 @@ publish: ## Rsync the website to the public web server (does not rebuild site fi
 	rm -rf posts/pollen-latex-work flatland/pollen-latex-work; \
 	raco pollen publish; \
     rsync -av ~/publish/ -e 'ssh -p $(BLOG_PORT)' $(BLOG_SRV) --delete --exclude=projects --exclude=.git --exclude=drafts --exclude=pollen-local --exclude='*.rebuild' --exclude=.DS_Store --exclude=.gitignore --exclude='template*.*' --exclude=makefile --exclude=util --exclude='posts/img/originals'; \
-    rm -rf ~/publish
+rm -rf ~/publish
 
 # ‘make spritz’ just cleans up the pollen-latex-work files and clears the Pollen cache; 
 # ‘make zap’ deletes all output files as well.

@@ -9,7 +9,7 @@
         <meta charset="utf-8">
         <meta name="generator" content="Racket ◊(version) + Pollen ◊|pollen:version|">
         <title>Respatialized: topics</title>
-        <link rel="stylesheet" href="/styles.css" media="screen">
+        <link rel="stylesheet" href="/raster.css" media="screen">
     </head>
     <body>
         <header class="main">
