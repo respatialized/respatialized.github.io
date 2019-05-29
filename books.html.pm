@@ -2,7 +2,7 @@
 
 ◊(define-meta title "Books")
 ◊(define-meta updated "2019-03-17")
-
+◊c[#:span "row"]{
 ◊strong{In Progress}
 
 ◊ul{
@@ -13,4 +13,5 @@
 
 ◊ul{
   ◊item{Fossil Capital}
+}
 }

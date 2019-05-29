@@ -1,21 +1,12 @@
 #lang pollen
 
-◊(define-meta title "about this site")
-
+◊(define-meta title "About This Site")
 ◊c[#:span "row"]{
-
 ◊emph{actual/potential spaces}
-
 }
-
-◊c[#:span "2"]{
-
+◊c[#:span "1-4"]{
 ◊h2{Colophon}
+The site is written in ◊link["http://spacemacs.org/"]{Spacemacs}, using a ◊link["//pollenpub.com"]{Pollen} template created by ◊link["https://github.com/otherjoel/thenotepad"]{Joel Dueck}. The grid layout is made possible by ◊link["https://rsms.me/raster/"]{Raster}.
 
-}
-
-◊c[#:span "4"]{
-
-The site is written in spacemacs, using ◊link["//pollenpub.com"]{Pollen}.
-
+The fonts are Armin Grotesk, IBM Plex Sans, and League Mono.
 }
