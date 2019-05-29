@@ -2239,6 +2239,22 @@ nav li a:hover {
     color: #fff;
 }
 
+.topic-name {
+    text-transform: uppercase;
+    font-family: "Armin Grotesk";
+    background-color: var(--yellow);
+    font-weight: 900;
+    line-height: calc(var(--baseline)*3);
+    font-size: var(--h2-size);
+    text-align: right;
+    padding-left: 0.2em;
+    padding-right: 0.2em;
+}
+
+.topic-posts ul {
+    list-style: none;
+    line-height: calc(var(--baseline)*3);
+}
 
 
 ul {

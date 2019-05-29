@@ -8,40 +8,49 @@
     <head>
         <meta charset="utf-8">
         <meta name="generator" content="Racket ◊(version) + Pollen ◊|pollen:version|">
-        <title>Respatialized: topics</title>
+        <title>Respatialized: Topics</title>
         <link rel="stylesheet" href="/raster.css" media="screen">
     </head>
     <body>
-        <header class="main">
-            <p><a href="/" class="home">Respatialized</a>is not a tree</p>
-            <nav>
+        <grid columns="8" columns-s="6">
+            <c span="4" span-s="row">
+                <header class="main">
+                    <p><h1 class="page-title large"><a href="/index.html">Respatialized</a></h1></p>
+                    <span class="tagline">actual/potential spaces</span>
+                    <nav>
+                        <ul class="compact">
+                            <li class="current-section"><a href="/topics.html">Topics</a></li>
+                            <li><a href="/books.html">Books</a></li>
+                            <li><a href="/about.html">About</a></li>
+                            <li><a href="/feed.xml" class="rss" title="RSS feed">RSS</a></li>
+                        </ul>
+                    </nav>
+                </header>
+            </c>
+            <c span="row" class="topics"></c>
+            ◊for/s[topic (topic-list)]{
+            <c span="1-2">
+                <span name="◊(car topic)" class="topic-name">◊(car topic)</span>
+            </c>
+            <c span="3-6" class="topic-posts">
                 <ul>
-                    <li><a href="/topics.html">Topics</a></li>
-                    <li><a href="/books.html">Books to Read</a></li>
-                    <li><a href="/about.html">About</a></li>
-                    <li><a href="/feed.xml" class="rss" title="Subscribe to feed">Use RSS?</a></li>
-                </ul>
-            </nav>
-        </header>
-        <section class="main">
-            <table>
-              ◊for/s[topic (topic-list)]{
-              <tr>
-                <td><a name="◊(car topic)">◊(car topic)</a></td>
-                <td><ul>
-                 ◊for/s[post (cdr topic)]{
-                  <li><a href="/◊(list-ref post 0)">◊(list-ref post 1)</a></li>
-                 }</ul></td>
-               </tr> 
-                }
-            </table>
-        </section>
+                    ◊for/s[post (cdr topic)]{
+                    <li><a href="/◊(list-ref post 0)">◊(list-ref post 1)</a></li>
+                    }</ul>
+            </c>
+            <br>
+            }
+            <hr>
+
         <footer class="main">
-            <ul>
-                <li><a href="/feed.xml" class="rss" title="RSS feed">RSS</a></li>
-                <li><a href="mailto:info@respatialized.net">comments@thenotepad.org</a></li>
-                <li>Source code <a href="https://github.com/respatialized/">Github</a></li>
-            </ul>
+            <c span="row" class="global-footer">
+                <ul class="compact">
+                    <li><a class="rss" href="/feed.xml">RSS</a></li>
+                    <li><a href="mailto:info@respatialized.net">info@respatialized.net</a></li>
+                    <li><a href="https://github.com/respatialized/">Github</a></li>
+                </ul>
+            </c>
         </footer>
+        </grid>
     </body>
 </html>
