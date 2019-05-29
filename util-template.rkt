@@ -51,10 +51,6 @@
     (h1 (a [[href ,(string-append "/" (symbol->string post))]] ,(select-from-metas 'title metas)))
     (p ,@timestamp
        ,@updated-xexpr
-       (a [[class "pdf"]
-           [href ,(string-append "/posts/" (pdfname (select-from-metas 'here-path metas)))]]
-          "PDF")
-       nbsp middot nbsp
        (a [[class "source-link"] [href ,(string-append "/posts/" (sourcename (select-from-metas 'here-path metas)))]]
           loz "Pollen" nbsp "source"))
     ,topics-xexpr))
