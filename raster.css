@@ -1887,13 +1887,13 @@ h1 {
     letter-spacing: -.02em;
     font-size: var(--h1-size);
     line-height: calc(var(--baseline)*3);
-    margin-top: calc(var(--lineHeight)*1);
+    margin-top: var(--lineHeight);
     margin-bottom: var(--lineHeight);
 }
 
 h1.single-line {
     margin-top: var(--lineHeight);
-    padding-top: calc(var(--lineHeight)*0.5)
+    padding-top: var(--baseline);
 }
 
 h1.single-line,
@@ -2169,7 +2169,6 @@ nav ul {
     text-transform: uppercase;
 }
 nav li {
-    margin: 0;
     padding-right: 0.6em;
     display: inline-block;
     float: left;
@@ -2177,6 +2176,8 @@ nav li {
 nav li a {
     text-decoration: none;
     background-color: var(--green);
+    padding-top: calc(var(--baseline)/2);
+    padding-bottom: calc(var(--baseline)/2);
     padding-left: 0.3em;
     padding-right: 0.3em;
 }
@@ -2189,6 +2190,7 @@ nav li a:hover {
     font-size: .85rem;
     padding-left: 0;
     list-style: none;
+    line-height: var(--lineHeight);
     overflow: hidden;
     font-family: "Armin Grotesk", sans-serif;
     font-weight: 900;
@@ -2205,6 +2207,8 @@ nav li a:hover {
     background-color: var(--green);
     padding-left: 0.3em;
     padding-right: 0.3em;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
 }
 
 .global-footer li a:hover {
@@ -2235,8 +2239,10 @@ nav li a:hover {
 .post-header li a {
     text-decoration: none;
     background-color: var(--yellow);
-    padding-left: 2px;
-    padding-right: 2px;
+    padding-left: 0.3em;
+    padding-right: 0.3em;
+    padding-top: calc(var(--baseline)/2);
+    padding-bottom: calc(var(--baseline)/2);
 }
 
 .post-header li a:hover {
@@ -2253,6 +2259,8 @@ nav li a:hover {
     text-align: right;
     padding-left: 0.2em;
     padding-right: 0.2em;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
 }
 
 .topic-posts ul {
