@@ -2,7 +2,11 @@
 /* Plex (body copy) */
 @import url('https://fonts.googleapis.com/css?family=IBM+Plex+Sans:400,400i&display=swap');
 
-
+/* League Mono (code) */
+@font-face {
+    font-family: "League Mono";
+    src: url("fonts/LeagueMono-RegularNormal.woff2") format('woff');
+}
 
 /* Raster v6 (rsms.me/raster) */
 
