@@ -7,7 +7,6 @@
         <meta name="generator" content="Racket ◊(version) + Pollen ◊|pollen:version|">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Respatialized</title>
-        ◊|meta-favicons|
 
         <link rel="stylesheet" href="/raster.css" media="screen">
         <link rel="stylesheet" type="text/css" href="/codemirror.css">
