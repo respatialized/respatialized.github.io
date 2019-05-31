@@ -2026,6 +2026,22 @@ h1.xxxlarge {
     font-weight: 760
 }
 
+.xxxlarge {
+    font-family: "Armin Grotesk";
+    font-size: 10.5em;
+    line-height: calc(var(--lineHeight)*8);
+    font-weight: 900;
+}
+
+@media only screen and (max-width: 800px) {
+    .xxxlarge {
+        font-family: "Armin Grotesk";
+        font-size: 5em;
+        line-height: calc(var(--lineHeight)*4);
+        font-weight: 900;
+    }
+}
+
 .small {
     font-size: .85rem;
     line-height: var(--lineHeight)
@@ -2294,6 +2310,20 @@ ol>li:before {
     width: var(--width);
     height: var(--lineHeight);
     text-align: left
+}
+
+.error-msg {
+    background-color: var(--yellow);
+    font-weight: 900;
+    padding-top: var(--baseline);
+    padding-bottom: var(--baseline);
+}
+
+#linkback {
+    position: fixed;
+    bottom: var(--baseline);
+    text-align: right;
+    font-weight: 900;
 }
 
 @media only screen and (max-width:800px) {
