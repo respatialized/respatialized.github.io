@@ -19,6 +19,7 @@ posts-pdf := $(patsubst %.poly.pm,%.pdf,$(posts-sourcefiles))
 # I want to show off my Pollen source files, so I name them .pollen.html
 posts-sourcelistings := $(patsubst %.poly.pm,%.pollen.html,$(posts-sourcefiles))
 
+other-sourcefiles := books.html.pm about.html.pm error.html.pm
 other-html := $(patsubst %.html.pm,%.html,$(other-sourcefiles))
 other-sourcelistings := $(patsubst %.html.pm,%.pollen.html,$(other-sourcefiles))
 
@@ -37,6 +38,7 @@ last_html.rebuild: $(core-files) template.html.p util-template.rkt pollen-local/
 	touch -r pollen.rkt _save_timestamp;  \
 	touch pollen.rkt; \
 	raco pollen render index.ptree; \
+	raco pollen render utility.ptree; \
 	tidy -quiet -modify -indent --wrap 0 --tidy-mark no --drop-empty-elements no posts/*.html || true; \
 	touch -r _save_timestamp pollen.rkt; rm _save_timestamp; \
 	touch last_html.rebuild
