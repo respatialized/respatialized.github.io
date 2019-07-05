@@ -174,8 +174,17 @@ q:before {
 }
 
 table {
-    border-collapse: collapse;
-    border-spacing: 0
+    font-size: 0.85rem;
+    overflow: normal;
+}
+
+th {
+    font-weight: 800;
+}
+
+td {
+    text-align: left;
+    padding-right: 2em;
 }
 
 header .tagline {
