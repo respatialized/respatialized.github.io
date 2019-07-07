@@ -1,6 +1,6 @@
 #lang pollen
 ◊(define-meta title "Clojure is My TI-83, part 2: tidying data")
-◊(define-meta published "2019-07-06")
+◊(define-meta published "2019-07-07")
 ◊(define-meta topics "math,clojure")
 ◊c[#:span "1-4" #:span-s "row"]{
 
@@ -96,11 +96,84 @@ Now that I have a sample of the data that conforms to the ::tidy? spec, I can sc
                  (.-rows htmltable)
                  (array-seq)
                  ((fn [v] (map #(array-seq (.-cells %)) v)))
-                 ((fn [v] (map (fn [i] (map #(.-innerHTML %) i)) v)))
-                 )]
-    row-data))
+                 ((fn [v] (map (fn [i] (map #(.-innerHTML %) i)) v))))
+        headers (first row-data)
+        data    (rest row-data)
+        ]
+        (map #(zipmap headers %) data)
+    ))
 
-(htmltable->vectors table-html)
+(def table-data (htmltable->vectors table-html))
 
+(defn maps->map [& args]
+  "Takes the given maps and zips the values of common keys into a vector."
+  (apply (partial merge-with into) args))
 
-}}}
+(defn map-values
+  "Same as Scala's .mapValues function -
+applies the same fn to all values and preserves the keys"
+  [f m]
+  (into {} (for [[k v] m] [k (f v)])))
+
+(defn get-obvs [row-data]
+  "helper function to get the values for a row."
+  (let [city (get row-data "Entree Cost")
+        prices (dissoc row-data "Entree Cost")]
+    (reduce (fn [m [k v]]
+              (conj  m  (let [locations (clojure.string/split v #", ")
+                              row-count (count locations)]
+                          {:city (apply vector (repeat row-count city))
+                           :price (apply vector (repeat row-count k))
+                           :locations locations}))) [] prices)))
+
+(defn filter-col
+  "Returns the indices of the column data that meets the given predicate."
+  ([pred]
+   (fn [col]
+     (apply
+      sorted-set
+      (keep-indexed
+       #(if (pred %2) %1)
+       col))))
+  ([pred col] ((filter-col pred) col)))
+
+(defn select-col [[col-name indices]]
+  (fn [data] (let [col (col-name data)]
+               [col-name (apply vector (map #(nth col %) indices))])))
+
+(defn select
+  "Returns the data at the given indices.
+   Expects a map of column names to a vector of data indices and a map of column names to vectors of column values."
+  ([ixs]
+   (fn [data] (into {} (map #((select-col %) data) ixs))))
+  ([ixs data] ((select ixs) data)))
+
+(defn select-tidy
+  "returns the data at the given indices for all keys in the data map."
+  ([ixs]
+   (fn [data]
+     (map-values (fn [col] (apply vector (map #(nth col %) ixs))) data)))
+   ([ixs data] ((select-tidy ixs) data)))
+
+(defn remove-empty-rows [data]
+    (let [ixs
+          (map
+           (fn [col] ((filter-col #(not (empty-string? %))) col))
+           (vals data))
+          result-ixs (apply sorted-set (apply set/intersection ixs))]
+      ((select (into {} (map (fn [k] [k result-ixs]) (keys data)))) data)))
+
+(def table-1-20-data-tidy
+  ;; rather than testing in a separate file, spec can be used to enforce
+  ;; a schema on incoming data.
+  (s/conform ::tidy?
+             (let [flattened
+                   (apply maps->map
+                          (map #(apply maps->map (get-obvs %)) table-data))]
+               (remove-empty-rows flattened)
+               )))
+
+(select-tidy [0 13 21] table-1-20-data-tidy)
+}}
+In the process of making the data conform to the spec, I got a few functions for selecting and filtering tidy data for free. These will come in handy later.
+}
