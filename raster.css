@@ -1854,6 +1854,8 @@ code,
 pre,
 textarea.code,
 tt {
+    word-wrap: normal;
+    font-size: 0.9rem;
     font-family: "League Mono", monospace;
     -webkit-font-feature-settings: "ss02"1, "zero"1;
     font-feature-settings: "ss02"1, "zero"1

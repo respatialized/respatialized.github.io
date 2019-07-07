@@ -36,7 +36,7 @@
 
 .cm-s-default {
 
-  font-size: var(--fontSize);
+  font-size: 0.9rem;
   line-height: var(--lineHeight);
 	letter-spacing: 0.3px;
 	word-spacing: 1px;
