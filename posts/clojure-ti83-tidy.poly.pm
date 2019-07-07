@@ -86,8 +86,21 @@ Now that I have a sample of the data that conforms to the ::tidy? spec, I can sc
     js/document
     ; get first panel on the page
     (.getElementById id)
-    (.-innerHTML)
+    (.-firstChild)
     ))
 
-(def table-data (scrape-element-id "table-1-20-data"))
+(def table-html (scrape-element-id "table-1-20-data"))
+
+(defn htmltable->vectors [htmltable]
+  (let [row-data (->
+                 (.-rows htmltable)
+                 (array-seq)
+                 ((fn [v] (map #(array-seq (.-cells %)) v)))
+                 ((fn [v] (map (fn [i] (map #(.-innerHTML %) i)) v)))
+                 )]
+    row-data))
+
+(htmltable->vectors table-html)
+
+
 }}}
