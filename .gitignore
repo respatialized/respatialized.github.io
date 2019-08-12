@@ -16,7 +16,6 @@ compiled/
 pollen-cache/
 pollen.cache
 .DS_Store
-drafts/
 posts/img/originals
 *.rebuild
 posts.example/
