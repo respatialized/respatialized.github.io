@@ -17,13 +17,15 @@ This might seem obvious, but I think it has important consequences.
 
 Why did I write this? Because I don't like YAML. YAML is designed for metadata, and metadata alone.
 
+It was originally used to describe; now it is expected to perform ("Yet Another Markup Language" -> "YAML ain't markup language.")
+
 Sooner or later, the values in a YAML file are not metadata. They are data, and should be managed like data. When your YAML file defines the various libraries that are constituent parts of your Docker image, across its revision history it defines the successive states of your software stack. When it defines the health checks to your Kubernetes applications, it provides a window into all the times the stack failed to work and was made to work again. These are all hugely valuable sources of context for how real software gets made. Shoving it into underdesigned storage formats (or worse, spreading those values across several files with templating languages that break when using hyphens in names) and forcing people to do microsurgery on git revisions to reconstruct how the values have changed over time is tantamount to throwing this history away, because git commit hashes are inadequate to the task anyway. These two values were changed by the same commit? Cool. Do they depend on one another, or can I change one back to its previous state without altering the other? A "configuration as code" practice does not answer this question. 
 
 I feel strongly about this because it seems like programmers are doomed to reinvent wheels, over and over again. I doubt I'm the first person to notice these shortcomings; they likely motivated the development of the templating tools that make it easier to more flexibly produce YAML files. But sooner or later, the complexity spills over.
 
 It would be nice to not hard-code every JSON value, right? Maybe we can create simple expressions that allow us to swap in the results of simple arithmetical expressions, so we can increment the build number easily. Also, string interpolation and concatenation would help us name things more easily, too. So, the config now consists of a sequence of referentially transparent expressions that yield values based on the application of simple rules of substitution and a few special forms? Wait, ◊link["https://en.wikipedia.org/wiki/Lisp_(programming_language)"]{I think I've seen something like this before...}
 
-Metadata is data. The same tools we use to process data efficiently, store it reliably, and link it together should be used with it.
+Metadata is data. The same tools we use to process data efficiently, store it reliably, and link it together should be used with it. Doing things declaratively is a laudable goal, but those taking it on must recognize how ◊link[""]{complex} ◊link[""]{declarative} ◊link[""]{programs} actually are. Otherwise, they'll just sweep the existing complexity of the subject under the rug.
 
 Previously:
 ◊link["https://mikehadlow.blogspot.com/2012/05/configuration-complexity-clock.html"]{The Configuration Complexity Clock}
