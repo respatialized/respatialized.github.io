@@ -6,7 +6,7 @@
 ◊c[#:span "1-4" #:span-s "row"]{
 This is a rant that will probably get me yelled at by librarians, but I feel it strongly from the perspective of a programmer. It's a visceral response, so don't take it too seriously; I may not even fully believe it on reflection.
 
-The distinction between data and metadata is a false dichotomy.
+Anyway, here goes: the distinction between data and metadata is a false dichotomy.
 
 Here's an archetypical example of the distinction as usually drawn: digital photography.
 
