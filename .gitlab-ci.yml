@@ -1,10 +1,11 @@
-image: jackfirth/racket
+image: alpine:latest
 
 cache:
   paths:
     - .racket/
 
 before_script:
+  - apk add racket
   - raco pkg install pollen
 
 pages:
