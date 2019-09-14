@@ -1,11 +1,12 @@
-image: alpine:latest
+image: ubuntu:bionic
 
 cache:
   paths:
     - .racket/
 
 before_script:
-  - apk add racket
+  - apt-get update
+  - apt-get install -y sqlite3 racket tidy texlive-xetex
   - raco pkg install pollen
 
 pages:
