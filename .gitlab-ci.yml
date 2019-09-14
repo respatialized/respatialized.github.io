@@ -1,0 +1,19 @@
+image: jackfirth/racket
+
+cache:
+  paths:
+    - .racket/
+
+before_script:
+  - raco pkg install pollen
+
+pages:
+  stage: deploy
+  script:
+    - make publish
+  artifacts:
+    paths:
+      - public
+  only:
+    refs:
+      - public
