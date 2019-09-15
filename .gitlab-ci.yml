@@ -1,9 +1,5 @@
 image: registry.gitlab.com/respatialized/site:dev
 
-cache:
-  paths:
-    - .racket/
-
 pages:
   stage: deploy
   script:
