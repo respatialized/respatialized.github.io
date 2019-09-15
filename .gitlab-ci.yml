@@ -1,13 +1,8 @@
-image: ubuntu:bionic
+image: registry.gitlab.com/respatialized/site:dev
 
 cache:
   paths:
     - .racket/
-
-before_script:
-  - apt-get update
-  - apt-get install -y sqlite3 racket tidy texlive-xetex
-  - raco pkg install pollen
 
 pages:
   stage: deploy
