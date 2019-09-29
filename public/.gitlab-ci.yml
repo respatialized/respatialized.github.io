@@ -3,7 +3,11 @@ image: registry.gitlab.com/respatialized/site:dev
 pages:
   stage: deploy
   script:
+    - mkdir /builds/respatialized/site/public
     - make publish
   artifacts:
     paths:
+      - public
+  only:
+    refs:
       - public

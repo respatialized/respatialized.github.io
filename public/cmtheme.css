@@ -1,0 +1,88 @@
+/**************** KLIPSE-SPECIFIC RULES ***********************/
+
+/* Modify the Code editor's borders */
+.CodeMirror {
+    padding-top: calc(var(--baseline)/2);
+    padding-bottom: calc(var(--baseline)/2);
+    padding-left: 3px;
+    border: none !important;
+}
+
+/* Modify the console title i.e. the bit that says 'Output:') */
+.CodeMirror:last-child::before {
+  content: "Code:";
+  display: block;
+  font-family: "IBM Plex Sans", sans-serif;
+}
+
+/* Modify the console area (i.e. the area beneath 'Output:') */
+.CodeMirror:last-child {
+  /* border: 2px solid #ddd !important; */
+}
+
+.klipse-container {
+    height: 0px; /* var(--baseline); */
+}
+.klipse-separator {
+    height: 0px; /* var(--baseline); */
+}
+
+
+/*************** STANDARD CODEMIRROR RULES *********************
+/* 
+/* Create your own or copy and paste the ones available at 
+/* http://farhadg.github.io/code-mirror-themes/)
+*/
+
+.cm-s-default {
+
+  font-size: 0.9rem;
+  line-height: var(--lineHeight);
+	letter-spacing: 0.3px;
+	word-spacing: 1px;
+	background: #E8E9E8;
+	color: #363636;
+}
+.cm-s-default .CodeMirror-lines {
+	/* padding: 8px 0; */
+}
+.cm-s-default .CodeMirror-gutters {
+    color: inherit;
+    padding-right: 0.2em;
+	  z-index: 3;
+}
+.cm-s-default div.CodeMirror-cursor {
+	border-left: 3px solid #363636;
+}
+.cm-s-default .CodeMirror-activeline-background {
+	  background: #CBDC2F38 !important;
+}
+.cm-s-default .CodeMirror-selected {
+	background: var(--yellow);
+}
+.cm-s-default .cm-comment {
+	color: #949494E8;
+	background: #DCDCDC8F;
+}
+.cm-s-default .cm-string {
+	color: #639300;
+}
+.cm-s-default .cm-property {
+	color: #005273;
+}
+.cm-s-default .cm-number {
+	color: #005273;
+}
+.cm-s-default .cm-atom {
+	color: #005273;
+}
+.cm-s-default .cm-keyword {
+	color: null;
+}
+.cm-s-default .cm-operator {
+	color: null;
+}
+.cm-s-default .CodeMirror-linenumber {
+	  color: #949494E8;
+    box-shadow: none;
+}
