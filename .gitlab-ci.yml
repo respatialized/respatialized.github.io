@@ -4,6 +4,7 @@ pages:
   stage: deploy
   script:
     - make zap
+    - make all
     - make publish
   artifacts:
     paths:
