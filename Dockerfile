@@ -17,3 +17,5 @@ RUN wget --output-document=racket-install.sh $RACKET_INSTALLER_URL && \
   rm racket-install.sh
 
 RUN raco pkg install --batch --deps search-auto pollen
+
+ENTRYPOINT [ "/bin/bash" "-c" ]
