@@ -4,4 +4,9 @@ This repository contains code to generate a blog using Matthew Butterick's ~poll
 
 The github repo is a read-only mirror of a single branch containing the public posts.
 
+The gitlab repo uses ci/cd to auto-publish the blog. Here's how it works:
+1. Pollen source files are worked with in the ~build~ subdir. 
+2. ~make publish~ renders the files into ~public~, the target required by Gitlab Pages.
+
 The source code that generates this blog is licensed under the MIT License. See ~LICENSE.MD~ for more details.
+
