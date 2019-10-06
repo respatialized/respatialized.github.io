@@ -3,9 +3,11 @@ image: registry.gitlab.com/respatialized/site:dev
 pages:
   stage: deploy
   script:
-    - make zap
-    - make all
-    - make publish
+    - (cd build && make all)
+    - (cd build && make publish)
   artifacts:
     paths:
       - public
+  only:
+    refs:
+      master
