@@ -1,13 +1,9 @@
 image: registry.gitlab.com/respatialized/site:dev
 
 pages:
-  stage: render
-  script:
-    - (cd build && make all)
-
-pages:
   stage: deploy
   script:
+    - (cd build && make all)
     - (cd build && make publish)
   artifacts:
     paths:
