@@ -1,4 +1,4 @@
-image: registry.gitlab.com/respatialized/site:dev
+image: registry.gitlab.com/respatialized/respatialized.gitlab.io:dev
 
 pages:
   stage: deploy
