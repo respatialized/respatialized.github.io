@@ -13,6 +13,9 @@
          "pollen-local/tags-html.rkt"
          "pollen-local/tags-pdf.rkt")
 
+(define site-root "https://respatialized.gitlab.io/site")
+(define site-title "Respatialized")
+
 (provide string-split
          (all-from-out "util-date.rkt" "util-template.rkt" "util-db.rkt")
          (all-from-out "pollen-local/tags-pdf.rkt"))
