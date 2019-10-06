@@ -5,7 +5,7 @@ SHELL = /bin/bash
 # --- Variables used by rules ---
 
 core-files := pollen.rkt \
-              pages/index.ptree \
+              index.ptree \
 			  util-date.rkt \
 			  pollen-local/polytag.rkt \
 			  pollen-local/common-helpers.rkt \
@@ -19,9 +19,9 @@ posts-pdf := $(patsubst %.poly.pm,public/%.pdf,$(posts-sourcefiles))
 # I want to show off my Pollen source files, so I name them .pollen.html
 posts-sourcelistings := $(patsubst %.poly.pm,public/%.pollen.html,$(posts-sourcefiles))
 
-other-sourcefiles := pages/books.html.pm pages/about.html.pm pages/error.html.pm
-other-html := $(patsubst pages/%.html.pm,%.html,$(other-sourcefiles))
-other-sourcelistings := $(patsubst pages/%.html.pm,public/%.pollen.html,$(other-sourcefiles))
+other-sourcefiles := books.html.pm about.html.pm error.html.pm
+other-html := $(patsubst %.html.pm,%.html,$(other-sourcefiles))
+other-sourcelistings := $(patsubst %.html.pm,public/%.pollen.html,$(other-sourcefiles))
 
 # --- Rules ---
 
@@ -34,11 +34,11 @@ all: ## Update all web content (not PDFs)
 # To ensure Pollen doesn't rely on its cache for these rebuilds, we need to touch pollen.rkt.
 # But we save its timestamp first and restore it afterwards; otherwise we'd have the side effect
 # of triggering the rule for last_pdf.rebuild also, even if pollen.rkt hadn't actualy been changed.
-last_html.rebuild: $(core-files) pages/template.html.p util-template.rkt pollen-local/tags-html.rkt
+last_html.rebuild: $(core-files) template.html.p util-template.rkt pollen-local/tags-html.rkt
 	touch -r pollen.rkt _save_timestamp;  \
 	touch pollen.rkt; \
-	raco pollen render pages/index.ptree && \
-	raco pollen render pages/utility.ptree && \
+	raco pollen render index.ptree && \
+	raco pollen render utility.ptree && \
 	touch -r _save_timestamp pollen.rkt; rm _save_timestamp; \
 	find pages -name "*.html" -exec mv -i {} -t ~/public && \
 	find posts -name "*.html" -exec mv -i {} -t ~/public/posts && \
