@@ -13,19 +13,19 @@ core-files := pollen.rkt \
 
 posts-sourcefiles := $(wildcard posts/*.poly.pm)
 
-posts-html := $(patsubst %.poly.pm,public/%.html,$(posts-sourcefiles))
-posts-pdf := $(patsubst %.poly.pm,public/%.pdf,$(posts-sourcefiles))
+posts-html := $(patsubst %.poly.pm,%.html,$(posts-sourcefiles))
+posts-pdf := $(patsubst %.poly.pm,%.pdf,$(posts-sourcefiles))
 
 # I want to show off my Pollen source files, so I name them .pollen.html
-posts-sourcelistings := $(patsubst %.poly.pm,public/%.pollen.html,$(posts-sourcefiles))
+posts-sourcelistings := $(patsubst %.poly.pm,%.pollen.html,$(posts-sourcefiles))
 
 other-sourcefiles := books.html.pm about.html.pm error.html.pm
 other-html := $(patsubst %.html.pm,%.html,$(other-sourcefiles))
-other-sourcelistings := $(patsubst %.html.pm,public/%.pollen.html,$(other-sourcefiles))
+other-sourcelistings := $(patsubst %.html.pm,%.pollen.html,$(other-sourcefiles))
 
 # --- Rules ---
 
-all: last_html.rebuild $(posts-html) $(posts-sourcelistings) $(other-html) $(other-sourcelistings) public/index.html public/feed.xml public/topics.html
+all: last_html.rebuild $(posts-html) $(posts-sourcelistings) $(other-html) $(other-sourcelistings) index.html feed.xml topics.html
 all: ## Update all web content (not PDFs)
 
 # Certain files affect all HTML output files. If these change, I want to do a complete rebuild
@@ -40,10 +40,8 @@ last_html.rebuild: $(core-files) template.html.p util-template.rkt pollen-local/
 	raco pollen render index.ptree && \
 	raco pollen render utility.ptree && \
 	touch -r _save_timestamp pollen.rkt; rm _save_timestamp; \
-	find pages -name "*.html" -exec mv -i {} -t ~/public && \
-	find posts -name "*.html" -exec mv -i {} -t ~/public/posts && \
-	tidy -quiet -modify -indent --wrap 0 --tidy-mark no --drop-empty-elements no public/posts/*.html || true; \
-	tidy -quiet -modify -indent --wrap 0 --tidy-mark no --drop-empty-elements no public/*.html || true; \
+	tidy -quiet -modify -indent --wrap 0 --tidy-mark no --drop-empty-elements no posts/*.html || true; \
+	tidy -quiet -modify -indent --wrap 0 --tidy-mark no --drop-empty-elements no *.html || true; \
 	touch last_html.rebuild
 
 # If the above rule was triggered, all the posts-html files will already have been re-rendered.
