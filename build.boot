@@ -9,3 +9,31 @@
 
 (require '[io.perun :as perun]
          '[pandeiro.boot-http :refer [serve]])
+
+(deftask build
+  "Build the blog from its constituent pieces."
+  []
+  (comp
+   (perun/global-metadata :filename "metadata.edn")
+   (perun/markdown)
+   (perun/print-meta)
+   (perun/build-date)
+   (perun/render :renderer 'respatialized.core/render-post)
+   (perun/collection :renderer 'respatialized.core/render-index
+                     :page "index.html")
+   (perun/tags :renderer 'respatialized.core/render-tags)
+   (perun/assortment :renderer 'respatialized.core/render-assortment
+                     :grouper 'respatialized.core/assort)
+   ;; (perun/sitemap)
+   (perun/rss :description "respatialized")
+   (perun/atom-feed :filterer :original)
+   (perun/print-meta)
+   (target)
+   (notify)))
+
+(deftask dev
+  "Build and serve the blog locally."
+  []
+  (comp (watch)
+        (build)
+        (serve :resource-root "public")))
