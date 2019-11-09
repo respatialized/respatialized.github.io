@@ -1,2 +1,5 @@
-# About this site
-This site has been made by following the Perun guides.
+---
+title: About
+---
+
+This site has been made by adapting the [https://github.com/hashobject/perun/tree/master/example-blog](Perun example blog.)
