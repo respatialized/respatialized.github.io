@@ -24,7 +24,7 @@
     (header (str (:site-title global-meta) "|" (:title post)))
     [:body {:class "bg-moon-gray ml5 avenir"}
      [:div {:class "f2 b code"} (:title post)]
-     [:div {:class "measure-wide f4 lh-copy"} (:content post)]]
+     [:div {:class "f4 lh-copy mw9"} (:content post)]]
     [:footer
      {:class "mb7"}
      [:div [:a {:href "/"} "Home"]]]]))
@@ -68,7 +68,7 @@
             (header (:site-title global-meta))
             [:body {:class "bg-moon-gray ml5 avenir"}
              [:div {:class "f1 b code"} "Respatialized"]
-             [:ul {:class "list inline-flex pr3"}
+             [:ul {:class "list flex pr3"}
               [:li [:a {:href "/about.html"} "About Page"]]
               [:li [:a {:href "/feed.rss"} "RSS"]]
               [:li [:a {:href "/atom.xml"} "Atom Feed"]]]
