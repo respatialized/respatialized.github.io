@@ -2,33 +2,37 @@
   (:require [hiccup.page :as hp]
             [clojure.string :as str]))
 
-(defn page [data]
-  (hp/html5 [:div {:style "max-width 900px; margin 40px auto:"}
-             [:a {:href "/"} "Home"]
-             (get-in data [:entry :content])]))
+
+(defn header
+  "Returns a default header."
+  [title]
+  [:head
+   [:title title]
+   [:meta {:charset "utf-8"}]
+   [:meta {:http-equiv "X-UA-Compatible" :content "IE=edge,chrome=1"}]
+   [:meta {:name "viewport" :content "width=device-width, initial-scale=1.0, user-scalable=no"}]
+   (hp/include-css "https://unpkg.com/tachyons@4.10.0/css/tachyons.min.css")]
+  )
 
 
 (defn render-post
   "Converts a post to HTML."
   [{global-meta :meta posts :entries post :entry}]
-  (hp/html5 {:lang "en"}
-         [:head
-          [:title (str (:site-title global-meta) "|" (:title post))]
-          [:meta {:charset "utf-8"}]
-          [:meta {:http-equiv "X-UA-Compatible" :content "IE=edge,chrome=1"}]
-          [:meta {:name "viewport" :content "width=device-width, initial-scale=1.0, user-scalable=no"}]]
-         [:body
-          [:h1 (:title post)]
-          [:div (:content post)]]))
+  (hp/html5
+   [:article
+    {:lang "en"}
+    (header (str (:site-title global-meta) "|" (:title post)))
+    [:body {:class "bg-moon-gray ml5 avenir"}
+     [:div {:class "f2 b code"} (:title post)]
+     [:div {:class "measure-wide f4 lh-copy"} (:content post)]]
+    [:footer
+     {:class "mb7"}
+     [:div [:a {:href "/"} "Home"]]]]))
 
 
 (defn render-tags [{global-meta :meta posts :entries entry :entry}]
   (hp/html5 {:lang "en"}
-         [:head
-          [:title (str (:site-title global-meta) "|" (:topic entry))]
-          [:meta {:charset "utf-8"}]
-          [:meta {:http-equiv "X-UA-Compatible" :content "IE=edge,chrome=1"}]
-          [:meta {:name "viewport" :content "width=device-width, initial-scale=1.0, user-scalable=no"}]]
+            (header (str (:site-title global-meta) "|" (:topic entry)))
          [:body
           [:h1 (:title entry)]
           [:ul
@@ -37,11 +41,7 @@
 
 (defn render-assortment [{global-meta :meta posts :entries entry :entry}]
   (hp/html5 {:lang "en"}
-         [:head
-          [:title (str (:site-title global-meta) "|" (:keyword entry))]
-          [:meta {:charset "utf-8"}]
-          [:meta {:http-equiv "X-UA-Compatible" :content "IE=edge,chrome=1"}]
-          [:meta {:name "viewport" :content "width=device-width, initial-scale=1.0, user-scalable=no"}]]
+            (header (str (:site-title global-meta) "|" (:keyword entry)))
          [:body
           [:h1 (str "Page " (:page entry))]
           [:ul
@@ -65,16 +65,19 @@
   "Generates the index from the list of posts."
   [{global-meta :meta posts :entries}]
   (hp/html5 {:lang "en"}
-         [:head
-          [:title (:site-title global-meta)]
-          [:meta {:charset "utf-8"}]
-          [:meta {:http-equiv "X-UA-Compatible" :content "IE=edge,chrome=1"}]
-          [:meta {:name "viewport" :content "width=device-width, initial-scale=1.0, user-scalable=no"}]]
-         [:body
-          [:ul
-           [:li [:a {:href "/about.html"} "About Page"]]
-           [:li [:a {:href "/feed.rss"} "RSS"]]
-           [:li [:a {:href "/atom.xml"} "Atom Feed"]]]
-          [:ul
-           (for [post posts]
-             [:li [:a {:href (:permalink post)} (:title post)]])]]))
+            (header (:site-title global-meta))
+            [:body {:class "bg-moon-gray ml5 avenir"}
+             [:div {:class "f1 b code"} "Respatialized"]
+             [:ul {:class "list inline-flex pr3"}
+              [:li [:a {:href "/about.html"} "About Page"]]
+              [:li [:a {:href "/feed.rss"} "RSS"]]
+              [:li [:a {:href "/atom.xml"} "Atom Feed"]]]
+             [:div {:class "f3"} "recent writings"]
+             [:ul {:class "f4"}
+              [:li
+               [:p [:a {:href "/against-metadata.html"} "Against Metadata"]]
+               [:p "a brief rant against the apparent fact that metadata is treated as an afterthought."]]
+              [:li
+               [:p [:a {:href "/working-definition.html"} "A Working Definition"]]
+               [:p "my current definition of 'socialism.'"]]
+              ]]))
