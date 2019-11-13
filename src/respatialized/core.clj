@@ -23,8 +23,8 @@
    [:article
     {:lang "en"}
     (header (str (:site-title global-meta) "|" (:title post)))
-    [:body {:class "bg-moon-gray ml5 avenir"}
-     [:div {:class "f2 b code"} (:title post)]
+    [:body {:class "bg-moon-gray ml5 basier"}
+     [:div {:class "f1 b"} (:title post)]
      [:div {:class "f4 lh-copy mw9"} (:content post)]]
     [:footer
      {:class "mb7"}
@@ -67,7 +67,7 @@
   [{global-meta :meta posts :entries}]
   (hp/html5 {:lang "en"}
             (header (:site-title global-meta))
-            [:body {:class "bg-moon-gray ml5 avenir"}
+            [:body {:class "bg-moon-gray ml5 basier"}
              [:div {:class "f1 b code"} "Respatialized"]
              [:ul {:class "list flex pr3"}
               [:li [:a {:href "/about.html"} "About Page"]]
