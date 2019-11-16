@@ -10,7 +10,7 @@ pages:
     - rsync -r ./target/public ./public
   cache:
     paths:
-      - public
+      # - public
       - .m2
   artifacts:
     paths:
