@@ -11,7 +11,7 @@ pages:
   cache:
     paths:
       - public
-      - "~/.m2"
+      - .m2
   artifacts:
     paths:
       - public
