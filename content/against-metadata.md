@@ -27,3 +27,10 @@ Metadata is data. The same tools we use to process data efficiently, store it re
 Previously:
 - [The Configuration Complexity Clock](https://mikehadlow.blogspot.com/2012/05/configuration-complexity-clock.html)
 - ["At least XML had schemas..."](https://twitter.com/dr_c0d3/status/1040092903052378112) 
+
+<span class="f2 bold"> A thoughts on Fossil </span>
+<span class="f4">2019-11-16</span>
+
+[`fossil`](https://www.fossil-scm.org/) is an alternative to git developed for and atop the sqlite database. When I first read about it, I was working through the configuration of automated build snapshots using CI tools and wanted a place to reliably store information about the dates of the failed builds and the underlying causes. I thought that a DVCS with an integrated database would be a ideal for this: I could add a "builds" table with the dates of successful and failed builds and track this history right with the project. More generally it would help tremendously with all the per-repository configuration management that currently gets shoved into YAML files: instead of flat key-value files,  you could record the configuration values in the database backing the project with a consistent relational model.
+
+As far as I can tell, this sort of thing isn't possible "out of the box" in `fossil`, but it would be a fantastic concept for a VCS that returns to the more fully expanded notion of "SCM": _software configuration management_ instead of _source control management_. 

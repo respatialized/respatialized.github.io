@@ -1,13 +1,20 @@
-image: registry.gitlab.com/respatialized/respatialized.gitlab.io:dev
+image: clojure:openjdk-14-boot-alpine
+
+before_script:
+  - "apk update && apk add rsync"
 
 pages:
   stage: deploy
   script:
-    - (cd build && make all)
-    - (cd build && make publish)
+    - boot build
+    - rsync -r ./target/ ./public
+  cache:
+    paths:
+      - public
   artifacts:
     paths:
       - public
   only:
     refs:
+      - perun
       - master
