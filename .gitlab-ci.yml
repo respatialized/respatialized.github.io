@@ -7,7 +7,7 @@ pages:
   stage: deploy
   script:
     - boot build
-    - rsync -r ./target/public ./public
+    - rsync -r ./target/public/ ./public
   cache:
     paths:
       # - public
