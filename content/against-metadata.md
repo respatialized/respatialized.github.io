@@ -3,6 +3,9 @@ title: Against Metadata
 date-created: 2019-08-16
 topics: programming
 ---
+<span class="f2 bold">Frustrations with YAML</span>
+<span class="f4">2019-08-16</span>
+
 This is a rant that will probably get me yelled at by librarians, but I feel it strongly from the perspective of a programmer. It's a visceral response, so don't take it too seriously; I may not even fully believe it on reflection.
 
 Anyway, here goes: the distinction between data and metadata is a false dichotomy.
@@ -25,10 +28,11 @@ I doubt I'm the first person to notice these shortcomings; they likely motivated
 Metadata is data. The same tools we use to process data efficiently, store it reliably, and link it together should be used with it. Doing things declaratively is a laudable goal, but those taking it on must recognize how [complex](https://en.wikipedia.org/wiki/Datalog) [declarative](https://en.wikipedia.org/wiki/SQL) [programs](https://en.wikipedia.org/wiki/MiniKanren) actually are. Otherwise, they'll just sweep the existing complexity of the subject under the rug.
 
 Previously:
+
 - [The Configuration Complexity Clock](https://mikehadlow.blogspot.com/2012/05/configuration-complexity-clock.html)
 - ["At least XML had schemas..."](https://twitter.com/dr_c0d3/status/1040092903052378112) 
 
-<span class="f2 bold"> A thoughts on Fossil </span>
+<span class="f2 bold">Thoughts on Fossil</span>
 <span class="f4">2019-11-16</span>
 
 [`fossil`](https://www.fossil-scm.org/) is an alternative to git developed for and atop the sqlite database. When I first read about it, I was working through the configuration of automated build snapshots using CI tools and wanted a place to reliably store information about the dates of the failed builds and the underlying causes. I thought that a DVCS with an integrated database would be a ideal for this: I could add a "builds" table with the dates of successful and failed builds and track this history right with the project. More generally it would help tremendously with all the per-repository configuration management that currently gets shoved into YAML files: instead of flat key-value files,  you could record the configuration values in the database backing the project with a consistent relational model.

@@ -76,9 +76,11 @@
              [:div {:class "f3"} "recent writings"]
              [:ul {:class "f4"}
               [:li
-               [:p [:a {:href "/against-metadata.html"} "Against Metadata"]]
-               [:p "a brief rant against the apparent fact that metadata is treated as an afterthought."]]
+               [:p [:a {:href "/not-a-tree.html"} "This Website Is Not A Tree"]]
+               [:p "rants against the apparent fact that metadata is treated as an afterthought in program design and configuration management"]]
+              [:li [:p [:a {:href "/against-metadata.html"} "Against Metadata"]]
+               [:p "rants against the apparent fact that metadata is treated as an afterthought in program design and configuration management"]]
               [:li
                [:p [:a {:href "/working-definition.html"} "A Working Definition"]]
-               [:p "my current definition of 'socialism.'"]]
+               [:p "a working definition of my own ideology."]]
               ]]))
