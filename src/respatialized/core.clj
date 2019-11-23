@@ -15,14 +15,6 @@
    (hp/include-css "/css/tachyons.min.css")]
   )
 
-(defn render-static
-  "Converts"
-  [{global-meta :meta entry :entry}]
-  (hp/html5
-   [:article
-    {:lang "en"}
-    (header (str "RESPATIALIZED//" (:title entry)))
-    (:body (:content entry))]))
 
 (defn render-markdown
   "Converts a markdown post to HTML."

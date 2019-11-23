@@ -3,7 +3,8 @@
  :resource-paths #{"content" "resources"}
  :dependencies '[[perun "0.4.3-SNAPSHOT" :scope "test"]
                  [hiccup "2.0.0-alpha2" :exclusions [org.clojure/clojure]]
-                 [pandeiro/boot-http "0.8.3" :exclusions [org.clojure/clojure]]])
+                 [pandeiro/boot-http "0.8.3" :exclusions [org.clojure/clojure]]
+                 [generateme/fastmath "1.5.0-alpha1"]])
 
 (def project 'respatialized)
 
@@ -17,10 +18,12 @@
    (perun/global-metadata :filename "metadata.edn")
    (perun/draft)
    (perun/markdown)
-   (perun/static :renderer 'respatialized.core/render-static)
+   
    (perun/print-meta)
    (perun/build-date)
    (perun/render :renderer 'respatialized.core/render-markdown)
+   (perun/static :renderer 'respatialized.holotype/one
+                 :page "holotype1.html")
    (perun/collection :renderer 'respatialized.core/render-index
                      :page "index.html")
    (perun/tags :renderer 'respatialized.core/render-tags)
