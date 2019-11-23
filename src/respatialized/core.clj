@@ -1,7 +1,7 @@
 (ns respatialized.core
   (:require [hiccup.page :as hp]
-            [clojure.string :as str]))
-
+            [clojure.string :as str]
+            [respatialized.styles :as styles]))
 
 (defn header
   "Returns a default header."
@@ -30,10 +30,10 @@
   (hp/html5
    [:article
     {:lang "en"}
-    (header (str (:site-title global-meta) "|" (:title post)))
-    [:body {:class "bg-moon-gray ml5 basier"}
+    (header (str (:site-title global-meta) " | " (:title post)))
+    [:body styles/page
      [:div {:class "f1 b"} (:title post)]
-     [:div {:class "f4 lh-copy mw9"} (:content post)]]
+     [:div styles/copy (:content post)]]
     [:footer
      {:class "mb7"}
      [:div [:a {:href "/"} "Home"]]]]))
@@ -41,7 +41,7 @@
 
 (defn render-tags [{global-meta :meta posts :entries entry :entry}]
   (hp/html5 {:lang "en"}
-            (header (str (:site-title global-meta) "|" (:topic entry)))
+            (header (str (:site-title global-meta) " | " (:topic entry)))
          [:body
           [:h1 (:title entry)]
           [:ul
@@ -50,7 +50,7 @@
 
 (defn render-assortment [{global-meta :meta posts :entries entry :entry}]
   (hp/html5 {:lang "en"}
-            (header (str (:site-title global-meta) "|" (:keyword entry)))
+            (header (str (:site-title global-meta) " | " (:keyword entry)))
          [:body
           [:h1 (str "Page " (:page entry))]
           [:ul
@@ -75,8 +75,8 @@
   [{global-meta :meta posts :entries}]
   (hp/html5 {:lang "en"}
             (header (:site-title global-meta))
-            [:body {:class "bg-moon-gray ml5 basier"}
-             [:div {:class "f1 b code"} "Respatialized"]
+            [:body styles/page
+             [:div {:class "f1 b"} "Respatialized"]
              [:ul {:class "list flex pr3"}
               [:li [:a {:href "/about.html"} "About Page"]]
               [:li [:a {:href "/feed.rss"} "RSS"]]
@@ -84,9 +84,11 @@
              [:div {:class "f3"} "recent writings"]
              [:ul {:class "f4"}
               [:li
-               [:p [:a {:href "/against-metadata.html"} "Against Metadata"]]
-               [:p "a brief rant against the apparent fact that metadata is treated as an afterthought."]]
+               [:p [:a {:href "/not-a-tree.html"} "This Website Is Not A Tree"]]
+               [:p "an intro to this site."]]
+              [:li [:p [:a {:href "/against-metadata.html"} "Against Metadata"]]
+               [:p "rants against the apparent fact that metadata is treated as an afterthought in program design and configuration management."]]
               [:li
                [:p [:a {:href "/working-definition.html"} "A Working Definition"]]
-               [:p "my current definition of 'socialism.'"]]
+               [:p "a working definition of my own ideology."]]
               ]]))
