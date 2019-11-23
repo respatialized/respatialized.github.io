@@ -2,7 +2,11 @@
 title: Clojure is My TI-83
 published: 2019-05-20
 updated: 2019-07-07
-topics: math, clojure
+tags: 
+  - math
+  - clojure
+meta:
+  draft: true
 ---
 
 ### Part 1
