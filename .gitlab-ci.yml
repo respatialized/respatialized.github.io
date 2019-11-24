@@ -1,5 +1,8 @@
 image: clojure:openjdk-14-boot-alpine
 
+variables:
+  BOOT_LOCAL_REPO: $CI_PROJECT_DIR/.m2/repository
+
 before_script:
   - "apk update && apk add rsync"
 
@@ -11,7 +14,7 @@ pages:
   cache:
     paths:
       - public
-      - .m2
+      - $BOOT_LOCAL_REPO
   artifacts:
     paths:
       - public
