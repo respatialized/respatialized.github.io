@@ -38,3 +38,38 @@ Previously:
 [`fossil`](https://www.fossil-scm.org/) is an alternative to git developed for and atop the sqlite database. When I first read about it, I was working through the configuration of automated build snapshots using CI tools and wanted a place to reliably store information about the dates of the failed builds and the underlying causes. I thought that a DVCS with an integrated database would be a ideal for this: I could add a "builds" table with the dates of successful and failed builds and track this history right with the project. More generally it would help tremendously with all the per-repository configuration management that currently gets shoved into YAML files: instead of flat key-value files,  you could record the configuration values in the database backing the project with a consistent relational model.
 
 As far as I can tell, this sort of thing isn't possible "out of the box" in `fossil`, but it would be a fantastic concept for a VCS that returns to the more fully expanded notion of "SCM": _software configuration management_ instead of _source control management_. 
+
+<span class="f2 bold">Goodbye YAML?</span>
+<span class="f4">2019-11-24</span>
+
+Eno Compton and Tyler van Hensbergen gave a talk at Clojure/conj 2019 this past weekend called [Goodbye YAML: Infrastructure As Code in Clojure](https://www.youtube.com/watch?v=yruVUkwlffk). Unsurprisingly, I found Compton's observation that "declarative configuration" actually means wading through a "thicket of YAML" just to do anything useful with your actual code very cathartic.
+
+Unfortunately, the hope that the library they released would solve all my YAML woes vanished when van Hensbergen mentioned that it's a Clojure wrapper atop very AWS-specific tooling. However, it got me thinking more on the prospect of embedding some kind of lightweight configuration database with an application's code in the same repository. Here are some links!
+
+<span class="f3">Kenneth Truyers: [Git as a NoSQL Database](https://www.kenneth-truyers.net/2016/10/13/git-nosql-database/)</span>
+
+This short post sketches out a better way of storing key-value data in Git than shoving it in a flat whitespace-delimited file under revision control: using `git write-tree`, `commit`, and `update-ref` to record and construct views of arbitrary key-value data embedded directly into a bare repository rather than by putting that data into files tracked by git. The UX of this approach leaves a lot to be desired, but the fact that it's possible with the primitives that git provides means that a porcelain that makes these types of operations easier could be as widely distributed as git itself is. 
+
+<span class="f3">Paul Stovell: [Hybrid Storage: Git + SQLite vs. RavenDB?](http://paulstovell.com/blog/hybrid-storage-git-sqlite-raven)</span>
+
+Another post on a similar theme, with a quick sketch of an implementation of a key/value store atop Git. Stovell offers a very succinct and general problem statement for any tool that tackles this problem:
+
+> The two sets of data I'm referring to are:
+> - Definitions. Environments, machines, projects, deployment steps, variables, and so on. They define what will happen when you deploy something. There usually aren't more than a couple of thousand of any of them. As a user, you spend time crafting and modifying these.
+> - Records. These collections include releases, deployments, audit events, and so on. Basically, they are a record of the actions you've done using the definitions above. These collections can balloon out to many thousands, perhaps millions of documents. As a user, these are created from simple clicks or even automatically via API's/integration.
+
+On a Kubernetes deployment, for example, the definitions would be manifest files, and the records would be instances of applying or patching those manifest files. One of the big challenges in developing Kubernetes applications is maintaining a clear sense of how your definitions and records have changed over time using the impoverished semantics of YAML configuration, a problem that Compton and van Hensbergen dealt with using Clojure in the talk above. Having better tooling within your repository itself for tracking definitions and records like this would also be very helpful.
+
+<span class="f3">[Noms: The Versioned, Forkable, Syncable Database](https://github.com/attic-labs/noms)</span>
+
+Linked in the comments on Truyers' post was `noms`, a database directly inspired by Git's decentralized and immutable data model, but designed from the ground up to have a better query model and more flexible schema. Unfortunately, it seems to be unmaintained and not ready for prime time. Additionally, for the use case I'm describing, it's unclear how to effectively distribute the configuration data stored in a `noms` DB alongside the code that is affected by that configuration in a way that reliably links the two.
+
+<span class="f3">`Datascript`</span>
+
+Obviously, it would be silly of me when talking about the idea of a scalable database with a flexible schema and a strong emphasis on immutability not to mention the big kahuna ([`Datomic`](https://www.datomic.com/)). However, that seems like overkill for replacing YAML in a single Git repository. 
+
+`Datascript` is Datomic's younger cousin, designed to make working with Datalog-driven data structures as easy as working with hash tables in both Clojure and Clojurescript.
+
+Nikita Tonsky, the library's author, has a fun example on his blog of [`acha-acha`,](https://tonsky.me/blog/acha-acha/) a radical re-imagining of "front-end" applications that just uses `Transit` to dump _all_ the application data into the browser on the first page load and then builds out the page logic using `Datascript` queries against that data. Hard to get simpler than a single API endpoint, and the performance is pretty impressive: 50,000 datoms loaded in under 20ms, according to a not-so-rigorous benchmark.
+
+Reading about it made me think of a potential middle ground between building a whole new database atop a DVCS and storing everything in a flat YAML file: storing both the definitions and records (to use Stovell's definition) as datoms in a flat EDN file, but only every interacting with that file from within Datascript, which has domain-specific queries for dealing with the intrinsic structure of those entities.
