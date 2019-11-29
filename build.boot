@@ -1,10 +1,16 @@
+#!/usr/bin/env boot
+
 (set-env!
  :source-paths #{"src"}
  :resource-paths #{"content" "resources"}
- :dependencies '[[perun "0.4.3-SNAPSHOT" :scope "test"]
+ :dependencies '[[org.clojure/clojure "1.10.1"]
+                 [perun "0.4.3-SNAPSHOT" :scope "test"]
                  [hiccup "2.0.0-alpha2" :exclusions [org.clojure/clojure]]
                  [pandeiro/boot-http "0.8.3" :exclusions [org.clojure/clojure]]
-                 [generateme/fastmath "1.5.0-alpha1"]])
+                 [clojure2d "1.2.0-SNAPSHOT"]
+                 [generateme/fastmath "1.4.0-SNAPSHOT"]
+                 [net.mikera/clisk "0.11.0"]
+                 ])
 
 (def project 'respatialized)
 
