@@ -91,3 +91,60 @@ The fact that Racket libraries tend to have _vastly_ superior documentation (on 
 ### Why look at code documentation tools?
 
 Mostly because I know that I'm going to have to write my own solution to this problem. I want the solution's source code to itself generate an example of the kind of document I want it to produce, so I'm hoping I can steal as many existing functions as possible from these other libraries while I'm bootstrapping the project.
+
+<span class="f2 bold">Extensible Textual Notation, part 3</span>
+<span class="f4">2019-12-14</span>
+
+I've gone through myriad to-do apps, organizers, journaling systems. Here's a table depicting my overall thoughts.
+
+<div class="mr1">
+
+| Type               | Examples            | Advantages                                             | Disadvantages                  |
+| ---                | -----               | ------                                                 | -----------                    |
+| Binder notebook    | Filofax             | associative,organic,frictional,multi-modal,simple      | atemporal,apresentist          |
+| Diary              | Bullet journal      | chronological,frictional,reflective,multi-modal,simple | apresentist                    |
+| To-do app          | Nozbe, todoist      | fast,simple,portable                                   | decontextualized,non-iterative |
+| Outline app        | Org-mode, workflowy | fast,deep                                              | hierarchical                   |
+| Kanban             | Trello              | situated                                               | decontextualized               |
+| "free-form" / wiki | Notion              | associative,compositional,iterative                    | hierarchical,laborious         |
+| Website            | This                | frictional,multi-modal,associative                     | laborious,atemporal            |
+|                    |                     |                                                        |                                |
+
+</div>
+
+All of these advantages and disadvantages stem from one real underlying issue, in my view: each tool imposes its own view over the data you put into it, making alternative ways of looking at the same information difficult or impossible. Paul Chiusano has [written nicely](https://pchiusano.github.io/2016-10-13/view-inspired.html) about the conceptually weak data model an "intuitive" design imposes on the information it represents:
+
+> We often think about views first because views are concrete, and it’s what we interact with directly when we use software. But actually designing software ‘view first’ is problematic because it leads to rigid models that aren’t flexible enough to support the myriad of creative ways that people use your software. It also leads invariably to feature creep—when your model is overly influenced by some concrete views you had in mind during design, it invariably ends up insufficiently general purpose. So as your software becomes more popular, you start adding one-off ‘features’ to support concrete use cases that your users are asking for. A few years pass of this feature creep, and you have a bloated, complicated piece of software that no one gets joy out of using.
+
+Every to-do list and knowledge management system suffers from this problem, In fact, I can feel the constraints imposed by the table above limiting what I want to say about each tool, so let's dive into what I mean by each of these words:
+
+- **associative** - topics and items added at different times can be seen side-by-side, permitting recontextualization of existing information.
+- **organic** - order emerges from what is added rather than being imposed.
+- **frictional** - the extra effort required to add additional material actually performs useful work rather than being a hindrance (a benefit that has thus far made handwritten notes more valuable to me than digital ones).
+- **multi-modal** - multiple systems of representation can be easily employed in the same context.
+- **atemporal** - the system has no direct representation of the temporal ordering of its contents.
+- **chronological** - the system has a direct representation of the temporal ordering of its contents.
+- **reflective** - the system provides opportunities for reflection.
+- **apresentist** - the system has no direct representation of what's "current."
+- **fast** - adding information is quick and reliable.
+- **simple** - the system itself does not impose barriers to adding additional information.
+- **portable** - information can be added and recalled through multiple mechanisms or devices.
+- **decontextualized** - information or items are cut off from their surrounding context.
+- **non-iterative** - the system does not support the process of refining information added to it; it expects items in their "final state."
+- **deep** - the system supports long-form treatments of the information added to it
+- **hierarchical** - the system requires information to be organized in a tree format, thwarting associational views of it.
+- **situated** - the system provides useful background information without getting in the way of the work the information is intended to support.
+- **compositional** - underlying data, through association, can be _composed_ into higher-level information.
+- **laborious** - the effort required to add or revise material imposes costs rather than providing benefits.
+
+Most recently, I've been using a Zettelkasten-style system for my notes with a filofax binder. It's superb for free association, quick entry, and the generative friction that only putting pen to paper can provide. It's not so good for revisiting previous notes, synthesizing them into new information, reflecting on the past, or maintaining a view of what's "current." Before that, I used a journal-style notebook that was similarly good at quick free-form entry and helped maintain a chronological view of things that aided in reflection, but failed to support associational views of the information recorded within it and similarly suffered from difficulties in keeping things current. I think a two-phase system that facilitates the refinement of paper "drafts" into digital "facts" would be ideal for me, personally.
+
+Many digital systems for doing this exist already. I chafe at using them because they all uncritically accept that markdown is a useful format for representing semantically rich textual information, and then shoehorn features on top of it to make up for its limitations.
+
+Obviously, I'm also taking notes here instead of on paper. Writing this doesn't provide exactly the same generative friction as pen and paper, does a good enough job of forcing me to clarify my thoughts through the pressure of putting them in a public format. I also have complete control over the content (once I can overcome the limitations of markdown). Given that what I write has currently a 1:1 file:destination relationship, it also prevents association and composition of the information I record here. Ideally you'd want to break this input/output link, which would support both private views of some information and also let you think about how to refer to the same piece of information from multiple public views. 
+
+The question on how to [individuate pieces of information](https://plato.stanford.edu/entries/information-semantic/) is permanently open, so an ideal system would support "contention" in that it can facilitate multiple methods of splitting up and representing a topic. How to do that on a technical level is obviously also an open and extremely difficult problem.
+
+It seems daunting to come up with a solution for this, but I've been reading about something that may offer a partial way out recently: Datascript, mentioned in passing earlier. Where Chiusano proposes algebraic data types to manage this, I would prefer to start with datoms that get freely composed into views through datalog queries. Pieces of information (or even bits of writing themselves) would be decomposed down into EAVT facts and recorded in some persistent database where they can change in the future without fear of losing knowledge by revising it.
+
+There's a lot more to say on the design of this, but mostly I wanted to get this concept "on paper" for further development into a design.
