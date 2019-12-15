@@ -30,8 +30,8 @@
    (perun/render :renderer 'respatialized.core/render-markdown)
    (perun/static :renderer 'respatialized.holotype/one
                  :page "holotype1.html")
-   (perun/static :renderer 'respatialized.holotype/two
-                 :page "holotype2.html")
+   ;; (perun/static :renderer 'respatialized.holotype/two
+   ;;               :page "holotype2.html")
    (perun/collection :renderer 'respatialized.core/render-index
                      :page "index.html")
    (perun/tags :renderer 'respatialized.core/render-tags)
