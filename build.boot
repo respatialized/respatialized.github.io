@@ -3,6 +3,7 @@
 (set-env!
  :source-paths #{"src"}
  :resource-paths #{"content" "resources"}
+ ;; :asset-paths #{"output"}
  :dependencies '[[org.clojure/clojure "1.10.1"]
                  [perun "0.4.3-SNAPSHOT" :scope "test"]
                  [hiccup "2.0.0-alpha2" :exclusions [org.clojure/clojure]]
@@ -23,19 +24,21 @@
   (comp
    (perun/global-metadata :filename "metadata.edn")
    (perun/draft)
-   (perun/markdown)
-   
+   (perun/markdown :md-exts {:tables true})
    (perun/print-meta)
    (perun/build-date)
    (perun/render :renderer 'respatialized.core/render-markdown)
    (perun/static :renderer 'respatialized.holotype/one
                  :page "holotype1.html")
+   (perun/static :renderer 'respatialized.holotype/two
+                 :page "holotype2.html")
    (perun/collection :renderer 'respatialized.core/render-index
                      :page "index.html")
    (perun/tags :renderer 'respatialized.core/render-tags)
    (perun/assortment :renderer 'respatialized.core/render-assortment
                      :grouper 'respatialized.core/assort)
    ;; (perun/sitemap)
+   (sift :to-asset #{#"output/."})
    (perun/rss :description "respatialized")
    (perun/atom-feed :filterer :original)
    (perun/print-meta)
@@ -45,6 +48,7 @@
 (deftask dev
   "Build and serve the blog locally."
   []
-  (comp (watch)
+  (comp (watch :exclude #{#"resources\\/output\\/*"
+                          #"output\\/*" #"target\\/*"})
         (build)
         (serve :resource-root "public")))
