@@ -92,7 +92,7 @@ The fact that Racket libraries tend to have _vastly_ superior documentation (on 
 
 Mostly because I know that I'm going to have to write my own solution to this problem. I want the solution's source code to itself generate an example of the kind of document I want it to produce, so I'm hoping I can steal as many existing functions as possible from these other libraries while I'm bootstrapping the project.
 
-<span class="f2 bold">Extensible Textual Notation, part 3</span>
+<span class="f2 bold">Structural features of writing and information management systems</span>
 <span class="f4">2019-12-14</span>
 
 I've gone through myriad to-do apps, organizers, journaling systems. Here's a table depicting my overall thoughts.
@@ -148,3 +148,22 @@ The question on how to [individuate pieces of information](https://plato.stanfor
 It seems daunting to come up with a solution for this, but I've been reading about something that may offer a partial way out recently: Datascript, mentioned in passing earlier. Where Chiusano proposes algebraic data types to manage this, I would prefer to start with datoms that get freely composed into views through datalog queries. Pieces of information (or even bits of writing themselves) would be decomposed down into EAVT facts and recorded in some persistent database where they can change in the future without fear of losing knowledge by revising it.
 
 There's a lot more to say on the design of this, but mostly I wanted to get this concept "on paper" for further development into a design.
+
+<span class="f2 bold">Structural features of writing and information management systems, part 2</span>
+<span class="f4">2019-12-15</span>
+
+Another distinction that cuts across everything that I referenced in that table above is the idea of _closed_ versus _open_ knowledge management systems. While my notebook has acquired a significant amount of internal complexity, it is largely a _closed_ system, making interaction with other sources of information more difficult.
+
+A lot of PIMs designed to support academic reseearch are "open" towards producing and consuming the primary objects of academic research: papers and monographs. I'm not an academic. While writing helps me clarify my ideas, I also need tools oriented towards the work I do in programming, which means supporting a more _situated_ understanding of what I'm doing. By that I mean supporting a "keep this in mind as you act" understanding of something rather than a "discrete textual description" understanding of something. In cybernetics terms, one might say that my information management systems have not had the _requisite variety_ to handle the tasks I want them to support. They are not _open_ to non-textual workflows. 
+
+Here's a quick sketch of what this might be look like:
+
+<div class="w-30">
+
+![views-sketch](media/views_sketch.jpg)
+
+</div>
+
+The bottom has a pomodoro-style task tracker and the "current task", the right pane has a grouping of recent commits to keep the actual output of that task in mind as well. The role of these panes isn't the important part - the mechanism by which they're generated is. By pulling information from a common store, simple contextual visualizations of relevant parts of it would be easy to construct via Datalog queries. 
+
+A further source of information comes from the seemingly simple fact that these pieces of information are _displayed together_. The entities referenced by the views currently active could be linked through additional queries - for example, the commits happening in the text editor could create corresponding entities with attributes linking them to the entity of the current task. Similarly, information entries updated when a text file is open or a namespace is edited could be linked with that text file. This establishes a notion of _relevance_ for the supporting materials of the work being done.
