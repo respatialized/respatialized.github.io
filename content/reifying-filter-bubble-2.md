@@ -12,16 +12,19 @@ They seemed like decent enough arguments, as far as that goes. But as I was read
 
 <div class="f3 b">Media For The Masses</div>
 
+Wolfram, Dorsey, and even the people in Dorsey's mentions grumbling about the fact that ActivityPub already exists all share the same unquestioned assumption: that the future of the 'decentralized' internet is still a trough of undifferentiated content slurry shoved in front of users. That what people want is just a *feed*, but perhaps with a little more market-friendly *choice*. The bold vision from the originator of *A New Kind Of Science* boils down to adding some premium channels to the cable package for the savvy consumer.
+
+> _Another objection is that my idea makes even worse the tendency with modern technology for people to live inside “content bubbles” where they never broaden their points of view. Well, of course, there can be providers who offer broader content. But people could choose “content bubbles” providers. The good thing, though, is that they’re choosing them, and they know they’re doing that, just like they know they’re choosing to watch one television channel and not another._
+
+Just sprinkle a bit of "choice" atop the existing infrastructure and bam! We've pawned off all responsiblity for what the platforms do and the logic of control they exert on to the users themsevles. Pack up, go home, problem solved.
+Wolfram doesn't see himself as a consumer. He sees himself as a creator, and given the obvious self-regard he drips in to the beginning of his testimony, an extremely elite one:
+> _And, as someone who prides himself on turning the seemingly impossible into the possible, this didn’t sit well with me._
+
 <div class="flex">
 
 <div class="fl w-70">
 
-Wolfram, Dorsey, and even the people in Dorsey's mentions grumbling about the fact that ActivityPub already exists all share the same unquestioned assumption: that the future of the 'decentralized' internet is still a trough of undifferentiated content slurry shoved in front of users. That what people want is just a *feed*, but perhaps with a little more market-friendly *choice*. The bold vision from the originator of *A New Kind Of Science* boils down to adding some premium channels to the cable package for the savvy consumer.
-
-Wolfram clearly sees himself as an elite figure, given the obvious self-regard he drips in to his testimony:
-> And, as someone who prides himself on turning the seemingly impossible into the possible, this didn’t sit well with me.
-
-Wolfram himself makes pretty powerful software for [information management](https://reference.wolfram.com/language/tutorial/CitationManagement.html), [interactive computing](https://www.wolfram.com/featureset/notebooks/), and [simulation](https://www.wolfram.com/system-modeler/). The idea that these capabilities might be something that end users might like to have, the idea that people might want to use the web as an expressive and creative _medium_, doesn't enter into his picture in the slightest. The experts get software that can cope with and navigate complexity. Everyone else gets a feed. This, more than anything else, was what I found unsettling about the way users are being talked about in this debate.
+He has been quite successful selling some of the same software for [information management](https://reference.wolfram.com/language/tutorial/CitationManagement.html), [interactive computing](https://www.wolfram.com/featureset/notebooks/), and [simulation](https://www.wolfram.com/system-modeler/) that he uses himself. The idea that these capabilities might be something that end users might like to have, the idea that people might want to use the web as an expressive and creative _medium_, doesn't enter into his picture in the slightest. The experts get software that can cope with and navigate complexity. Everyone else gets a feed. It's glaringly obvious that the architects of these solutions have no intention whatsoever of using the solutions they're talking about, preferring instead to use a creative and intellectual medium that doesn't constrain their mode of thinking. This, more than anything else, was what I found unsettling about the way users are being talked about in this debate. 
 
 </div>
 
@@ -63,7 +66,8 @@ The ouroboros eats its own tail as the feed consumes itself.
 
 </div>
 <div class="fl w-30 pl2 f5">
-In a pitch-perfect example of how closed in on themselves these platforms can be, I had to take a screenshot of the tweet containing this screencap because evidently right-click+save as is too much in 2019, and I should be using a share button instead.
+
+_In a pitch-perfect example of how closed in on themselves these platforms can be, I had to take a screenshot of the tweet containing this screencap because evidently right-click+save as is too much in 2019, and I should be using a share button instead._
 </div>
 </div>
 
