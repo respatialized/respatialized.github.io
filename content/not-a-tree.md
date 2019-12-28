@@ -167,3 +167,56 @@ Here's a quick sketch of what this might be look like:
 The bottom has a pomodoro-style task tracker and the "current task", the right pane has a grouping of recent commits to keep the actual output of that task in mind as well. The role of these panes isn't the important part - the mechanism by which they're generated is. By pulling information from a common store, simple contextual visualizations of relevant parts of it would be easy to construct via Datalog queries. 
 
 A further source of information comes from the seemingly simple fact that these pieces of information are _displayed together_. The entities referenced by the views currently active could be linked through additional queries - for example, the commits happening in the text editor could create corresponding entities with attributes linking them to the entity of the current task. Similarly, information entries updated when a text file is open or a namespace is edited could be linked with that text file. This establishes a notion of _relevance_ for the supporting materials of the work being done.
+
+<span class="f2 bold">This website (could be) a CRDT</span>
+<span class="f4">2019-12-26,2019-12-28</span>
+
+While considering potential applications of [relay](https://respatialized.net/relay.html) software, I recalled the notion of a _conflict-free replicated data type_, a data structure that provides a probably correct solution to the problem of imposing a total order on a sequence of edits to a file that arrive out of order, editing different subsets of text, with unreliable timestamps. This data type would be what you reach for if you were designing a collaborative text editor with online and offline editing capabilities, because it would save you from making hard choices about which text to discard and which to keep (or worse, making the user deal with any errors caused by your software and imposing those choices on them).
+
+I started reading about the concept, glossing over the mathematical details in favor of an interest in its potential as an expressive medium for thought. Some ideas that fell out of this.
+
+<span class="f3">Making the library metaphor in "code library" concrete</span>
+
+_heavily inspired by Rich Hickey's talk [Spec-ulation](https://youtube.com/watch?v=oyLBGkS5ICk)_
+
+Right now you have to take home the whole library when you write some code that uses one page of one book.
+
+Statically typed languages that rely on complex class hierarchies, especially because the compiler may make multiple passes across the codebase for definitions in different files ("... all you wanted was the banana." - Joe Armstrong) force you to ship all this supporting material to use one part of it. 
+
+_aside: I don't intend this as an intrinsic dig at statically typed, compiled languages per se. Smart compilers can do dead code elimination, but usually this technique is put to the purpose of reducing _executable_ size rather than reducing _dependency_ size. It'd be very interesting to see a compiler targeting library code that minimizes the volume of the library code pulled in by the code which declares it as a dependency. [Unison](https://www.unisonweb.org/docs/tour) has done some interesting work in this direction because of its ability to serialize algebraic data types and send them over the network to perform remote computation._
+
+So if instead of classes defined across files or nested relationships between algebraic data types defined at compile time, we had functions operating on simple, immutable values defined in self-contained s-expressions, plus some annotations:
+
+```
+(defn myfunc
+ {:calls #{this.ns/func other.ns/func}
+...)
+```
+
+_this could maybe be achieved even without the manual annotation if you used a macro to pull the symbols out of the function expression at compile time_
+
+Rather than a scope defined by a global namespace of evaluated expressions, these explicit references define exactly what a function needs to be lifted out of its lending library and used independently of the codebase it came from.
+
+_to make an analogy to Unison above, using `core.spec` plus these dependency annotations means that the functions would be addressed by _contract_ rather than by _content_. I think that Unison's emphasis on making functions immutable is a good one, but annotating the contract rather than the internals may do a better job of preserving intent for a dynamically typed language._
+
+S-expressions would slot naturally into the delimited data structures required by a CRDT, making this serialization easy (other programming languages may have a harder time). This opens up another application:
+
+<span class="f3">New forms of revision control</span>
+
+CRDTs can contain arbitrary series of revisions to the same underlying data, in a method guaranteed to converge on a consistent result.
+
+Documentation could be stored in the same CRDT. If the documentation has old timestamps, a tool could be built atop them to warn the user or author that they're stale relative to the rest of the code. Test results could be stored with the hash of the CRDT at the time they were executed, making failing tests trivial to reproduce. With a clever index, the failing tests associated with a given function could be recalled from the codebase's history with a query, providing useful context for finding the source of an unexpected regression.  
+
+_again, this requires a language with an unambiguous syntax and referential transparency to be truly effective I make no claims to being fair to non-lisp programming languages._
+
+Configuration for external systems, or expressions that modify it, could be stored in the same CRDT as the code itself. Integration and system tests could be linked with configuration changes in the manner I describe above, providing context for when the components of a distributed system fail and are made to work again. 
+
+Tests could be shipped around with their functions using a similar annotation syntax to the one above so that someone can have guarantees about the external code they're relying on.
+
+<span class="f3">A notebook for the table beside your hammock</span>
+
+If code and documentation are part of the same data structure as a whole, then an "ideas first" approach to software is as easy to start and maintain as a new experimental repo. The recorded ideas can evolve in tandem with the code that implements them, and their interplay gets expressed through the immutable history of the data structure recording them. It's an environment that makes hammock-driven development as easy as flow-state coding and bug squashing, with the ability to fluidly switch between them without breaking the flow. Code itself as one component part of an open system that doesn't treat writing down the problem and writing the code that solves it as separate activities.
+
+What else is possible? Right now, code takes on the shape that Git repositories, and the software we use to interact with them, want it to take. Can we break code revision history and reuse out of the paradigm of discrete individual repositories? Is a distributed data structure like this enough to make the distinction between "monolithic" and "microservice-oriented" code obsolete? 
+
+I'm definitely interested in where this could lead, but I have to figure out how to create s-expressions from my prose first.
