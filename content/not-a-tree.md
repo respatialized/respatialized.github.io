@@ -220,3 +220,64 @@ If code and documentation are part of the same data structure as a whole, then a
 What else is possible? Right now, code takes on the shape that Git repositories, and the software we use to interact with them, want it to take. Can we break code revision history and reuse out of the paradigm of discrete individual repositories? Is a distributed data structure like this enough to make the distinction between "monolithic" and "microservice-oriented" code obsolete? 
 
 I'm definitely interested in where this could lead, but I have to figure out how to create s-expressions from my prose first.
+
+<span class="f2 bold">Extensible Textual Notation, part 3</span>
+<span class="f4">2019-12-28</span>
+
+<span class="f3 b">Structure from text</span>
+
+I want to replicate `pollen`'s ability to let prose be prose while still incrementally bringing in a programming language when it's needed, but also combine it with Clojure's own data structures to capture the structure that emerges organically from the act of writing, so I could, for example, capture the table above not just as a sequence of textual elements but also preserve the structure of the tabular data itself for future use somewhere else. 
+
+The simplest implementation of that would be just reading in the file line by line and constructing maps from the paragraphs separated by line breaks:
+
+```clojure
+{:id e4268ac2
+ :text "Paragraph one."}
+{:id e4268ac3
+ :text "Paragraph two."}
+```
+
+The initial reading process creates entities that serve as placeholders for text as it is when read and as it may be in the future, all recorded as facts in a EAVT/RDF semantic triple format. Knowledge atoms instead of data atoms. But a collection of facts doesn't preserve the ordering of their original composition, which is a lot of structure to throw away. There are two ways of preserving it that initially occurred to me:
+
+1. files are entities too - just have them refer to their contents as distinct entities.
+
+```clojure
+{:entity 23542
+ :attribute :filename
+ :value "plaintext-file.txt"}
+{:entity 23542
+ :attribute :contents
+ :value [52952 29587 29042]}
+```
+
+In this mode, order of paragraphs is asserted as a fact on the basis of the vector of entity ids of the constituent paragraphs.
+
+2. Alternatively, the facts about the paragraph order could just be composites of other facts:
+
+```clojure
+ {:entity 23542
+  :attribute :contents
+  :value [{:uuid ab50234 :text "opening paragraph goes here"}
+          {:uuid ab50235 :text "second paragraph goes here"}]}
+```
+
+I don't really like 2. it feels ad-hoc and non-relational, whereas 1 seems more relationally correct but is semantically not as rich as an individual fact. This shortcoming is easily resolved by a query to pull in the relevant text, however. 
+
+Speaking of which:
+
+<span class "f3 b">Text from structure</span>
+
+When thinking about where to store this data, I was led to [`casue`](https://github.com/smothers/cause), a very well-documented Clojure implementation of a causal tree, a type of CRDT. It places the notion of a `CausalBase` front and center, which sounds great, except it doesn't quite have the power implied by the "database" referred to by its name - which is generally okay in Clojure because the language already has pretty powerful facilities for quick operations on collections of maps. 
+
+But what if someone went further than that, combining a CRDT with a data model and query engine like in DataScript? Turns out in describing that I'm describing [`datahike`](https://github.com/replikativ/datahike), a Datalog implementation atop the `hitchiker-tree` CRDT. 
+
+With existing text snapshotted as facts and recorded in a CRDT, queries could be run against that data to associate formerly disparate pieces of data into new forms, and the composites those queries create could themselves be recorded and annotated as new facts about the collection. The query that retrieves those facts could be stored as data itself, with the new structure that the query identifies added as an annotation to it. Use these queries and the expressive power they create to give a new life to `structur` and `alpha`, the venerable software extensions to `Kedit` written by Howard J. Strauss to aid [John McPhee in his writing process:](https://www.newyorker.com/magazine/2013/01/14/structure)
+
+> He listened to the whole process from pocket notebooks to coded slices of paper, then mentioned a text editor called Kedit, citing its exceptional capabilities in sorting. Kedit (pronounced “kay-edit”), a product of the Mansfield Software Group, is the only text editor I have ever used. I have never used a word processor. Kedit did not paginate, italicize, approve of spelling, or screw around with headers, WYSIWYGs, thesauruses, dictionaries, footnotes, or Sanskrit fonts. Instead, Howard wrote programs to run with Kedit in imitation of the way I had gone about things for two and a half decades.
+> He wrote Structur. He wrote Alpha. He wrote mini-macros galore. Structur lacked an “e” because, in those days, in the Kedit directory eight letters was the maximum he could use in naming a file. In one form or another, some of these things have come along since, but this was 1984 and the future stopped there. Howard, who died in 2005, was the polar opposite of Bill Gates—in outlook as well as income. Howard thought the computer should be adapted to the individual and not the other way around. One size fits one. The programs he wrote for me were molded like clay to my requirements—an appealing approach to anything called an editor.
+> Structur exploded my notes. It read the codes by which each note was given a destination or destinations (including the dustbin). It created and named as many new Kedit files as there were codes, and, of course, it preserved intact the original set. In my first I.B.M. computer, Structur took about four minutes to sift and separate fifty thousand words. My first computer cost five thousand dollars. I called it a five-thousand-dollar pair of scissors.
+> I wrote my way sequentially from Kedit file to Kedit file from the beginning to the end of the piece. Some of those files created by Structur could be quite long. So each one in turn needed sorting on its own, and sometimes fell into largish parts that needed even more sorting. In such phases, Structur would have been counterproductive. It would have multiplied the number of named files, choked the directory, and sent the writer back to the picnic table, and perhaps under it. So Howard wrote Alpha. Alpha implodes the notes it works on. It doesn’t create anything new. It reads codes and then churns a file internally, organizing it in segments in the order in which they are meant to contribute to the writing.
+> Alpha is the principal, workhorse program I run with Kedit. Used again and again on an ever-concentrating quantity of notes, it works like nesting utensils. It sorts the whole business at the outset, and then, as I go along, it sorts chapter material and subchapter material, and it not infrequently arranges the components of a single paragraph. It has completely served many pieces on its own. 
+
+CRDTs provide a reliable and immutable foundation to the discrete chunks of knowledge that McPhee has used for his entire career. A query engine provides the toolkit to devise new ways of composing them together as powerful as `Structur` and `Alpha`, but with the added benefit of an entire programming language so that the text (or the collection of notes used to produce it) is no longer a closed system but can instead pull in data from the rest of the world. 
+

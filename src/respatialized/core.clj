@@ -69,17 +69,21 @@
             (header (:site-title global-meta))
             [:body styles/page
              [:div {:class "f1 b"} "Respatialized"]
-             [:ul {:class "list flex pr3"}
-              [:li [:a {:href "/about.html"} "About Page"]]
-              [:li [:a {:href "/feed.rss"} "RSS"]]
-              [:li [:a {:href "/atom.xml"} "Atom Feed"]]]
+             ;; [:ul {:class "list flex pr3"}
+             ;;  [:li [:a {:href "/about.html"} "About Page"]]
+             ;;  [:li [:a {:href "/feed.rss"} "RSS"]]
+             ;;  [:li [:a {:href "/atom.xml"} "Atom Feed"]]]
              [:div {:class "f3"} "recent writings"]
              [:ul {:class "f4"}
               [:li
                [:p [:a {:href "/not-a-tree.html"} "This Website Is Not A Tree"]]
-               [:p "an intro to this site."]]
+               [:p "a metatextual introduction to this site as it is and as it could be."]]
               [:li [:p [:a {:href "/against-metadata.html"} "Against Metadata"]]
                [:p "rants against the apparent fact that metadata is treated as an afterthought in program design and configuration management."]]
+              [:li [:p [:a {:href "/information-cocoon.html"} "Reifying the Filter Bubble, part 1"]]
+               [:p "new digital infrastructure makes a metaphor less of one."]]
+              [:li [:p [:a {:href "/reifying-filter-bubble-2.html"} "Reifying the Filter Bubble, part 2"]]
+               [:p "notes against the 'decentralization' of an impoverished internet."]]
               [:li
                [:p [:a {:href "/working-definition.html"} "A Working Definition"]]
                [:p "a working definition of my own ideology."]]
