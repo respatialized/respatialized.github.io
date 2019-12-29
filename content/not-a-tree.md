@@ -219,7 +219,13 @@ If code and documentation are part of the same data structure as a whole, then a
 
 What else is possible? Right now, code takes on the shape that Git repositories, and the software we use to interact with them, want it to take. Can we break code revision history and reuse out of the paradigm of discrete individual repositories? Is a distributed data structure like this enough to make the distinction between "monolithic" and "microservice-oriented" code obsolete? 
 
-I'm definitely interested in where this could lead, but I have to figure out how to create s-expressions from my prose first. 
+Alex Miller [writes of](https://news.ycombinator.com/item?id=20365854) the new model embraced by `deps.edn`:
+
+> _deps was designed to find a sweet spot in the middle of this with deps defined as data, aliases capturing program executions as data, but builds as programs. As such, the scope is drastically narrowed in deps to just a) building classpaths (by resolving dependency graphs) and b) launching programs._
+>
+> _As such, this tends to be a dramatically simpler model to start with (your initial deps.edn can be empty), and a model that is easy to understand as you scale up. I think there is more to do in how we model "tools" (esp tools shared across projects) and program composites, but nothing prevents you from building these yourself if needed (as you have the full power of Clojure at your disposal)._
+
+Storing code in a CRDT has the potential to explore new parts of the misty space between "tools" and "programs" for Clojure code. I'm definitely interested in where this could lead, but I have to figure out how to create s-expressions from my prose first. 
 
 _Oh, and by the way, the formal term for the structure that emerges from a properly implemented CRDT is a_ [monotonic semilattice](http://archagon.net/blog/2018/03/24/data-laced-with-history/). _Which, according to Christopher Alexander in the essay I quote above, is exactly the form required to capture the interdependent complexity of a city._
 
