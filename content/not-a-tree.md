@@ -309,12 +309,31 @@ Every system built atop Markdown will invariably have some ad-hoc and kludgy met
 
 Just be aware of what you're giving up as an author in pursuit of that, and what you may be imposing on yourself later on down the line if you want to overcome these constraints.
 
-_yes, there's no small irony in the fact that the [source code for this post](https://gitlab.com/respatialized/respatialized.gitlab.io/blob/master/content/not-a-tree.md) is currently written in Markdown. It is indeed fast and easy to get started writing with it, but I'd largely attribute that to path dependence rather than the virtues of the format itself. I have every intention of changing the authoring tool I use into something semantically richer, but I had to get my resistance to the format on paper first._
+_yes, there's no small irony in the fact that the [source code for this post](https://gitlab.com/respatialized/respatialized.gitlab.io/blob/master/content/not-a-tree.md) is currently written in Markdown. It is indeed fast and easy to get started writing with it, but I'd largely attribute that to path dependence (and the fact that my particular parser leaves the `<div>` tags I've littered throughout this post intact, which is an accident of choosing to use `perun` and thereby `flexmark-java`) rather than the virtues of the format itself. I have every intention of changing the authoring tool I use into something semantically richer, but I had to get my resistance to the format on paper first._
 
 
 <span class="f2 b">Extensible Textual Notation, part 4</span>
 <span class="f4">2019-12-29</span>
 
-<div class="f3 b">Beyond plain text: storing prose within `datahike`</div>
+<div class = "flex">
+<div class="fl w-40">
 
+![thinking about things](media/thinking-about-things.jpg)
+</div>
 
+<div class="fl f3 pl3 w-40">
+
+_"I read relentlessly. I don’t do any programming not directed at making the computer do something useful, so I don’t do any exercises. I try to spend more time thinking about the problem than I do typing it in."_
+
+[Rich Hickey](http://web.archive.org/web/20160918041754/http://codequarterly.com/2011/rich-hickey/)
+
+</div>
+</div>
+
+_inspiration for what the medium should make possible, and for my prose-first approach to thinking about it: Bret Victor's laptop sticker and Rich Hickey's mindset; the antithesis of the "shut up and show me the code" brogrammer ethos_
+
+<span class="f3 b">Beyond plain text: storing prose within `datahike`   </span>
+
+Here's a [background post on the Datahike internals](https://blog.datopia.io/2018/11/03/hitchhiker-tree/) for context about how the hitchhiker B-tree structure allows for self-balancing and efficient updates that "hitchhike" on queries.
+
+Here's another on using the `dat://` protocol for [P2P replication of the data stored in a Datahike instance](https://lambdaforge.io/2019/12/08/replicate-datahike-wherever-you-go.html). It serves as a useful starting point for getting a Datahike instance up and running.
