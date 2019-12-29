@@ -337,3 +337,5 @@ _inspiration for what the medium should make possible, and for my prose-first ap
 Here's a [background post on the Datahike internals](https://blog.datopia.io/2018/11/03/hitchhiker-tree/) for context about how the hitchhiker B-tree structure allows for self-balancing and efficient updates that "hitchhike" on queries.
 
 Here's another on using the `dat://` protocol for [P2P replication of the data stored in a Datahike instance](https://lambdaforge.io/2019/12/08/replicate-datahike-wherever-you-go.html). It serves as a useful starting point for getting a Datahike instance up and running.
+
+Here's what would be a useful starting point for programmatic prose parsing: including a quotation in a piece of prose writing that gets parsed as a separate component and then added to a global list of quotations maintained by the text parser, with a link back to its original positional context within the piece of writing that quoted it.
