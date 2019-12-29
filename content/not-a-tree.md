@@ -305,7 +305,7 @@ Why do we use it? Because one of [Apple's court intellectuals decided it was con
 
 Every system built atop Markdown will invariably have some ad-hoc and kludgy method of attempting to recapture some part of the structure that emerges from text authored in markdown, and it will be different from every other one because Markdown is blind to structure in all but the most basic of ways. In that regard it is very similar to "plain-text configuration" tools like [YAML](/against-metadata.html), which have all kinds of templating engines bolted on to them to overcome the limitations of a flat-file key-value store.
 
-> _Everyone already knows markdown! It's fast and easy! _
+> _Everyone already knows markdown! It's fast and easy!_
 
 Just be aware of what you're giving up as an author in pursuit of that, and what you may be imposing on yourself later on down the line if you want to overcome these constraints.
 
