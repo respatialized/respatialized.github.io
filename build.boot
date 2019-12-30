@@ -5,18 +5,27 @@
  :resource-paths #{"content" "resources"}
  ;; :asset-paths #{"output"}
  :dependencies '[[org.clojure/clojure "1.10.1"]
+                 [org.clojure/test.check "0.10.0"]
                  [perun "0.4.3-SNAPSHOT" :scope "test"]
                  [hiccup "2.0.0-alpha2" :exclusions [org.clojure/clojure]]
                  [pandeiro/boot-http "0.8.3" :exclusions [org.clojure/clojure]]
                  [clojure2d "1.2.0-SNAPSHOT"]
                  [generateme/fastmath "1.4.0-SNAPSHOT"]
                  [net.mikera/clisk "0.11.0"]
+                 [io.replikativ/datahike "0.2.0"]
+                 [lambdaisland/kaocha-boot "0.0-14"]
+                 [hickory "0.7.1"]
+                 [markdown-clj "1.10.1"]
+                 [spec-provider "0.4.14"]
+                 [provisdom/spectomic "0.7.11"]
+                 [com.rpl/specter "1.1.3"]
                  ])
 
 (def project 'respatialized)
 
 (require '[io.perun :as perun]
-         '[pandeiro.boot-http :refer [serve]])
+         '[pandeiro.boot-http :refer [serve]]
+         '[kaocha.boot-task :refer [kaocha]])
 
 (deftask build
   "Build the blog from its constituent pieces."
