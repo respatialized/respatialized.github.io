@@ -345,3 +345,37 @@ Here's a [background post on the Datahike internals](https://blog.datopia.io/201
 Here's another on using the `dat://` protocol for [P2P replication of the data stored in a Datahike instance](https://lambdaforge.io/2019/12/08/replicate-datahike-wherever-you-go.html). It serves as a useful starting point for getting a Datahike instance up and running.
 
 Here's what would be a useful starting point for programmatic prose parsing: including a quotation in a piece of prose writing that gets parsed as a separate component and then added to a global list of quotations maintained by the text parser, with a link back to its original positional context within the piece of writing that quoted it.
+
+
+<span class="f2 b">Extensible Textual Notation, part 5</span>
+<span class="f4">2019-12-30</span>
+
+<span class="f3 b">A concrete starting point</span>
+
+I've managed to come up with a lot of Xanadu-like vaporware ideas in thinking through this tool without producing anything concrete.
+
+Per the above: I'd define my first concrete goal for this library as a replacement for markdown so I can begin to dig myself out of the pit I've put myself in by relying on something I don't like using.
+
+In order to do this, I want to parse markdown into `hiccup` and pull information out of the file. Whatever replaces markdown will use `hiccup` data structures anyway, so it's not wasted effort to build functions that process the markdown once it's represented as Clojure data. I can create functions and `spec`s that define the expected behavior of a markdown replacement.
+
+Based on some unscientific experimentation, the only markdown->hiccup toolchain that properly understands tables is `markdown-clj` + `hickory`, so that's what I'll go with. I have a few tests written that don't do much yet.
+
+Other scattered thoughts: 
+
+<span class="f3 b">Plaintext and database</span>
+
+Plain text has a lot of virtues as a long-term storage format, so I plan to make it a core part of however I persist the writing that gets parsed into data by ETN.
+
+The current snapshot and any derived views of it exist should exist as plaintext; its history can be preserved using database backup and persistence methods. But perhaps other defined snapshots in the history of the information should be serialized as plain text as well, in a manner similar to git commits or releases.
+
+<span class="f3 b">Thoughts on Roam</span>
+
+I signed up for Roam because on paper it seems to be exactly what I want: a PIM with the ability to run arbitary Datalog queries across your thoughts and embed hiccup data structures for visual depictions of the concepts. It's built on Clojure, front to back! What's not to like?
+
+Mostly, the UX. I don't like the aggressively hierarchical format it imposes on all the writing you put into it, I don't like the web interface, which will never be as fast and flexible as plaintext with a good editor, and I don't like the default views it chooses for you. 
+
+More than anything, I want a tool of my own making, free from any compromises made to accomodate commercial success or adoption among its target cohort.
+
+I don't want an outlining tool that helps me produce writing. I want a _writing_ tool that helps me identify and work with the structure that emerges from what I write.
+
+_that and the founder is building the core product around the demands of the LessWrong crowd and goes on [1/178] twitter rants about stuff he reads on SlateStarCodex. the app feels like the product of that kind of approach: unfocused and built around pseudoproblems._
