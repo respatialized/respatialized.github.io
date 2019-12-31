@@ -18,7 +18,6 @@
                  [markdown-clj "1.10.1"]
                  [spec-provider "0.4.14"]
                  [provisdom/spectomic "0.7.11"]
-                 [com.rpl/specter "1.1.3"]
                  ])
 
 (def project 'respatialized)

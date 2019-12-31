@@ -379,3 +379,12 @@ More than anything, I want a tool of my own making, free from any compromises ma
 I don't want an outlining tool that helps me produce writing. I want a _writing_ tool that helps me identify and work with the structure that emerges from what I write.
 
 _that and the founder is building the core product around the demands of the LessWrong crowd and goes on [1/178] twitter rants about stuff he reads on SlateStarCodex. the app feels like the product of that kind of approach: unfocused and built around pseudoproblems._
+
+<span class="f2 b">Extensible Textual Notation, part 6</span>
+<span class="f4">2019-12-31</span>
+
+Yesterday I got too caught up reading the documentation for libraries. Today I'm disabling my wifi and striking out into the wilderness with only the standard library (and my reference book) to help me.
+
+First discovery: I probably don't need to use `specter` when `tree-seq` will do. `clojure.walk` will also help, but I don't quite understand it yet.
+
+One thing that occurred to me when thinking about pulling quotes out of plaintext: while an individual paragraph should be the basic semantic unit of my own writing, the basic semantic unit of a quotation or reference should be a sequence of _one or more_ paragraphs. This preserves more of the structure of the origin and aids in its display in other contexts. For storage purposes, though, it should merely be (for now) a sequence of strings. Worrying about the internal structure of the quote itself (lists, etc) can come later when the specs get more refined.

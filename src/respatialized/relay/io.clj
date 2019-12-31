@@ -47,7 +47,8 @@
   (-> md-string
       md-to-html-string
       hickory/parse
-      hickory/as-hiccup))
+      hickory/as-hiccup
+      first))
 
 
 
@@ -67,4 +68,14 @@
 (spec/fdef map->md-hiccup-table
   :args ::archive/tidy-table)
 
-(defn pull-table [hiccup-data])
+
+(defn pull-tables [hiccup-data]
+  (filter #(spec/valid? ::archive/hiccup-table %)
+          (tree-seq vector? identity hiccup-data)))
+
+
+(defn pull-quotes [hiccup-data]
+  (->> hiccup-data
+   (tree-seq vector? identity)
+   (filter (fn [i] (spec/valid? ::archive/hiccup-quote i)))
+   (map (fn [q] (assoc {} :prose (archive/tidy-quote q))))))

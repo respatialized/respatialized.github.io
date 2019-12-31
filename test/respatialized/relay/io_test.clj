@@ -1,5 +1,6 @@
 (ns respatialized.relay.io-test
   (:require [clojure.test :as t]
+            [clojure.spec.alpha :as spec]
             [respatialized.relay.io :refer :all]))
 
 
@@ -29,9 +30,22 @@
   )
 
 (t/deftest textual-input
-  (def sample-markdown-txt (slurp "resources/sample-markdown.md"))
+  (def sample-markdown (slurp "resources/sample-markdown.md"))
+  (def sample-md-hiccup (md->hiccup sample-markdown))
 
   (t/testing "plaintext parsers"
-    (t/is false "tabular input should be captured by the markdown parser")
-    (t/is false "tabular input should be captured by the ETN parser"))
+    (t/is
+     (every? #(spec/valid? :respatialized.archive/hiccup-table %) (pull-tables sample-md-hiccup))
+     "tabular input should be captured by the markdown parser")
+    (t/is false "tabular input should be captured by the ETN parser")
+
+    (t/is
+     (=
+       ["A good class project for undergraduates who have not become too tainted with either the commercial or research computing milieu, is to have them design a computer system for a think tank such as RAND or the Institute for Advanced Study at Princeton. It is a delightfully nebulous question, since they quickly realize it will be impossible for them to even discover what the majority of the thinkers are doing. Indeed, many of the researchers will not know themselves or be able to articulate that state of mind of just feeling around. It is at this point that a wide philosophical division appears in the students. Almost all of them agree that there is really nothing that they can do for the scientists. The more engineering-minded of the students, seeing no hard and fast solution, stop there. The rest, who are somewhat more fanciful in their thoughts, say ...maybe 'nothing' is exactly the right thing to deliver, providing it is served up in the proper package. They have articulated an important thought. Not being able to solve any one scientist's problems, they nevertheless feel that they can provide tools in which the thinker can describe his own solutions and that these tools need not treat specifically any given area of discourse."
+        "The latter group of students has come to look at a computing engine not as a device to solve differential equations, nor to process data in any given way, but rather as an abstraction of a well-defined universe which may resemble other well-known universes to any necessary degree. When viewed from this vantage point, it is seen that some models may be less interesting than the basic machine (payroll programs). Others may be more interesting (simulation of new designs, etc.). Finally, when they notice that the power of modeling can extend to simulate a communications network, an entirely new direction for providing a system is suggested. While they may not know the jargon and models of an abstruse field, yet possibly enough in general of human communications is known for a meta-system to he created in which the specialist himself may describe the symbol system necessary to his work. In order for a tool such as this to be useful, several constraints must be true.  1) The communications device must be as available (in every way) as a slide rule.  2) The service must not be esoteric to use. (It must be learnable in private.)  3) The transactions must inspire confidence. (Kindness should be an integral part.)"]
+      (:prose (first (pull-quotes sample-md-hiccup))))
+
+     "blockquotes should be pulled out of markdown input and assigned values as distinct entities")
+
+    )
   )

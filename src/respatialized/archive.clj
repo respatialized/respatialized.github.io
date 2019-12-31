@@ -1,6 +1,7 @@
 (ns respatialized.archive
   "Namespace for defining note schemas and specs."
   (:require [datahike.api :as data]
+            [clojure.string :as str]
             [clojure.spec.alpha :as spec]
             [spec-provider.provider :as sp]
             ))
@@ -54,3 +55,22 @@
 (spec/def ::tidy-table
   (spec/and (spec/map-of string? vector?)
             ::eq-columns))
+
+;; this spec can and should be refined using the sequence syntax
+(spec/def ::hiccup-table (spec/and vector? #(= (first %) :table)))
+
+; so should this, but it's not quite clear how
+(spec/def ::hiccup-quote (spec/and vector? #(= (first %) :blockquote)))
+
+(defn tidy-quote [hiccup-quote]
+  (->>
+   hiccup-quote
+   (tree-seq vector? identity)
+   (filter string?)
+   (map str/trim)
+   (apply vector)))
+
+(spec/fdef tidy-quote
+  :args ::hiccup-quote
+  :ret (spec/coll-of string?))
+
