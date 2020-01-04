@@ -74,3 +74,30 @@
   :args ::hiccup-quote
   :ret (spec/coll-of string?))
 
+(defn hiccup-table-header-values [table-header]
+  (->> table-header
+       (drop 2)
+       (map (fn [[_ _ [_ _ e]]] e))))
+
+(defn hiccup-row-values [table-body]
+  (let [rows (drop 2 table-body)
+        col-count (count (drop 2 (first rows)))]
+    (reduce (fn [acc r]
+              (let [rvals (map (fn [[_ _ e]] e) (drop 2 r))]
+                (map-indexed (fn [i v] (conj v (nth rvals i))) acc)))
+            (into [] (take col-count (repeat [])))
+            rows)))
+
+(spec/fdef hiccup-table-header
+  :args ::hiccup-table
+  :ret (spec/coll-of string?))
+
+;; (defn hiccup-table-row)
+
+(defn tidy-hiccup-table
+  [[_ tattrs header body]]
+  (let [hattr (first (filter map? header))
+        hvals (hiccup-table-header-values header)
+        tvals (map (fn [[_ _ e]] e) (drop 2 body))])
+
+  )
