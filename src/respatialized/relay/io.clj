@@ -50,29 +50,10 @@
       hickory/as-hiccup
       first))
 
-
-
-(defn md-hiccup-table->map
-  "Tidies the data in a parsed hiccup table structure into a map of vectors."
-  [table-elem])
-
-(spec/fdef md-hiccup-table->map
-  :args vector?
-  :ret ::archive/tidy-table)
-
-(defn map->md-hiccup-table
-  "Tidies the "
-  [m]
-  )
-
-(spec/fdef map->md-hiccup-table
-  :args ::archive/tidy-table)
-
-
 (defn pull-tables [hiccup-data]
-  (filter #(spec/valid? ::archive/hiccup-table %)
-          (tree-seq vector? identity hiccup-data)))
-
+  (map archive/tidy-hiccup-table
+       (filter #(spec/valid? ::archive/hiccup-table %)
+               (tree-seq vector? identity hiccup-data))))
 
 (defn pull-quotes [hiccup-data]
   (->> hiccup-data

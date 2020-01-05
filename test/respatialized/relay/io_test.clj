@@ -35,7 +35,7 @@
 
   (t/testing "plaintext parsers"
     (t/is
-     (every? #(spec/valid? :respatialized.archive/hiccup-table %) (pull-tables sample-md-hiccup))
+     (every? #(spec/valid? :respatialized.archive/tidy-table %) (pull-tables sample-md-hiccup))
      "tabular input should be captured by the markdown parser")
     (t/is false "tabular input should be captured by the ETN parser")
 

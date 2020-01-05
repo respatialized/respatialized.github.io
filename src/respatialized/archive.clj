@@ -104,7 +104,6 @@
   :args ::hiccup-table
   :ret (spec/coll-of string?))
 
-
 (defn tidy-hiccup-table
   [[_ tattrs header body]]
   (let [hattrs (first (filter map? header))
