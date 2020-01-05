@@ -35,4 +35,11 @@
      (= ["a" "b" "c"]
         (hiccup-table-header-values (nth sample-hiccup-table 2))))
     (t/is (= [["1" "4"] ["2" "5"] ["3" "6"]]
-             (hiccup-row-values (nth sample-hiccup-table 3)) ))))
+             (hiccup-row-values (nth sample-hiccup-table 3))))
+    (t/is
+     (= {"a" ["1" "4"] "b" ["2" "5"] "c" ["3" "6"]
+         :respatialized.archive/table-meta
+         {:respatialized.archive/table-whole-meta {}
+          :respatialized.archive/table-body-meta {}
+          :respatialized.archive/table-header-meta {}}}
+        (tidy-hiccup-table sample-hiccup-table)))))

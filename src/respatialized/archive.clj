@@ -48,13 +48,25 @@
 
 (defn same-size? [colls]
   (apply = (map count colls)))
+(defn col-kvs? [table-map] (spec/valid? (spec/map-of string? vector?)
+                                        (dissoc table-map ::table-meta)))
 
 (spec/def ::same-size same-size?)
-(spec/def ::eq-columns #(same-size? (vals %)))
+(spec/def ::eq-columns #(same-size? (filter sequential? (vals %))))
+(spec/def ::col-kvs col-kvs?)
+
+(spec/def ::table-whole-meta map?)
+(spec/def ::table-body-meta map?)
+(spec/def ::table-header-meta map?)
+
+(spec/def ::table-meta
+  (spec/keys :req [::table-whole-meta ::table-body-meta ::table-header-meta]))
 
 (spec/def ::tidy-table
-  (spec/and (spec/map-of string? vector?)
-            ::eq-columns))
+  (spec/and
+   (spec/keys :opt [::table-meta])
+   ::col-kvs
+   ::eq-columns))
 
 ;; this spec can and should be refined using the sequence syntax
 (spec/def ::hiccup-table (spec/and vector? #(= (first %) :table)))
@@ -92,12 +104,18 @@
   :args ::hiccup-table
   :ret (spec/coll-of string?))
 
-;; (defn hiccup-table-row)
 
 (defn tidy-hiccup-table
   [[_ tattrs header body]]
-  (let [hattr (first (filter map? header))
+  (let [hattrs (first (filter map? header))
         hvals (hiccup-table-header-values header)
-        tvals (map (fn [[_ _ e]] e) (drop 2 body))])
+        battrs (first (filter map? body))]
+    (into
+     {::table-meta {::table-whole-meta tattrs
+                    ::table-body-meta battrs
+                    ::table-header-meta hattrs}}
+     (zipmap hvals (hiccup-row-values body)))))
 
-  )
+(spec/fdef tidy-hiccup-table
+  :args ::hiccup-table
+  :ret ::tidy-table)
