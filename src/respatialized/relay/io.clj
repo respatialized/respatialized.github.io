@@ -41,8 +41,6 @@
        (map #(str "\"" % "\""))
        (map (fn [line] {:text (edn/read-string line)}))))
 
-
-
 (defn md->hiccup [md-string]
   (-> md-string
       md-to-html-string
@@ -70,3 +68,12 @@
   (if (= \◊ (first etn))
     (edn/read-string (.substring etn 1))
     etn))
+
+(defn load-etn
+  "Loads an ETN file. Does not attempt to evaluate any of the forms within it."
+  [file]
+  (-> (clojure.java.io/reader file)
+      line-seq
+      doall
+      (#(filter (fn [i] (not (empty? i))) %))
+      (#(map etn->edn %))))
