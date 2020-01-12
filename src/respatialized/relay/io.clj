@@ -62,6 +62,8 @@
    (map (fn [q] (assoc {} :prose (archive/tidy-quote q))))))
 
 
+;; this can and should be beefed up using the regex syntax of core.spec
+
 (defn etn->edn
   "Naive solution: just parse out anything starting with a lozenge as a clojure function and treat everything else as a string."
   [etn]
