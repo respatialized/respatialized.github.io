@@ -60,3 +60,11 @@
    (tree-seq vector? identity)
    (filter (fn [i] (spec/valid? ::archive/hiccup-quote i)))
    (map (fn [q] (assoc {} :prose (archive/tidy-quote q))))))
+
+
+(defn etn->edn
+  "Naive solution: just parse out anything starting with a lozenge as a clojure function and treat everything else as a string."
+  [etn]
+  (if (= \◊ (first etn))
+    (edn/read-string (.substring etn 1))
+    etn))

@@ -37,7 +37,6 @@
     (t/is
      (every? #(spec/valid? :respatialized.archive/tidy-table %) (pull-tables sample-md-hiccup))
      "tabular input should be captured by the markdown parser")
-    (t/is false "tabular input should be captured by the ETN parser")
 
     (t/is
      (=
@@ -47,3 +46,13 @@
      "blockquotes should be pulled out of markdown input and assigned values as distinct entities")
     )
   )
+
+
+(t/deftest edn
+  (t/testing "edn delimiters"
+    (t/is (= (etn->edn "◊(+ 1 1)") '(+ 1 1))
+          "The lozenge special character should denote a clojure form.")
+    (t/is (= (etn->edn "text can contain code like: ◊(+ 1 1) within it") '(+ 1 1))
+          "Clojure forms should be parsed mid-text without affecting the other contents.")
+    (t/is (= (etn->edn "(+ 2 3)") "(+ 2 3)")
+          "Ordinary text should be ignored.")))
