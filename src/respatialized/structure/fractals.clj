@@ -7,6 +7,14 @@
 
 (m/use-primitive-operators)
 
+(defn clifford
+  "Returns a Clifford attractor function.
+   Use with iterate."
+  [^Double a ^Double b ^Double c ^Double d]
+  (fn [[^Double x ^Double y]]
+    [(m/- (m/sin (m/* a y)) (m/* c (m/cos (m/* a x))))
+     (m/- (m/sin (m/* b x)) (m/* d (m/cos (m/* b y))))]))
+
 (defn de-jong
   "Returns a Peter de Jong attractor function.
    Use with iterate."
@@ -14,6 +22,8 @@
   (fn [[^Double x ^Double y]]
     [(m/- (m/sin (m/* a y)) (m/cos (m/* b x)))
      (m/- (m/sin (m/* c x)) (m/cos (m/* d y)))]))
+
+
 (def dejong1 (de-jong 1.641 1.902 0.316 1.525))
 (def dejong2 (de-jong 7.201 1.316 2.114 0.701))
 (def dejong3 (de-jong 1.317 2.014 0.001 2.07))
