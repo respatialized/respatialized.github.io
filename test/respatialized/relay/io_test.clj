@@ -59,8 +59,7 @@
   (t/testing "file loaders"
     (t/is (= (load-etn "resources/basic.etn")
              '("Here's an extremely basic prototype of ETN: breaking up code and prose by line."
-               #'respatialized.relay.io-test/var
-               "this is string interpolation using thevariabledefined above"
-               "Hopefully something like this helps bootstrap a more rigorous core.spec definition in the future.")))
-    )
-  )
+               "First we define a variable."
+               (def var "variable")
+               (str "this is string interpolation using the" var "defined above")
+               "This will help bootstrap a more rigorous core.spec definition in the future.")))))
