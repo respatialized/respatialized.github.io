@@ -2,6 +2,7 @@
   (:require
    [clojure.edn :as edn]
    [clojure.string :as str]
+   [respatialized.util :refer :all]
    [respatialized.archive :as archive]
    [clojure.spec.alpha :as spec]
    [markdown.core :refer [md-to-html-string]]
@@ -59,15 +60,24 @@
    (filter (fn [i] (spec/valid? ::archive/hiccup-quote i)))
    (map (fn [q] (assoc {} :prose (archive/tidy-quote q))))))
 
+(spec/def ::lozenge-form
+  (spec/cat
+   :lozenge #{\◊}
+   :form (spec/cat :open-paren #{\(}
+                   :body (spec/* char?)
+                   :close-paren #{\)})))
 
-;; this can and should be beefed up using the regex syntax of core.spec
 
-(defn etn->edn
-  "Naive solution: just parse out anything starting with a lozenge as a clojure function and treat everything else as a string."
-  [etn]
-  (if (= \◊ (first etn))
-    (edn/read-string (.substring etn 1))
-    etn))
+(spec/def ::etn-text
+  (spec/* (spec/or :text (spec/+ char?) :form (spec/+ ::lozenge-form))))
+
+(defn etn->edn [loz-form]
+  (let [conformed (spec/conform ::lozenge-form (seq loz-form))]
+    (if (= conformed :clojure.spec.alpha/invalid) loz-form
+        (edn/read-string
+         (apply str
+                (flatten (select-values (:form conformed)
+                                        [:open-paren :body :close-paren])))))))
 
 (defn load-etn
   "Loads an ETN file. Does not attempt to evaluate any of the forms within it."

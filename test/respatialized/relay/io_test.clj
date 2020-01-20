@@ -55,7 +55,10 @@
     (t/is (= (etn->edn "text can contain code like: ◊(+ 1 1) within it") '(+ 1 1))
           "Clojure forms should be parsed mid-text without affecting the other contents.")
     (t/is (= (etn->edn "(+ 2 3)") "(+ 2 3)")
-          "Ordinary text should be ignored."))
+          "Ordinary text should be ignored.")
+    (t/is (= (etn->edn "abcdef") "abcdef")
+          "Ordinary text should be ignored.")
+    )
   (t/testing "file loaders"
     (t/is (= (load-etn "resources/basic.etn")
              '("Here's an extremely basic prototype of ETN: breaking up code and prose by line."
