@@ -458,3 +458,11 @@ Turns out I was more right about needing to implement my own `scribble`-like syn
 
 I'm going to have to write my own text->EDN parser that replicates what `scribble` relies on reader macros to do. I'm fortunately _not_ trying to alter in any fundamental way how clojure data is transformed into its AST; I'm just doing some preprocessing on plaintext so it's the right shape when it hits the clojure reader. Into the wilderness.
 
+<span class="f2 b">Extensible Textual Notation, part 10</span>
+<span class="f4">2020-01-21</span>
+
+While I have a decent enough concept of the _source_ of the data generated through writing in plaintext, I don't yet have a good concept of the _target_ of that data. I intend to use `datahike` as a persistent storage format, but it's daunting to think about where to start.
+
+Here's a good bootstrapping exercise for understanding the format and how it works: a quotes page in Perun. It will read a `quotes.edn` file, dump the data parsed out from that quotes file into a `datahike` db, and then use that data to generate the `hiccup` content for the page. Once that's in place, I'll have a better idea of the schema I need to yank quotes out of the posts where they're quoted and add them to this DB.
+
+One important benefit of using functions rather than markup to define quotes is the ability to *preserve context* by including the references back to the piece of writing containing the quotes. This was one of the great promises of project Xanadu, the ability to see in tandem the multiple layers of context surrounding a link to a passage from another page. I cannot create a system as fully dynamic as Xanadu, but I can use an intermediate evaluation step as text is read from its input format to capture the structure created by the text and its references.
