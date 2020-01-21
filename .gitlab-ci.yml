@@ -4,7 +4,7 @@ variables:
   BOOT_LOCAL_REPO: $CI_PROJECT_DIR/.m2/repository
 
 before_script:
-  - "apk update && apk add rsync freetype"
+  - "apk update && apk add --update rsync freetype ttf-dejavu"
 
 pages:
   stage: deploy
