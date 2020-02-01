@@ -43,3 +43,14 @@
           :respatialized.archive/table-body-meta {}
           :respatialized.archive/table-header-meta {}}}
         (tidy-hiccup-table sample-hiccup-table)))))
+
+(t/deftest schemas
+  (t/testing "quotation schemas"
+    (t/is (= (excerpt "Unattributed sayings are usually useless.")
+             {:quotation "Unattributed sayings are usually useless.",
+              :source {:author "Unknown"}}))
+    (t/is (= (excerpt "Unattributed sayings are usually useless." :author "Anonymous")
+             {:quotation "Unattributed sayings are usually useless." ,
+              :source {:author "Anonymous"}}))
+
+    ))

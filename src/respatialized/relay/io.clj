@@ -5,10 +5,13 @@
    [respatialized.util :refer :all]
    [respatialized.archive :as archive]
    [clojure.spec.alpha :as spec]
+   [datahike.api :as data]
    [markdown.core :refer [md-to-html-string]]
    [hickory.core :as hickory]
    [clojure.walk :as walk]
+   [provisdom.spectomic.core :as spectomic]
    ))
+
 
 (defn load-edn
   "Load edn from an io/reader source (filename or io/resource)."
@@ -21,7 +24,6 @@
       (printf "Couldn't open '%s': %s\n" source (.getMessage e)))
     (catch RuntimeException e
       (printf "Error parsing edn file '%s': %s\n" source (.getMessage e)))))
-
 
 (defn file->edn
   "Parses the given file into EDN. Assumes no top-level delimiter"
@@ -87,3 +89,4 @@
       doall
       (#(filter (fn [i] (not (empty? i))) %))
       (#(map etn->edn %))))
+

@@ -1,16 +1,10 @@
 (ns respatialized.archive
   "Namespace for defining note schemas and specs."
-  (:require [datahike.api :as data]
+  (:require [clojure.edn :as edn]
             [clojure.string :as str]
             [clojure.spec.alpha :as spec]
             [spec-provider.provider :as sp]
             ))
-
-(def db-config {:backend :mem
-                :host "memorydb"})
-
-
-(data/create-database db-config)
 
 (def zk-note-attributes
   "Schema for Zettelkasten paper notes."
@@ -118,3 +112,41 @@
 (spec/fdef tidy-hiccup-table
   :args ::hiccup-table
   :ret ::tidy-table)
+
+(comment
+  (sp/infer-specs (respatialized.relay.io/load-edn "resources/quotes.edn") ::quote)
+  )
+
+(clojure.spec.alpha/def :respatialized.archive/title clojure.core/string?)
+(clojure.spec.alpha/def :respatialized.archive/url clojure.core/string?)
+(clojure.spec.alpha/def :respatialized.archive/medium clojure.core/string?)
+(clojure.spec.alpha/def :respatialized.archive/author clojure.core/string?)
+(clojure.spec.alpha/def
+  :respatialized.archive/source
+  (clojure.spec.alpha/keys
+   :req-un
+   [:respatialized.archive/author]
+   :opt-un
+   [:respatialized.archive/medium
+    :respatialized.archive/title
+    :respatialized.archive/url]))
+(clojure.spec.alpha/def :respatialized.archive/quotation clojure.core/string?)
+(clojure.spec.alpha/def
+  :respatialized.archive/quote
+  (clojure.spec.alpha/keys
+   :req-un
+   [:respatialized.archive/quotation :respatialized.archive/source]))
+
+(defn excerpt
+  "A function to include a quotation in the text. Yields a nested map with nils removed."
+  [text & {:keys [author title url medium]}]
+  {:quotation text
+   :source (into {} (filter (comp some? val)
+                             {:author (if author author "Unknown")
+                              :title title
+                              :url url
+                              :medium medium}))})
+
+(spec/fdef excerpt
+  :args {:text string?}
+  :ret ::quote)
