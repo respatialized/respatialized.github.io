@@ -62,20 +62,50 @@
    (filter (fn [i] (spec/valid? ::archive/hiccup-quote i)))
    (map (fn [q] (assoc {} :prose (archive/tidy-quote q))))))
 
+(spec/def ::balanced-parenthesis
+  (spec/* (spec/cat :open #{"("}
+                    :p (spec/? ::balanced-parenthesis)
+                    :close #{")"})))
+
+
+
+(spec/def ::paragraph
+  (spec/and string?
+            (spec/conformer seq)
+            (spec/cat :s #{\newline}
+                      :body (spec/+ char?)
+                      )))
+
+(spec/def ::non-delim-chars (set "abcdefghijklmnopqrstuvwxyz1234567890: +-"))
+(spec/def ::non-delim
+  (spec/+ ::non-delim-chars))
+
 (spec/def ::lozenge-form
   (spec/cat
    :lozenge #{\◊}
    :form (spec/cat :open-paren #{\(}
-                   :body (spec/* char?)
+                   :body ::non-delim
                    :close-paren #{\)})))
 
-
 (spec/def ::etn-text
-  (spec/* (spec/or :text (spec/+ char?) :form (spec/+ ::lozenge-form))))
+  (spec/and string?
+            (spec/conformer seq)
+            (spec/*
+             (spec/alt
+              :text ::non-delim
+              :expr ::lozenge-form))))
 
-(defn etn->edn [loz-form]
-  (let [conformed (spec/conform ::lozenge-form (seq loz-form))]
-    (if (= conformed :clojure.spec.alpha/invalid) loz-form
+(defn expr->edn [form]
+  (-> (select-values form [:open-paren :body :close-paren])
+      flatten
+      (#(apply str %))
+      edn/read-string))
+
+;; (spec/fdef expr->edn)
+
+(defn etn->edn [etn-text]
+  (let [conformed (spec/conform ::etn-text etn-text)]
+    (if (= conformed :clojure.spec.alpha/invalid) etn-text
         (edn/read-string
          (apply str
                 (flatten (select-values (:form conformed)

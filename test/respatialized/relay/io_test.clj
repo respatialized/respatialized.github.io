@@ -49,6 +49,9 @@
 
 
 (t/deftest edn
+  (t/testing "parsing"
+    (t/is (= (expr->edn {:open-paren \(, :body [\+ \space \2 \space \2], :close-paren \)})) '(+ 2 2)))
+
   (t/testing "edn delimiters"
     (t/is (= (etn->edn "◊(+ 1 1)") '(+ 1 1))
           "The lozenge special character should denote a clojure form.")
