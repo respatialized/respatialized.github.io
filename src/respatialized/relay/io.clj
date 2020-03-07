@@ -10,8 +10,26 @@
    [hickory.core :as hickory]
    [clojure.walk :as walk]
    [provisdom.spectomic.core :as spectomic]
+   [instaparse.core :as insta]
+   [clj-antlr.core :as antlr]
    ))
 
+;; (def form (antlr/parser "resources/Clojure.g4" {:root "form"
+;;                                                 }))
+
+;; (def form-raw (antlr/parser "resources/Clojure.g4" {:root "form"
+;;                                                     :format :raw}))
+
+(def etn-file (antlr/parser "resources/ETN.g4"))
+(def etn-form (antlr/parser "resources/ETN.g4" {:root "loz_form"}))
+(def etn-text (antlr/parser "resources/ETN.g4" {:root "etn_text"}))
+
+
+(defn load-parse-etn [f]
+  (with-open [r (clojure.java.io/reader f)]
+    (etn-file (java.io.PushbackReader. r))))
+
+;; (defn get-valid-form [f] (.getText (:tokens (form-raw f))))
 
 (defn load-edn
   "Load edn from an io/reader source (filename or io/resource)."
@@ -86,6 +104,31 @@
    :form (spec/cat :open-paren #{\(}
                    :body ::non-delim
                    :close-paren #{\)})))
+
+(def lozenge-form
+  (insta/parser
+   "S = (loz-expr | text)*
+      loz-expr = <'◊'>expression
+      expression = list | vector | atom | map | set
+      <lparen> = <'('>
+      <rparen> = <')'>
+      <lbracket> = <'['>
+      <rbracket> = <']'>
+      <lbrace> = <'{'>
+      <rbrace> = <'}'>
+      <sopen> = <'#{'>
+      <space> = <#'[ ]*'>
+      list = lparen (space expression space )* rparen
+      vector = lbracket (space expression space )* rbracket
+      map = lbrace (space expression space )* rbrace
+      set = sopen (space expression space )* rbrace
+      atom = number | string | name | keyword
+      number = #'[0-9]+'
+      string = <'\"'> #'[^\"]+' <'\"'>
+      name = #'[a-zA-Z+-\\<\\>]([0-9a-zA-Z+-\\<\\>]*)'
+      keyword = #':[a-zA-Z+-]([0-9a-zA-Z+-]*)'
+      text = 'fff'
+      "))
 
 (spec/def ::etn-text
   (spec/and string?

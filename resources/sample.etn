@@ -1,4 +1,4 @@
-@h1{General Idea}
+◊h1{General Idea}
 
 What I'm trying to do by extending markdown and eventually creating my own `pollen`-like markup syntax is to do more to capture the structure that arises naturally out of the process of writing prose text.
 

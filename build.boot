@@ -15,6 +15,8 @@
                  [io.replikativ/datahike "0.2.0"]
                  [lambdaisland/kaocha-boot "0.0-14"]
                  [hickory "0.7.1"]
+                 [instaparse "1.4.10"]
+                 [clj-antlr "0.2.5"]
                  [markdown-clj "1.10.1"]
                  [spec-provider "0.4.14"]
                  [provisdom/spectomic "0.7.11"]
