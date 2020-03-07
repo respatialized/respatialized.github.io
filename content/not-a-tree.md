@@ -466,3 +466,10 @@ While I have a decent enough concept of the _source_ of the data generated throu
 Here's a good bootstrapping exercise for understanding the format and how it works: a quotes page in Perun. It will read a `quotes.edn` file, dump the data parsed out from that quotes file into a `datahike` db, and then use that data to generate the `hiccup` content for the page. Once that's in place, I'll have a better idea of the schema I need to yank quotes out of the posts where they're quoted and add them to this DB.
 
 One important benefit of using functions rather than markup to define quotes is the ability to *preserve context* by including the references back to the piece of writing containing the quotes. This was one of the great promises of project Xanadu, the ability to see in tandem the multiple layers of context surrounding a link to a passage from another page. I cannot create a system as fully dynamic as Xanadu, but I can use an intermediate evaluation step as text is read from its input format to capture the structure created by the text and its references.
+
+<span class="f2 b">Extensible Textual Notation, part 11</span>
+<span class="f4">2020-03-07</span>
+
+After a couple of half-hearted attempts to replicate the lozenge syntax of `pollen` using a Clojure `ANTLR` parser, I discovered the very new but very fully-featured [`Ash Ra Template`](https://github.com/vivid-inc/ash-ra-template) library. 
+
+While I recognize that building my own parser is a good programming challenge, I also need to ask myself whether I need to undertake it before doing the work that I want to do in a medium that actually supports it. Right now, I'd prefer the latter.
