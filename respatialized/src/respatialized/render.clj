@@ -1,12 +1,11 @@
 (ns respatialized.render
   (:require [hiccup.page :as hp]
-            [hiccup.core :refer html]
+            [hiccup.core :refer [html]]
             [hiccup.element :as elem]
-            [clojure.string :as str]
+            [clojure.string :as string]
             [clojure.java.io :as io]
-            [vivid.art :as art]
             [respatialized.styles :as styles])
-  ;; (:gen-class :name respatialized.render)
+  (:gen-class)
   )
 
 (defn doc-header
