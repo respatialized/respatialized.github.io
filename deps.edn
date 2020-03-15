@@ -1,17 +1,23 @@
 {:paths ["src" "resources" "test" "content"]
  :deps {
-
+        ;; core
         org.clojure/clojure {:mvn/version "1.10.1"}
         org.clojure/test.check {:mvn/version "0.10.0"}
+        lambdaisland/kaocha-boot {:mvn/version "0.0-14"}
+
+        ;; site generation
         hiccup {:mvn/version "2.0.0-alpha2" :exclusions [org.clojure/clojure]}
+        vivid/ash-ra-template {:mvn/version "0.4.0"}
+        venantius/glow {:mvn/version "0.1.6"}
+
+        ;; site content
         clojure2d {:mvn/version "1.2.0-SNAPSHOT"}
         generateme/fastmath {:mvn/version "1.4.0-SNAPSHOT"}
         net.mikera/clisk {:mvn/version "0.11.0"}
+
+        ;; site indexing and dbs
         io.replikativ/datahike {:mvn/version "0.2.0"}
-        lambdaisland/kaocha-boot {:mvn/version "0.0-14"}
         spec-provider {:mvn/version "0.4.14"}
         provisdom/spectomic {:mvn/version "0.7.11"}
-        vivid/ash-ra-template {:mvn/version "0.4.0"}
-        respatialized {:local/root "."}
         }
  }
