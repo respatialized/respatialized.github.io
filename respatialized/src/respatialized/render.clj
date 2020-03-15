@@ -1,30 +1,40 @@
 (ns respatialized.render
   (:require [hiccup.page :as hp]
+            [hiccup.core :refer html]
             [hiccup.element :as elem]
             [clojure.string :as str]
             [clojure.java.io :as io]
             [vivid.art :as art]
             [respatialized.styles :as styles])
-  (:gen-class))
+  ;; (:gen-class :name respatialized.render)
+  )
 
-
-(defn header
+(defn doc-header
   "Returns a default header."
   [title]
-  (hp/html5
+  (html
    [:head
     [:title title]
     [:meta {:charset "utf-8"}]
     [:meta {:http-equiv "X-UA-Compatible" :content "IE=edge,chrome=1"}]
     [:meta {:name "viewport" :content "width=device-width, initial-scale=1.0, user-scalable=no"}]
-    (hp/include-css "/css/fonts.css")
-    (hp/include-css "/css/tachyons.min.css")]))
+    (hp/include-css "css/fonts.css")
+    (hp/include-css "css/tachyons.min.css")]))
+
+(defn header
+  ([title level]
+   (html [:div [level title]]))
+  ([title] (header title :h1)))
 
 (defn link [url text]
-  (hp/html5 (elem/link-to url text)))
+  (html (elem/link-to url text)))
 
-(defn code [text] (hp/html5 [:pre [:code text]]))
-(defn in-code [text] (hp/html5 [:code text]))
+(defn code [text] (html [:pre [:code text]]))
+(defn in-code [text] (html [:code text]))
+
+;; <p><img src="media/thinking-about-things.jpg" alt="thinking about things" /></p>
+(defn img ([dir alt] [:p [:img {:src dir :alt alt}]])
+  ([dir] [:p [:img {:src dir}]]))
 
 (defn hiccup
   "Converts a hiccup file to HTML."
@@ -61,43 +71,9 @@
                [:p "a working definition of my own ideology."]]]]))
 
 (defn entry-header [text date]
-  (hp/html5 [:span {:class "f2 b"} text] [:span {:class "f4"} date]))
+  (html [:span {:class "f2 b"} text] [:span {:class "f4"} date]))
 
-(defn em [text] (hp/html5 [:em text]))
+(defn em [text] (html [:em text]))
 
 
-(def art-config
-  {:dependencies
-   {'hiccup {:mvn/version "2.0.0-alpha2"}
-    'org.clojure/clojure {:mvn/version "1.10.0"}
-    }
-   :bindings '{header 'header
-               link 'link
-               code 'code
-               entry-header 'entry-header
-               em em}
-   })
 
-(defn render-all [in-dir out-dir]
-  (let [art-files (->> in-dir
-                       io/file
-                       file-seq
-                       (filter #(and (.isFile %)
-                                     (.endsWith (.toString %) art/art-filename-suffix))))]
-    (doseq [f art-files]
-      (let [out-file (-> f
-                         (.getName)
-                         (.toString)
-                         (clojure.string/split art/art-filename-suffix-regex)
-                         first
-                         (#(str out-dir "/" %)))]
-        (println "Rendering" (.toString out-file) "from path:" in-dir)
-        (-> f
-            slurp
-            (art/render art-config)
-            hiccup
-            (#(spit out-file %)))))))
-
-(defn -main []
-  (render-all "content" "target")
-  )
