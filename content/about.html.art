@@ -1,0 +1,13 @@
+<% (require
+ '[hiccup.page :as hp]
+ '[hiccup.element :as elem])
+
+%>
+
+
+
+<%=
+(header "about")
+%>
+
+This site has been made by adapting the <%= (link "https://github.com/hashobject/perun/tree/master/example-blog" "Perun example blog,") %> extended to the use of <%= (str "Ash-Ra-Templates") %>.
