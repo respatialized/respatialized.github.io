@@ -8,7 +8,6 @@
   (:gen-class))
 
 
-
 (defn header
   "Returns a default header."
   [title]
@@ -23,6 +22,9 @@
 
 (defn link [url text]
   (hp/html5 (elem/link-to url text)))
+
+(defn code [text] (hp/html5 [:pre [:code text]]))
+(defn in-code [text] (hp/html5 [:code text]))
 
 (defn hiccup
   "Converts a hiccup file to HTML."
@@ -58,13 +60,22 @@
                [:p [:a {:href "/working-definition.html"} "A Working Definition"]]
                [:p "a working definition of my own ideology."]]]]))
 
+(defn entry-header [text date]
+  (hp/html5 [:span {:class "f2 b"} text] [:span {:class "f4"} date]))
+
+(defn em [text] (hp/html5 [:em text]))
+
+
 (def art-config
   {:dependencies
    {'hiccup {:mvn/version "2.0.0-alpha2"}
     'org.clojure/clojure {:mvn/version "1.10.0"}
     }
    :bindings '{header 'header
-               link 'link}
+               link 'link
+               code 'code
+               entry-header 'entry-header
+               em em}
    })
 
 (defn render-all [in-dir out-dir]
