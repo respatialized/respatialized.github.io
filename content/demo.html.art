@@ -1,3 +1,11 @@
-<%=  (header "about") %>
+<%
+ (require
+  '[hiccup.page :as hp]
+   '[hiccup.element :as elem]
+   '[respatialized.render :as render])
+%>
+
+
+<%=  (render/header "about") %>
 
 This is an example of using ash-ra-template to render posts. <%= (+ 3 4) %>

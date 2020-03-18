@@ -20,3 +20,8 @@ posts/img/originals
 *.rebuild
 posts.example/
 /target/
+/respatialized/classes/
+/respatialized/.cpcache/
+/.cpcache/
+/respatialized/.nrepl-port
+/respatialized/target/

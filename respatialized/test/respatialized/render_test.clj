@@ -17,6 +17,4 @@
     (t/is (= (doc-header "about")
              sample-header)
           "header text should be output correctly.")
-
-    (t/is (= (art/render "<%= (doc-header \"about\") %>")
-             sample-header))))
+    ))

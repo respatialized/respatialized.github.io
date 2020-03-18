@@ -1,7 +1,7 @@
 (ns respatialized.holotype
   "Beyond markdown with Perun."
   (:require [hiccup.page :as hp]
-            [respatialized.core :refer :all]
+            [respatialized.render :as render]
             [respatialized.structure.fractals :as fractals]
             [clojure2d.core :as clj2d]
             [clojure.java.io :as io]
@@ -34,7 +34,7 @@
   (hp/html5
    [:article
     {:lang "en"}
-    (header "HOLOTYPE1")
+    (render/doc-header "HOLOTYPE1")
     [:body {:class "ml3 basier-mono bg-mid-gray"}
      [:div {:class "f1 b white"} "HOLOTYPE//1"]
      [:div [:p "an example of using clojure alone to render a Perun post:"]]
@@ -85,7 +85,7 @@
     (hp/html5
      [:article
       {:lang "en"}
-      (header "HOLOTYPE-2")
+      (render/doc-header "HOLOTYPE-2")
       [:body {:class "ml3 basier-mono bg-mid-gray"}
        [:div {:class "f1 b white"} "HOLOTYPE//2"]
        [:div [:p "render png at compile time using clojure2d and boot"]]
