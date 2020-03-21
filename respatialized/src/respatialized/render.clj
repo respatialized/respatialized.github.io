@@ -13,7 +13,7 @@
   [title]
   (html
    [:head
-    [:title title]
+    [:title (str "Respatialized | " title)]
     [:meta {:charset "utf-8"}]
     [:meta {:http-equiv "X-UA-Compatible" :content "IE=edge,chrome=1"}]
     [:meta {:name "viewport" :content "width=device-width, initial-scale=1.0, user-scalable=no"}]
@@ -21,28 +21,60 @@
     (hp/include-css "css/tachyons.min.css")]))
 
 (defn header
-  ([title level]
-   (html [:div [level title]]))
+  ([title level class] (html [:div {:class class} [level title]]))
+  ([title level] (header title level styles/page-header))
   ([title] (header title :h1)))
+
+(defn entry-header
+  ([text class]
+   (html [:div {:class class} text]))
+  ([text] (entry-header text styles/entry-header)))
+
+(defn entry-date
+  ([date class] (html [:div {:class class} date]))
+  ([date] (entry-date date styles/entry-date)))
+
+(defn em [text] (html [:em text]))
 
 (defn link [url text]
   (html (elem/link-to url text)))
 
-(defn code [text] (html [:pre [:code text]]))
+(defn code
+  ([text class] (html [:pre [:code {:class class} text]]))
+  ([text] (code text styles/code)))
 (defn in-code [text] (html [:code text]))
 
-;; <p><img src="media/thinking-about-things.jpg" alt="thinking about things" /></p>
+(defn blockquote
+  ([content author
+    {:keys [:outer-class
+            :content-class
+            :author-class]}]
+   (html
+    [:blockquote {:class outer-class}
+     [:p {:class content-class} content]
+     [:span {:class author-class} author]]))
+  ([content author]
+   (blockquote content author
+               {:outer-class styles/blockquote-outer
+                :content-class styles/blockquote-content
+                :author-class styles/blockquote-author})))
+
 (defn img ([dir alt] [:p [:img {:src dir :alt alt}]])
   ([dir] [:p [:img {:src dir}]]))
 
-(defn hiccup
+(defn ulist [& items]
+  (html (into [:ul] (map (fn [i] [:li i]) items))))
+(defn olist [& items]
+  (html (into [:ol] (map (fn [i] [:li i]) items))))
+
+(defn page
   "Converts a hiccup file to HTML."
   [content]
   (hp/html5
    [:article
     {:lang "en"}
-    [:body styles/page
-     [:div styles/copy content]]
+    [:body {:class styles/page}
+     [:div {:class styles/copy} content]]
     [:footer
      {:class "mb7"}
      [:div [:a {:href "/"} "Home"]]]]))
@@ -52,7 +84,7 @@
   []
   (hp/html5 {:lang "en"}
             (header "Respatialized")
-            [:body styles/page
+            [:body {:class styles/page}
              [:div {:class "f1 b"} "Respatialized"]
              [:div {:class "f3"} "recent writings"]
              [:ul {:class "f4"}
@@ -68,11 +100,4 @@
               [:li
                [:p [:a {:href "/working-definition.html"} "A Working Definition"]]
                [:p "a working definition of my own ideology."]]]]))
-
-(defn entry-header [text date]
-  (html [:span {:class "f2 b"} text] [:span {:class "f4"} date]))
-
-(defn em [text] (html [:em text]))
-
-
 

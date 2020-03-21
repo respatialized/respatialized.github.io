@@ -7,8 +7,6 @@
             [clojure.java.classpath :as cp])
   (:gen-class))
 
-
-
 (def art-config
   {:dependencies
    {'hiccup {:mvn/version "2.0.0-alpha2"}
@@ -17,8 +15,13 @@
     }
    })
 
+(defn check-art-form
+  ([form pre config] (art/render (str pre form) config))
+  ([form pre] (check-art-form form pre art-config))
+  ([form] (check-art-form form "<% (require '[hiccup.core :refer [html]] '[respatialized.render :refer :all])")))
+
 (defn render-file-contents [content]
-  (render/hiccup (art/render content art-config)))
+  (render/page (art/render content art-config)))
 
 (defn render-all [in-dir out-dir]
   (let [art-files
