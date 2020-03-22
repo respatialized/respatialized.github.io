@@ -35,9 +35,16 @@
   ([date] (entry-date date styles/entry-date)))
 
 (defn em [text] (html [:em text]))
+(defn strong [text] (html [:strong text]))
 
 (defn link [url text]
   (html (elem/link-to url text)))
+
+(defn image
+  ([path annotation class]
+   (html [:img {:src path :alt annotation :class class}]))
+  ([path annotation] (image path annotation styles/img-default))
+  ([path] (image path "")))
 
 (defn code
   ([text class] (html [:pre [:code {:class class} text]]))
@@ -62,10 +69,38 @@
 (defn img ([dir alt] [:p [:img {:src dir :alt alt}]])
   ([dir] [:p [:img {:src dir}]]))
 
-(defn ulist [& items]
+(defn ul [& items]
   (html (into [:ul] (map (fn [i] [:li i]) items))))
-(defn olist [& items]
+(defn ol [& items]
   (html (into [:ol] (map (fn [i] [:li i]) items))))
+
+(defn sorted-map-vec->table
+  "Converts a vector of maps to a HTML table."
+  ([sorted-map-vec header-class row-class]
+   (let [ks (keys (first sorted-map-vec))
+         vs (map vals sorted-map-vec)
+         get-header (fn [k] [:th k])
+         get-row (fn [rv] (into [:tr {:class row-class}]
+                                (map (fn [v] [:td v]) rv)))]
+     (html
+      (into
+       [:table
+        [:tr {:class header-class} (map get-header ks)]]
+       (map get-row vs)))))
+  ([sorted-map-vec]
+   (sorted-map-vec->table sorted-map-vec
+                          styles/table-header
+                          styles/table-row)))
+
+(defn sorted-map->table
+  "Converts a sorted map (array of structs) to a html table."
+  [smap header-class row-class]
+  (html
+   (into
+    [:table
+     [:tr {:class header-class} (map (fn [k] [:th k]) (keys smap))]]
+    (map (fn row [r] [:tr {:class row-class}
+                      (map (fn [i] [:td i]) r)]) (vals smap)))))
 
 (defn page
   "Converts a hiccup file to HTML."

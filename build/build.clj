@@ -44,6 +44,5 @@
             (#(spit out-file %)))))))
 
 (defn -main []
-
-  (render-all "content" "target")
+  (render-all "content" "public")
   )

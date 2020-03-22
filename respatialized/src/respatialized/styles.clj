@@ -15,3 +15,7 @@
 (def blockquote-content "f3 pl2 bold")
 (def blockquote-author "pl2")
 
+(def table-header "")
+(def table-row "mr1")
+
+(def img-default "w-50")
