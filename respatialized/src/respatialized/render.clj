@@ -22,7 +22,7 @@
 
 (defn header
   ([title level class] (html [:div {:class class} [level title]]))
-  ([title level] (header title level styles/page-header))
+  ([title level] (header title level styles/header-default))
   ([title] (header title :h1)))
 
 (defn entry-header
@@ -34,8 +34,8 @@
   ([date class] (html [:div {:class class} date]))
   ([date] (entry-date date styles/entry-date)))
 
-(defn em [text] (html [:em text]))
-(defn strong [text] (html [:strong text]))
+(defn em [& texts] (html (into [:em ] texts)))
+(defn strong [& texts] (html (into [:strong] texts)))
 
 (defn link [url text]
   (html (elem/link-to url text)))
@@ -101,6 +101,16 @@
      [:tr {:class header-class} (map (fn [k] [:th k]) (keys smap))]]
     (map (fn row [r] [:tr {:class row-class}
                       (map (fn [i] [:td i]) r)]) (vals smap)))))
+
+(defn vec->table
+  "Converts a vector of vectors to a html table. Interprets the first vector as the header row."
+  [[header & rows] header-class row-class]
+  (html
+   (into
+    [:table
+     [:tr {class header-class} (map (fn [i] [:th i] header))]
+     (map (fn row [r] [:tr {:class row-class}
+                       (map (fn [i] [:td i]) r)]) rows)])))
 
 (defn page
   "Converts a hiccup file to HTML."

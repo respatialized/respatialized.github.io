@@ -7,6 +7,7 @@
 
 (def code "code")
 
+(def header-default "b")
 (def page-header "f1 b")
 (def entry-header "f2 b")
 (def entry-date "f4")

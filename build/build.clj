@@ -18,7 +18,12 @@
 (defn check-art-form
   ([form pre config] (art/render (str pre form) config))
   ([form pre] (check-art-form form pre art-config))
-  ([form] (check-art-form form "<% (require '[hiccup.core :refer [html]] '[respatialized.render :refer :all])")))
+  ([form] (check-art-form form "<% (require '[hiccup.core :refer [html]] '[respatialized.render :refer :all])%>")))
+
+(defn check-art-file
+  ([path pre config] (check-art-form (slurp path) pre config))
+  ([path pre] (check-art-form (slurp path) pre art-config))
+  ([path] (check-art-form (slurp path) "")))
 
 (defn render-file-contents [content]
   (render/page (art/render content art-config)))
