@@ -23,7 +23,7 @@ I recently switched from <%=(in-code "pollen")%> to <%=(in-code "perun")%>. <%=(
 
 However, I agree wholeheartedly with Matthew Butterick when <%=(link "https://docs.racket-lang.org/pollen/second-tutorial.html" "he argues")%> that Markdown is a constraining environment in which to write, especially if you're looking to write a sustained treatment of a topic which usually generates a deep and rich collection of self and cross references and its own conventions for referring back to subtopics organically over time. Markdown supports the lowest level of this: links. Anything else, you're on your own, but with a completely restricted method of manipulating the input texts.
 
-Also, sometimes I want to contextually distinguish textual elements using CSS and I want to do it without rewriting my markdown parser. I currently do this by littering my markdown posts with <textarea readonly><%=(in-code "<div class=\"...\">")%></textarea> tags, which is kludgy and offers no way of systematically changing the classes applied to the textual element apart from doing find-replace on all of them with <%=(in-code "grep")%>.
+Also, sometimes I want to contextually distinguish textual elements using CSS and I want to do it without rewriting my markdown parser. I currently do this by littering my markdown posts with <%=(in-code "div class=\"...\"")%> tags, which is kludgy and offers no way of systematically changing the classes applied to the textual element apart from doing find-replace on all of them with <%=(in-code "grep")%>.
 
 The <%=(in-code "#lang pollen")%> directive provides a beautiful way of letting prose be prose while still letting you access the full power of a programming lanugage whenever you need it via the lozenge ◊ special character. 
 
@@ -179,17 +179,17 @@ A further source of information comes from the seemingly simple fact that these 
 
 While considering potential applications of <%=(link "https://respatialized.net/relay.html" "relay")%> software, I recalled the notion of a <%=(em "conflict-free replicated data type")%>, a data structure that provides a probably correct solution to the problem of imposing a total order on a sequence of edits to a file that arrive out of order, editing different subsets of text, with unreliable timestamps. This data type would be what you reach for if you were designing a collaborative text editor with online and offline editing capabilities, because it would save you from making hard choices about which text to discard and which to keep (or worse, making the user deal with any errors caused by your software and imposing those choices on them).
 
-I started reading about the concept, glossing over the mathematical details in favor of an interest in its potential as an expressive medium for thought. Some ideas that fell out of this.
+I started reading about the concept, glossing over the mathematical details in favor of an interest in its potential as an expressive medium for thought. Some ideas that fell out of this:
 
 <%=(header "Making the library metaphor in 'code library' concrete" :h5)%>
 
-<%=(em (str "heavily inspired by Rich Hickey's talk" (link "https://youtube.com/watch?v=oyLBGkS5ICk" "Spec-ulation")))%>
+<%=(html [:div [:p {:class "f5"} (em (str "heavily inspired by Rich Hickey's talk" (link "https://youtube.com/watch?v=oyLBGkS5ICk" "Spec-ulation")))]])%>
 
 Right now you have to take home the whole library when you write some code that uses one page of one book.
 
 Statically typed languages that rely on complex class hierarchies, especially because the compiler may make multiple passes across the codebase for definitions in different files ("... all you wanted was the banana." - Joe Armstrong) force you to ship all this supporting material to use one part of it. 
 
-<%=(em "aside: I don't intend this as an intrinsic dig at statically typed, compiled languages per se. Smart compilers can do dead code elimination, but usually this technique is put to the purpose of reducing ")%> executable <%=(em "size rather than reducing")%> dependency <%=(em "size. It'd be very interesting to see a compiler targeting library code that minimizes the volume of the library code pulled in by the code which declares it as a dependency." (link "https://www.unisonweb.org/docs/tour" "Unison") " has done some interesting work in this direction because of its ability to serialize algebraic data types and send them over the network to perform remote computation.")%>
+<%=(html [:div [:p {:class "f5"} (em "aside: I don't intend this as an intrinsic dig at statically typed, compiled languages per se. Smart compilers can do dead code elimination, but usually this technique is put to the purpose of reducing ") " executable " (em "size rather than reducing") " dependency " (em "size. It'd be very interesting to see a compiler targeting library code that minimizes the volume of the library code pulled in by the code which declares it as a dependency." (link "https://www.unisonweb.org/docs/tour" "Unison") " has done some interesting work in this direction because of its ability to serialize algebraic data types and send them over the network to perform remote computation.")]])%>
 
 So if instead of classes defined across files or nested relationships between algebraic data types defined at compile time, we had functions operating on simple, immutable values defined in self-contained s-expressions, plus some annotations:
 
@@ -232,173 +232,157 @@ Storing code in a CRDT has the potential to explore new parts of the misty space
 
 <%=(em "Oh, and by the way, the formal term for the structure that emerges from a properly implemented CRDT is a")%> <%=(link "http://archagon.net/blog/2018/03/24/data-laced-with-history/" "monotonic semilattice")%>. <%=(em "Which, according to Christopher Alexander in the essay I quote above, is exactly the form required to capture the interdependent complexity of a city.")%>
 
-<span class="f2 b">Extensible Textual Notation, part 3</span>
-<span class="f4">2019-12-28</span>
+<%=(header "Extensible Textual Notation, part 3" :h3)%>
+<%=(entry-date "2019-12-28")%>
 
-<span class="f3 b">Structure from text</span>
+<%=(header "Structure from text" :h5)%>
 
-I want to replicate `pollen`'s ability to let prose be prose while still incrementally bringing in a programming language when it's needed, but also combine it with Clojure's own data structures to capture the structure that emerges organically from the act of writing, so I could, for example, capture the table above not just as a sequence of textual elements but also preserve the structure of the tabular data itself for future use somewhere else. 
+I want to replicate <%=(in-code "pollen")%>'s ability to let prose be prose while still incrementally bringing in a programming language when it's needed, but also combine it with Clojure's own data structures to capture the structure that emerges organically from the act of writing, so I could, for example, capture the table above not just as a sequence of textual elements but also preserve the structure of the tabular data itself for future use somewhere else. 
 
 The simplest implementation of that would be just reading in the file line by line and constructing maps from the paragraphs separated by line breaks:
 
-```clojure
-{:id e4268ac2
- :text "Paragraph one."}
+<%=(code 
+"{:id e4268ac2
+ :text \"Paragraph one.\"}
 {:id e4268ac3
- :text "Paragraph two."}
-```
+ :text \"Paragraph two.\"}
+")%>
 
 The initial reading process creates entities that serve as placeholders for text as it is when read and as it may be in the future, all recorded as facts in a EAVT/RDF semantic triple format. Knowledge atoms instead of data atoms. But a collection of facts doesn't preserve the ordering of their original composition, which is a lot of structure to throw away. There are two ways of preserving it that initially occurred to me:
 
-[1] files are entities too - just have them refer to their contents as distinct entities.
+[1] <%=(strong "files are entities too")%> - just have them refer to their contents as distinct entities.
 
-```clojure
-{:entity 23542
+<%=(code 
+"{:entity 23542
  :attribute :filename
- :value "plaintext-file.txt"}
+ :value \"plaintext-file.txt\"}
 {:entity 23542
  :attribute :contents
  :value [52952 29587 29042]}
-```
+")%>
 
 In this mode, order of paragraphs is asserted as a fact on the basis of the vector of entity ids of the constituent paragraphs.
 
-[2] Alternatively, the facts about the paragraph order could just be composites of other facts:
+[2] Alternatively, the facts about the paragraph order could just be <%=(strong "composites of other facts")%>:
 
-```clojure
- {:entity 23542
+<%=(code 
+"{:entity 23542
   :attribute :contents
-  :value [{:uuid ab50234 :text "opening paragraph goes here"}
-          {:uuid ab50235 :text "second paragraph goes here"}]}
-```
+  :value [{:uuid ab50234 :text \"opening paragraph goes here\"}
+          {:uuid ab50235 :text \"second paragraph goes here\"}]}
+")%>
 
 I don't really like 2. it feels ad-hoc and non-relational, whereas 1 seems more relationally correct but is semantically not as rich as an individual fact. This shortcoming is easily resolved by a query to pull in the relevant text, however. 
 
 Speaking of which:
 
-<span class="f3 b">Text from structure</span>
+<%=(header "Text from structure" :h5)%>
 
-When thinking about where to store this data, I was led to James Smothers' [`cause`](https://github.com/smothers/cause), a very well-documented Clojure implementation of a causal tree, a type of CRDT. It places the notion of a `CausalBase` front and center, which sounds great, except it doesn't quite have the power implied by the "database" referred to by its name - which is generally okay in Clojure because the language already has pretty powerful facilities for quick operations on collections of maps. 
+When thinking about where to store this data, I was led to James Smothers' <%=(link "https://github.com/smothers/cause" (in-code "cause"))%>, a very well-documented Clojure implementation of a causal tree, a type of CRDT. It places the notion of a <%=(in-code "CausalBase")%> front and center, which sounds great, except it doesn't quite have the power implied by the "database" referred to by its name - which is generally okay in Clojure because the language already has pretty powerful facilities for quick operations on collections of maps. 
 
-But what if someone went further than that, combining a CRDT with a data model and query engine like in DataScript? Turns out in describing that I'm describing [`datahike`](https://github.com/replikativ/datahike), a Datalog implementation atop the `hitchiker-tree` CRDT. 
+But what if someone went further than that, combining a CRDT with a data model and query engine like in DataScript? Turns out in describing that I'm describing <%=(link "https://github.com/replikativ/datahike" (in-code "datahike"))%>, a Datalog implementation atop the <%=(in-code "hitchiker-tree")%> CRDT. 
 
-With existing text snapshotted as facts and recorded in a CRDT, queries could be run against that data to associate formerly disparate pieces of data into new forms, and the composites those queries create could themselves be recorded and annotated as new facts about the collection. The query that retrieves those facts could be stored as data itself, with the new structure that the query identifies added as an annotation to it. Use these queries and the expressive power they create to give a new life to `structur` and `alpha`, the venerable software extensions to `Kedit` written by Howard J. Strauss to aid [John McPhee in his writing process:](https://www.newyorker.com/magazine/2013/01/14/structure)
+With existing text snapshotted as facts and recorded in a CRDT, queries could be run against that data to associate formerly disparate pieces of data into new forms, and the composites those queries create could themselves be recorded and annotated as new facts about the collection. The query that retrieves those facts could be stored as data itself, with the new structure that the query identifies added as an annotation to it. Use these queries and the expressive power they create to give a new life to <%=(in-code "structur")%> and <%=(in-code "alpha")%>, the venerable software extensions to <%=(in-code "Kedit")%> written by Howard J. Strauss to aid <%=(link "https://www.newyorker.com/magazine/2013/01/14/structure" "John McPhee in his writing process.")%>
 
-> _He listened to the whole process from pocket notebooks to coded slices of paper, then mentioned a text editor called Kedit, citing its exceptional capabilities in sorting. Kedit (pronounced “kay-edit”), a product of the Mansfield Software Group, is the only text editor I have ever used. I have never used a word processor. Kedit did not paginate, italicize, approve of spelling, or screw around with headers, WYSIWYGs, thesauruses, dictionaries, footnotes, or Sanskrit fonts. Instead, Howard wrote programs to run with Kedit in imitation of the way I had gone about things for two and a half decades._
->
-> _He wrote Structur. He wrote Alpha. He wrote mini-macros galore. Structur lacked an “e” because, in those days, in the Kedit directory eight letters was the maximum he could use in naming a file. In one form or another, some of these things have come along since, but this was 1984 and the future stopped there. Howard, who died in 2005, was the polar opposite of Bill Gates—in outlook as well as income. Howard thought the computer should be adapted to the individual and not the other way around. One size fits one. The programs he wrote for me were molded like clay to my requirements—an appealing approach to anything called an editor._
->
-> _Structur exploded my notes. It read the codes by which each note was given a destination or destinations (including the dustbin). It created and named as many new Kedit files as there were codes, and, of course, it preserved intact the original set. In my first I.B.M. computer, Structur took about four minutes to sift and separate fifty thousand words. My first computer cost five thousand dollars. I called it a five-thousand-dollar pair of scissors._
->
-> _I wrote my way sequentially from Kedit file to Kedit file from the beginning to the end of the piece. Some of those files created by Structur could be quite long. So each one in turn needed sorting on its own, and sometimes fell into largish parts that needed even more sorting. In such phases, Structur would have been counterproductive. It would have multiplied the number of named files, choked the directory, and sent the writer back to the picnic table, and perhaps under it. So Howard wrote Alpha. Alpha implodes the notes it works on. It doesn’t create anything new. It reads codes and then churns a file internally, organizing it in segments in the order in which they are meant to contribute to the writing._
->
-> _Alpha is the principal, workhorse program I run with Kedit. Used again and again on an ever-concentrating quantity of notes, it works like nesting utensils. It sorts the whole business at the outset, and then, as I go along, it sorts chapter material and subchapter material, and it not infrequently arranges the components of a single paragraph. It has completely served many pieces on its own._
+<%= (blockquote (html [:p "He listened to the whole process from pocket notebooks to coded slices of paper, then mentioned a text editor called Kedit, citing its exceptional capabilities in sorting. Kedit (pronounced 'kay-edit'), a product of the Mansfield Software Group, is the only text editor I have ever used. I have never used a word processor. Kedit did not paginate, italicize, approve of spelling, or screw around with headers, WYSIWYGs, thesauruses, dictionaries, footnotes, or Sanskrit fonts. Instead, Howard wrote programs to run with Kedit in imitation of the way I had gone about things for two and a half decades."]
+[:p "He wrote Structur. He wrote Alpha. He wrote mini-macros galore. Structur lacked an “e” because, in those days, in the Kedit directory eight letters was the maximum he could use in naming a file. In one form or another, some of these things have come along since, but this was 1984 and the future stopped there. Howard, who died in 2005, was the polar opposite of Bill Gates—in outlook as well as income. Howard thought the computer should be adapted to the individual and not the other way around. One size fits one. The programs he wrote for me were molded like clay to my requirements—an appealing approach to anything called an editor."]
 
-[The book is a program](https://docs.racket-lang.org/pollen/). Tools for writing digital books should be at least as powerful as the tools created for conventional books decades ago. CRDTs provide a reliable and immutable foundation to the discrete chunks of knowledge that McPhee has used for his entire career. A query engine provides the toolkit to devise new ways of composing them together as powerful as `structur` and `alpha`, but with the added benefit of an entire programming language so that the text (or the collection of notes used to produce it) is no longer a closed system but can instead pull in data from the rest of the world. 
+[:p "Structur exploded my notes. It read the codes by which each note was given a destination or destinations (including the dustbin). It created and named as many new Kedit files as there were codes, and, of course, it preserved intact the original set. In my first I.B.M. computer, Structur took about four minutes to sift and separate fifty thousand words. My first computer cost five thousand dollars. I called it a five-thousand-dollar pair of scissors."]
 
-<span class="f2 b">The Markdown Cargo Cult</span>
-<span class="f4">2019-12-29</span>
+[:p "I wrote my way sequentially from Kedit file to Kedit file from the beginning to the end of the piece. Some of those files created by Structur could be quite long. So each one in turn needed sorting on its own, and sometimes fell into largish parts that needed even more sorting. In such phases, Structur would have been counterproductive. It would have multiplied the number of named files, choked the directory, and sent the writer back to the picnic table, and perhaps under it. So Howard wrote Alpha. Alpha implodes the notes it works on. It doesn’t create anything new. It reads codes and then churns a file internally, organizing it in segments in the order in which they are meant to contribute to the writing."]
 
-> _First and worst, Markdown isn’t semantic._
-[Matthew Butterick](https://docs.racket-lang.org/pollen/second-tutorial.html)
+[:p "Alpha is the principal, workhorse program I run with Kedit. Used again and again on an ever-concentrating quantity of notes, it works like nesting utensils. It sorts the whole business at the outset, and then, as I go along, it sorts chapter material and subchapter material, and it not infrequently arranges the components of a single paragraph. It has completely served many pieces on its own."]) (link "https://www.newyorker.com/magazine/2013/01/14/structure" "John McPhee, Structure"))%>
 
-I view basically every other problem with Markdown as downstream from this. Like Butterick, I'm utterly baffled by the degree to which everyone developing new types of interactive authoring tools simply assumes that everyone will want to write text in a format that's completely blind to the organic structure that emerges from ordinary writing. [Jupyter notebooks](https://jupyter-notebook.readthedocs.io/en/stable/examples/Notebook/Working%20With%20Markdown%20Cells.html),  [documentation tools](https://www.mkdocs.org/), [interactive data science toolboxes](https://github.com/metasoarous/oz/blob/be700e721fd758024f0783083279132afc42f317/examples/test.md), [self-contained environments for interactive authoring](https://github.com/nteract/nteract/blob/f94502e4ff654bb58166bff262f133d4f449b049/packages/outputs/src/components/media/markdown.md), [JS-based explorable explanation tools](https://idyll-lang.org/docs/syntax),  [revolutionary new prototypes of combined programming languages and visual environments](https://github.com/witheve/Eve/commit/fa1700cb37198d1a02ebbaaa506c70c40b201d76), [further explorations of how programming could be different](https://github.com/mhuebert/maria/blob/88776252f16ccacb23fb63d83223186b8cd55f8b/editor/src/maria/commands/prose.cljs), all of them voluntarily choosing to tie the millstone of this impoverished format around their necks despite serious attempts to rethink the combination of code and prose. 
+<%=(link "https://docs.racket-lang.org/pollen/" "The book is a program")%>. Tools for writing digital books should be at least as powerful as the tools created for conventional books decades ago. CRDTs provide a reliable and immutable foundation to the discrete chunks of knowledge that McPhee has used for his entire career. A query engine provides the toolkit to devise new ways of composing them together as powerful as <%=(in-code "structur")%> and <%=(in-code "alpha")%>, but with the added benefit of an entire programming language so that the text (or the collection of notes used to produce it) is no longer a closed system but can instead pull in data from the rest of the world. 
 
-Why do we use it? Because one of [Apple's court intellectuals decided it was convenient for him?](https://daringfireball.net/projects/markdown/) 
+<%=(header "The Markdown Cargo Cult" :h3)%>
+<%=(entry-date "2019-12-29")%>
 
-> _How is Markdown innovative exactly?_
->
-> _It took ideas from the 70s, dropped the interesting parts, and was hailed as a revolutionary approach to marking up documents. Ie, the past 30 years of computing have been about narrowing the interface between programmer and computer to the equivalent of a straw (everything as text!) and then try to build an entire system around that._
+<%=(blockquote "First and worst, Markdown isn’t semantic."
+(link "https://docs.racket-lang.org/pollen/second-tutorial.html" "Matthew Butterick"))%>
 
-[Spotted on Hacker News](https://news.ycombinator.com/item?id=16230676), the only reasonable response to someone calling Markdown "a triumph of programmer ergonomics."
+I view basically every other problem with Markdown as downstream from this. Like Butterick, I'm utterly baffled by the degree to which everyone developing new types of interactive authoring tools simply assumes that everyone will want to write text in a format that's completely blind to the organic structure that emerges from ordinary writing. <%=(link "https://jupyter-notebook.readthedocs.io/en/stable/examples/Notebook/Working%20With%20Markdown%20Cells.html" "Jupyter notebooks")%>,  <%=(link "https://www.mkdocs.org/" "documentation tools")%>, <%=(link "https://github.com/metasoarous/oz/blob/be700e721fd758024f0783083279132afc42f317/examples/test.md" "interactive documentation tools")%>, <%=(link "https://github.com/nteract/nteract/blob/f94502e4ff654bb58166bff262f133d4f449b049/packages/outputs/src/components/media/markdown.md" "interactive data science toolboxes")%>, <%=(link "https://idyll-lang.org/docs/syntax" "JS-based explorable explanation tools")%>,  <%=(link "https://github.com/witheve/Eve/commit/fa1700cb37198d1a02ebbaaa506c70c40b201d76" "revolutionary new prototypes of combined programming languages and visual environments")%>, <%=(link "https://github.com/mhuebert/maria/blob/88776252f16ccacb23fb63d83223186b8cd55f8b/editor/src/maria/commands/prose.cljs" "further explorations of how programming could be different")%>, all of them voluntarily choosing to tie the millstone of this impoverished format around their necks despite serious attempts to rethink the combination of code and prose. 
 
-Every system built atop Markdown will invariably have some ad-hoc and kludgy method of attempting to recapture some part of the structure that emerges from text authored in markdown, and it will be different from every other one because Markdown is blind to structure in all but the most basic of ways. In that regard it is very similar to "plain-text configuration" tools like [YAML](/against-metadata.html), which have all kinds of templating engines bolted on to them to overcome the limitations of a flat-file key-value store.
+Why do we use it? Because one of <%=(link "https://daringfireball.net/projects/markdown/" "Apple's court intellectuals decided it was convenient for him?")%>
 
-> _Everyone already knows markdown! It's fast and easy!_
+<%=(blockquote "How is Markdown innovative exactly?
+
+It took ideas from the 70s, dropped the interesting parts, and was hailed as a revolutionary approach to marking up documents. Ie, the past 30 years of computing have been about narrowing the interface between programmer and computer to the equivalent of a straw (everything as text!) and then try to build an entire system around that." (str (link "https://news.ycombinator.com/item?id=16230676" "Spotted on Hacker News") ", the only reasonable response to someone calling Markdown 'a triumph of programmer ergonomics.'"))%>
+
+Every system built atop Markdown will invariably have some ad-hoc and kludgy method of attempting to recapture some part of the structure that emerges from text authored in markdown, and it will be different from every other one because Markdown is blind to structure in all but the most basic of ways. In that regard it is very similar to "plain-text configuration" tools like <%=(link "/against-metadata.html" "YAML")%>, which have all kinds of templating engines bolted on to them to overcome the limitations of what has in practice become a flat-file key-value store.
+
+<%=(html [:p (em "Everyone already knows markdown! It's fast and easy!")])%>
 
 Just be aware of what you're giving up as an author in pursuit of that, and what you may be imposing on yourself later on down the line if you want to overcome these constraints.
 
-_yes, there's no small irony in the fact that the [source code for this post](https://gitlab.com/respatialized/respatialized.gitlab.io/blob/master/content/not-a-tree.md) is currently written in Markdown. It is indeed fast and easy to get started writing with it, but I'd largely attribute that to path dependence (and the fact that my particular parser leaves the `<div>` tags I've littered throughout this post intact, which is an accident of choosing to use `perun` and thereby `flexmark-java`) rather than the virtues of the format itself. I have every intention of changing the authoring tool I use into something semantically richer, but I had to get my resistance to the format on paper first._
+And yes, there's no small irony in the fact that the <%=(link "https://gitlab.com/respatialized/respatialized.gitlab.io/blob/master/content/not-a-tree.md" "source code for this post")%> is currently written in Markdown. It is indeed fast and easy to get started writing with it, but I'd largely attribute that to path dependence, and the fact that my particular parser leaves the <%=(in-code "div")%> tags I've littered throughout this post intact, which is an accident of choosing to use <%=(in-code "perun")%> and thereby <%=(in-code "flexmark-java")%> rather than the virtues of the format itself. I have every intention of changing the authoring tool I use into something semantically richer, but I had to get my resistance to the format on paper first.
 
+<%=(header "Extensible Textual Notation, part 4" :h3)%>
+<%=(entry-date "2019-12-29")%>
 
-<span class="f2 b">Extensible Textual Notation, part 4</span>
-<span class="f4">2019-12-29</span>
+<%=(html [:div {:class "flex"}
+      [:div {:class "w-40"} (image "media/thinking-about-things.jpg")]
+      [:div {:class "pl3 w-40"} (blockquote "I read relentlessly. I don’t do any programming not directed at making the computer do something useful, so I don’t do any exercises. I try to spend more time thinking about the problem than I do typing it in." (link "http://web.archive.org/web/20160918041754/http://codequarterly.com/2011/rich-hickey/" "Rich Hickey"))]])%>
 
-<div class = "flex">
-<div class="fl w-40">
+<%=(html [:p (em "inspiration for what the medium should make possible, and for my prose-first approach to thinking about it: Bret Victor's laptop sticker and Rich Hickey's mindset; the antithesis of the \"shut up and show me the code\" brogrammer ethos")])%>
 
-![thinking about things](media/thinking-about-things.jpg)
-</div>
+<%=(header (str "Beyond plain text: storing prose within" (in-code "datahike")) :h5)%>
 
-<div class="fl f3 pl3 w-40">
+Here's a <%=(link "https://blog.datopia.io/2018/11/03/hitchhiker-tree/" "background post on the Datahike internals")%> for context about how the hitchhiker B-tree structure allows for self-balancing and efficient updates that "hitchhike" on queries.
 
-_"I read relentlessly. I don’t do any programming not directed at making the computer do something useful, so I don’t do any exercises. I try to spend more time thinking about the problem than I do typing it in."_
-
-[Rich Hickey](http://web.archive.org/web/20160918041754/http://codequarterly.com/2011/rich-hickey/)
-
-</div>
-</div>
-
-_inspiration for what the medium should make possible, and for my prose-first approach to thinking about it: Bret Victor's laptop sticker and Rich Hickey's mindset; the antithesis of the "shut up and show me the code" brogrammer ethos_
-
-<span class="f3 b">Beyond plain text: storing prose within `datahike`   </span>
-
-Here's a [background post on the Datahike internals](https://blog.datopia.io/2018/11/03/hitchhiker-tree/) for context about how the hitchhiker B-tree structure allows for self-balancing and efficient updates that "hitchhike" on queries.
-
-Here's another on using the `dat://` protocol for [P2P replication of the data stored in a Datahike instance](https://lambdaforge.io/2019/12/08/replicate-datahike-wherever-you-go.html). It serves as a useful starting point for getting a Datahike instance up and running.
+Here's another on using the <%=(in-code "dat://")%> protocol for <%=(link "https://lambdaforge.io/2019/12/08/replicate-datahike-wherever-you-go.html" "P2P replication of the data stored in a Datahike instance")%>. It serves as a useful starting point for getting a Datahike instance up and running.
 
 Here's what would be a useful starting point for programmatic prose parsing: including a quotation in a piece of prose writing that gets parsed as a separate component and then added to a global list of quotations maintained by the text parser, with a link back to its original positional context within the piece of writing that quoted it.
 
+<%=(header "Extensible Textual Notation, part 5" :h3)%>
+<%=(entry-date "2019-12-30")%>
 
-<span class="f2 b">Extensible Textual Notation, part 5</span>
-<span class="f4">2019-12-30</span>
-
-<span class="f3 b">A concrete starting point</span>
+<%=(header "A concrete starting point" :h5)%>
 
 I've managed to come up with a lot of Xanadu-like vaporware ideas in thinking through this tool without producing anything concrete.
 
 Per the above: I'd define my first concrete goal for this library as a replacement for markdown so I can begin to dig myself out of the pit I've put myself in by relying on something I don't like using.
 
-In order to do this, I want to parse markdown into `hiccup` and pull information out of the file. Whatever replaces markdown will use `hiccup` data structures anyway, so it's not wasted effort to build functions that process the markdown once it's represented as Clojure data. I can create functions and `spec`s that define the expected behavior of a markdown replacement.
+In order to do this, I want to parse markdown into <%=(in-code "hiccup")%> and pull information out of the file. Whatever replaces markdown will use <%=(in-code "hiccup")%> data structures anyway, so it's not wasted effort to build functions that process the markdown once it's represented as Clojure data. I can create functions and <%=(in-code "spec")%>s that define the expected behavior of a markdown replacement.
 
-Based on some unscientific experimentation, the only markdown->hiccup toolchain that properly understands tables is `markdown-clj` + `hickory`, so that's what I'll go with. I have a few tests written that don't do much yet.
+Based on some unscientific experimentation, the only markdown->hiccup toolchain that properly understands tables is <%=(in-code "markdown-clj + hickory")%>, so that's what I'll go with. I have a few tests written that don't do much yet.
 
 Other scattered thoughts: 
 
-<span class="f3 b">Plaintext and database</span>
+<%=(header "Plaintext and database" :h5)%>
 
 Plain text has a lot of virtues as a long-term storage format, so I plan to make it a core part of however I persist the writing that gets parsed into data by ETN.
 
 The current snapshot and any derived views of it exist should exist as plaintext; its history can be preserved using database backup and persistence methods. But perhaps other defined snapshots in the history of the information should be serialized as plain text as well, in a manner similar to git commits or releases.
 
-<span class="f3 b">Thoughts on Roam</span>
+<%=(header "Thoughts on Roam" :h5)%>
 
 I signed up for Roam because on paper it seems to be exactly what I want: a PIM with the ability to run arbitary Datalog queries across your thoughts and embed hiccup data structures for visual depictions of the concepts. It's built on Clojure, front to back! What's not to like?
 
-Mostly, the UX. I don't like the aggressively hierarchical format it imposes on all the writing you put into it, I don't like the web interface, which will never be as fast and flexible as plaintext with a good editor, and I don't like the default views it chooses for you. 
+Mostly, the UX. I don't like the aggressively hierarchical format it imposes on all the writing you put into it, I don't like the web interface, which will never be as fast and flexible as plaintext with a good editor, and I don't like the default views it chooses for you.
 
 More than anything, I want a tool of my own making, free from any compromises made to accomodate commercial success or adoption among its target cohort.
 
-I don't want an outlining tool that helps me produce writing. I want a _writing_ tool that helps me identify and work with the structure that emerges from what I write.
+I don't want an outlining tool that helps me produce writing. I want a <%=(em "writing")%> tool that helps me identify and work with the structure that emerges from what I write.
 
-_that and the founder is building the core product around the demands of the LessWrong crowd and goes on [1/178] twitter rants about stuff he reads on SlateStarCodex. the app feels like the product of that kind of approach: unfocused and built around pseudoproblems._
+<%=(html [:p (em "that and the founder is building the core product around the demands of the LessWrong crowd and goes on [1/178] twitter rants about stuff he reads on SlateStarCodex. the app feels like the product of that kind of approach: unfocused and built around pseudoproblems.")])%>
 
-<span class="f2 b">Extensible Textual Notation, part 6</span>
-<span class="f4">2019-12-31</span>
+<%=(header "Extensible Textual Notation, part 6" :h3)%>
+<%=(entry-date "2019-12-31")%>
 
 Yesterday I got too caught up reading the documentation for libraries. Today I'm disabling my wifi and striking out into the wilderness with only the standard library (and my reference book) to help me.
 
-First discovery: I probably don't need to use `specter` when `tree-seq` will do. `clojure.walk` will also help, but I don't quite understand it yet.
+First discovery: I probably don't need to use <%=(in-code "specter")%> when <%=(in-code "tree-seq")%> will do. <%=(in-code "clojure.walk")%> will also help, but I don't quite understand it yet.
 
-One thing that occurred to me when thinking about pulling quotes out of plaintext: while an individual paragraph should be the basic semantic unit of my own writing, the basic semantic unit of a quotation or reference should be a sequence of _one or more_ paragraphs. This preserves more of the structure of the origin and aids in its display in other contexts. For storage purposes, though, it should merely be (for now) a sequence of strings. Worrying about the internal structure of the quote itself (lists, etc) can come later when the specs get more refined.
+One thing that occurred to me when thinking about pulling quotes out of plaintext: while an individual paragraph should be the basic semantic unit of my own writing, the basic semantic unit of a quotation or reference should be a sequence of <%=(em "one or more")%> paragraphs. This preserves more of the structure of the origin and aids in its display in other contexts. For storage purposes, though, it should merely be (for now) a sequence of strings. Worrying about the internal structure of the quote itself (lists, etc) can come later when the specs get more refined.
 
-<span class="f2 b">Extensible Textual Notation, part 7</span>
-<span class="f4">2020-01-05</span>
+<%=(header "Extensible Textual Notation, part 7" :h3)%>
+<%=(entry-date "2020-01-05")%>
 
-With a markdown->hiccup parser in hand, I took on a warm-up exercise to map out the problem space and get comfortable with parsing the data I've already dumped in to these markdown files, I defined some contracts for the data formats I want to pull from the textual information using  `clojure.spec`, which will serve as constraints on the expected behavior of other parsers I write to replace Markdown. It's pretty bare-bones so far, with stuff like the following:
+With a markdown->hiccup parser in hand, I took on a warm-up exercise to map out the problem space and get comfortable with parsing the data I've already dumped in to these markdown files, I defined some contracts for the data formats I want to pull from the textual information using  <%=(in-code "clojure.spec")%>, which will serve as constraints on the expected behavior of other parsers I write to replace Markdown. It's pretty bare-bones so far, with stuff like the following:
 
-```clojure
-(defn same-size? [colls]
+<%=(code
+"(defn same-size? [colls]
   (apply = (map count colls)))
 (defn col-kvs? [table-map] (spec/valid? (spec/map-of string? vector?)
                                         (dissoc table-map ::table-meta)))
@@ -419,60 +403,67 @@ With a markdown->hiccup parser in hand, I took on a warm-up exercise to map out 
    (spec/keys :opt [::table-meta])
    ::col-kvs
    ::eq-columns))
-```
+")%>
 
-These plus some functions to transform parsed `hiccup` data structures into these canonical formats will allow me to capture some of the emergent structure of what I've already written here. Using [`spectomic`](https://github.com/Provisdom/spectomic) I can define the constraints using spec and automatically generate `datahike` schemas from them.
+These plus some functions to transform parsed <%=(in-code "hiccup")%> data structures into these canonical formats will allow me to capture some of the emergent structure of what I've already written here. Using <%=(link "https://github.com/Provisdom/spectomic" (in-code "spectomic"))%> I can define the constraints using spec and automatically generate <%=(in-code "datahike")%> schemas from them.
 
-But that's only the starting point. The real purpose here is to replace `markdown` with a notation format that represents _text as data_ and lets the user easily convey other types of structured data within the text itself. To that end, I have to come up with a different format for notating the documents, a very brief example of this I sketched out above.
+But that's only the starting point. The real purpose here is to replace <%=(in-code "markdown")%> with a notation format that represents <%=(em "text as data")%> and lets the user easily convey other types of structured data within the text itself. To that end, I have to come up with a different format for notating the documents, a very brief example of this I sketched out above.
 
-There is plenty of prior art for this: I generated the first version of this blog using `pollen`. I wanted to learn about the way `scribble`, on which `pollen` is built parses plaintext into Racket data structures for manipulation, but the library is quite complex (the documentation is fantastic, but it focuses mostly on the API rather than how the parsers and readers are implemnted interally). It also reimplements much of what I intend to use `hiccup` to do.
+There is plenty of prior art for this: I generated the first version of this blog using <%=(in-code "pollen")%>. I wanted to learn about the way <%=(in-code "scribble")%>, on which <%=(in-code "pollen")%> is built parses plaintext into Racket data structures for manipulation, but the library is quite complex (the documentation is fantastic, but it focuses mostly on the API rather than how the parsers and readers are implemnted interally). It also reimplements much of what I intend to use <%=(in-code "hiccup")%> to do.
 
-Luckily, I have been spared the experience of suffering through the entire `scribble` codebase by Bogdan Opanchuk's [Clojure implementation](https://github.com/fjarri/clojure-scribble). I could simply use it directly, but I'm not interested in taking more shortcuts and adding more libraries to this project, especially when I know I'll have to add my own syntax to the notation and the parser rules to support them. I also won't really understand the way these parsers work unless I go forth and implement one myself. Fortunately, the project uses `marginalia` to give a guided tour through the internals of the code. This library may not be as comprehensive as the original implementation of `scribble`, but Clojure's expressivity makes it far easier to understand the global structure of this smaller implementation and thus learn from it. 
+Luckily, I have been spared the experience of suffering through the entire <%=(in-code "scribble")%> codebase by Bogdan Opanchuk's <%=(link "https://github.com/fjarri/clojure-scribble" "Clojure implementation")%>. I could simply use it directly, but I'm not interested in taking more shortcuts and adding more libraries to this project, especially when I know I'll have to add my own syntax to the notation and the parser rules to support them. I also won't really understand the way these parsers work unless I go forth and implement one myself. Fortunately, the project uses <%=(in-code "marginalia")%> to give a guided tour through the internals of the code. This library may not be as comprehensive as the original implementation of <%=(in-code "scribble")%>, but Clojure's expressivity makes it far easier to understand the global structure of this smaller implementation and thus learn from it. 
 
-Rather than a [plaintext spec that monotonically grows in complexity](https://spec.commonmark.org/) due to the workarounds to handle the corner cases generated by ambiguous syntax, I'm hoping to define as much of the expected structure using `clojure.spec`, which strikes the right balance between the rigidity of a BNF grammar and the ambiguity of a plaintext spec, plus the additional leverage that comes with defining a spec as code: the ability to [generate arbitary adversarial examples](https://clojure.org/guides/spec#_custom_generators) to ensure that corner cases are found quicker and dealt with in a more systematic fashion.
+Rather than a <%=(link "https://spec.commonmark.org/" "plaintext spec that monotonically grows in complexity")%> due to the workarounds to handle the corner cases generated by ambiguous syntax, I'm hoping to define as much of the expected structure using <%=(in-code "clojure.spec")%>, which strikes the right balance between the rigidity of a BNF grammar and the ambiguity of a plaintext spec, plus the additional leverage that comes with defining a spec as code: the ability to <%=(link "https://clojure.org/guides/spec#_custom_generators" "generate arbitary adversarial examples")%> to ensure that corner cases are found quicker and dealt with in a more systematic fashion.
 
-<span class="f2 b">Extensible Textual Notation, part 8</span>
-<span class="f4">2020-01-11</span>
+<%=(header "Extensible Textual Notation, part 8" :h3)%>
+<%=(entry-date "2020-01-11")%>
 
-One motivation for this concept was an incredibly useful design exercise when I was building a backend system at work: creating a [feature matrix](https://www.evanmiller.org/feature-matrix.html) for the various sub-components to understand their interactions with one another and how those translate into both library code and user-facing features. (read Evan Miller's whole essay; it's a quick read and a succinct, lucid statement of a very powerful idea). In order to produce one, I had to step outside of my trusty text editor and flip over to Google Sheets to create a NxN grid, fill it up with the pair-wise interactions between the components, and then use an unholy spreadsheet formula to transpose those comma-delimited features into a discrete list with separate references to each column in the body of the matrix:
+One motivation for this concept was an incredibly useful design exercise when I was building a backend system at work: creating a <%=(link "https://www.evanmiller.org/feature-matrix.html" "feature matrix")%> for the various sub-components to understand their interactions with one another and how those translate into both library code and user-facing features. (read Evan Miller's whole essay; it's a quick read and a succinct, lucid statement of a very powerful idea). In order to produce one, I had to step outside of my trusty text editor and flip over to Google Sheets to create a NxN grid, fill it up with the pair-wise interactions between the components, and then use an unholy spreadsheet formula to transpose those comma-delimited features into a discrete list with separate references to each column in the body of the matrix:
 
-```
-=unique(transpose(split(join("|",'Sheet1'!$B$3:$B$17,'Sheet1'!$C$3:$C$17,'Sheet1'!$D$3:$D$17, ... "|")))
-```
+<%=(code
+"=unique(transpose(split(join(\"|\",'Sheet1'!$B$3:$B$17,'Sheet1'!$C$3:$C$17,'Sheet1'!$D$3:$D$17, ... \"|\")))"
+)%>
 
-It was the most beautiful [waterfall planning](https://wiki.c2.com/?WaterfallModel) I've ever done. As you'd expect, looking back over the matrix now, I see how hopelessly out of date it is and how badly it serves its original purpose of defining tasks with enough granularity to yield tickets. 
+It was the most beautiful <%=(link "https://wiki.c2.com/?WaterfallModel" "waterfall planning")%> I've ever done. As you'd expect, looking back over the matrix now, I see how hopelessly out of date it is and how badly it serves its original purpose of defining tasks with enough granularity to yield tickets. 
 
-The codebase is always the most up-to-date part of any software project. Everything else tends to lag behind, mostly due to the unavoidable fact that you don't always know what you need to build before you build it. But why can't we write documents in a way that lends itself a little better to the day-to-day work of software development? Why can't I plop a feature matrix right into my `readme` and then programatically generate a set of test suites for the features within it? That way, by changing the top-level description of the project, I also change the definition of the software that ensures it functions as intended.
+The codebase is always the most up-to-date part of any software project. Everything else tends to lag behind, mostly due to the unavoidable fact that you don't always know what you need to build before you build it. But why can't we write documents in a way that lends itself a little better to the day-to-day work of software development? Why can't I plop a feature matrix right into my <%=(in-code "readme")%> and then programatically generate a set of test suites for the features within it? That way, by changing the top-level description of the project, I also change the definition of the software that ensures it functions as intended.
 
-_please do not tell me that org-mode supports tables. I am not interested in a solution specific to emacs lisp that imposes a separation  between structured data and code by tangling out the code into separate files, and thus remains ignorant of the actual information generated by that code._
+<%=(html [:p (em "please do not tell me that org-mode supports tables. I am not interested in a solution specific to emacs lisp that imposes a separation  between structured data and code by tangling out the code into separate files, and thus remains ignorant of the actual information generated by that code.")])%>
 
-You might say something like "design should be design, and code should be code. Just because a problem is represented a certain way in the design phase doesn't mean that the actual code should be laid out that way."  I agree with part of the spirit behind this. Stepping away from the laptop to think through the problem is something that everyone should do more often. I deeply enjoy the more embodied sense of problem-solving that sketching on a whiteboard gives me. But sometimes, you need more than a sketch or description; structured data can represent facts about a codebase that spec documents and architecture diagrams cannot. Keeping this up-to-date means seeing and editing it directly in tandem with the code. It means automatically checking off one of the "to-dos" generated from the structured documentation when a given test passes. It means storing information about failed and successful builds not in some [web interface that has no direct interaction with the code](https://docs.gitlab.com/ee/ci/pipelines.html) but perhaps in the same data structure as the code itself.
+You might say something like "design should be design, and code should be code. Just because a problem is represented a certain way in the design phase doesn't mean that the actual code should be laid out that way."  I agree with part of the spirit behind this. Stepping away from the laptop to think through the problem is something that everyone should do more often. I deeply enjoy the more embodied sense of problem-solving that sketching on a whiteboard gives me. But sometimes, you need more than a sketch or description; structured data can represent facts about a codebase that spec documents and architecture diagrams cannot. Keeping this up-to-date means seeing and editing it directly in tandem with the code. It means automatically checking off one of the "to-dos" generated from the structured documentation when a given test passes. It means storing information about failed and successful builds not in some <%=(link "https://docs.gitlab.com/ee/ci/pipelines.html" "web interface that has no direct interaction with the code")%> but perhaps in the same data structure as the code itself.
 
-Saying something like "code should look like code" assumes that we can only have one canonical way of representing the data that ultimately forms the program. But a richer data structure than flat files (like a CRDT) could be made to form the backend of multiple representations, one "API-first" view according to the code layout and another "feature-first" view according to the table of requirements. What if you could filter down the test suites you run as easily as filtering a spreadsheet? (you might call this way of interacting with the code _view-inspired, model-driven_, to borrow a term from Chiusano's essay I link above).
+Saying something like "code should look like code" assumes that we can only have one canonical way of representing the data that ultimately forms the program. But a richer data structure than flat files (like a CRDT) could be made to form the backend of multiple representations, one "API-first" view according to the code layout and another "feature-first" view according to the table of requirements. What if you could filter down the test suites you run as easily as filtering a spreadsheet? (you might call this way of interacting with the code <%=(em "view-inspired, model-driven")%>, to borrow a term from Chiusano's essay I link above).
 
-Sometimes it feels like our mental model of tooling for software still comes from a pre-network era, where the notion of the software _artifact_ prevails and tools for managing individual artifacts win the day. They define the software we write as a discrete _closed system_, and then we bolt more complexity back on to get around this model. It's why we ship around many megabytes more code than we need to when checking out a function from a library and it's why revision control operates fundamentally at the level of a single folder rather than the sub-units defined by the code within that folder - we ship around the whole folder because that's what we have isolated and replicable history for. Software still yields artifacts: docker images, executable binaries, etc. That hasn't gone away (and it won't until we're all using ultra-live environments that live up to the legacy of the first Smalltalk systems), but now code is much more likely to be a part of a _open system_ that interacts with build tools, clusters of virtual machines, live data stores, and the like. The mess of information those tools generate informs choices about the code we write, so why not figure out a way to represent the information we need closer to the code itself?
+Sometimes it feels like our mental model of tooling for software still comes from a pre-network era, where the notion of the software <%=(em "artifact")%> prevails and tools for managing individual artifacts win the day. They define the software we write as a discrete <%=(em "closed system")%>, and then we bolt more complexity back on to get around this model. It's why we ship around many megabytes more code than we need to when checking out a function from a library and it's why revision control operates fundamentally at the level of a single folder rather than the sub-units defined by the code within that folder - we ship around the whole folder because that's what we have isolated and replicable history for. Software still yields artifacts: docker images, executable binaries, etc. That hasn't gone away (and it won't until we're all using ultra-live environments that live up to the legacy of the first Smalltalk systems), but now code is much more likely to be a part of a <%=(em "open system")%> that interacts with build tools, clusters of virtual machines, live data stores, and the like. The mess of information those tools generate informs choices about the code we write, so why not figure out a way to represent the information we need closer to the code itself?
 
-For one possible foundation for a different approach to managing the history of code, see Unison's concept of [content-addressed code](https://www.unisonweb.org/docs/tour). Content-addressing and tracking the history of functions as individual units means that they can break out of their original repos while maintaining their lineage. Instead of snapshots of whole libraries, functions could migrate from one library to another, picking up unique changes as they propagate their descendants into that new project's context. Code would have a _genealogy_ rather than _dependencies_. Similarly, I think there's a lot of potential power in storing arbitrary structured data in the same data structure as the code itself. We haven't really taken the conceptual leap towards developing applications around that model because we default to git for any new project and thus rely on its implicit view of the world. Hopefully that can change.
+For one possible foundation for a different approach to managing the history of code, see Unison's concept of <%=(link "https://www.unisonweb.org/docs/tour" "content-addressed code")%> Content-addressing and tracking the history of functions as individual units means that they can break out of their original repos while maintaining their lineage. Instead of snapshots of whole libraries, functions could migrate from one library to another, picking up unique changes as they propagate their descendants into that new project's context. Code would have a <%=(em "genealogy")%> rather than <%=(em "dependencies")%>. Similarly, I think there's a lot of potential power in storing arbitrary structured data in the same data structure as the code itself. We haven't really taken the conceptual leap towards developing applications around that model because we default to git for any new project and thus rely on its implicit view of the world. Hopefully that can change.
 
-<span class="f2 b">Extensible Textual Notation, part 9</span>
-<span class="f4">2020-01-11</span>
+<%=(header "Extensible Textual Notation, part 9" :h3)%>
+<%=(entry-date "2020-01-11")%>
 
-Turns out I was more right about needing to implement my own `scribble`-like syntax than I knew, because while taking the clojure implementation out for a spin, I discovered that it relies heavily on an [unmaintained set of reader macros](https://github.com/jwymanm/chiara) that are incompatible with recent versions of Clojure because `clojure.spec` now enforces compile-time syntax of macros (like, `defn`).
+Turns out I was more right about needing to implement my own <%=(in-code "scribble")%>-like syntax than I knew, because while taking the clojure implementation out for a spin, I discovered that it relies heavily on an (link "https://github.com/jwymanm/chiara" "unmaintained set of reader macros")%> that are incompatible with recent versions of Clojure because <%=(in-code "clojure.spec")%> now enforces compile-time syntax of macros (like <%=(in-code "defn")%>).
 
-I'm going to have to write my own text->EDN parser that replicates what `scribble` relies on reader macros to do. I'm fortunately _not_ trying to alter in any fundamental way how clojure data is transformed into its AST; I'm just doing some preprocessing on plaintext so it's the right shape when it hits the clojure reader. Into the wilderness.
+I'm going to have to write my own text->EDN parser that replicates what <%=(in-code "scribble")%> relies on reader macros to do. I'm fortunately <%=(em "not")%> trying to alter in any fundamental way how clojure data is transformed into its AST; I'm just doing some preprocessing on plaintext so it's the right shape when it hits the clojure reader. Into the wilderness.
 
-<span class="f2 b">Extensible Textual Notation, part 10</span>
-<span class="f4">2020-01-21</span>
+<%=(header "Extensible Textual Notation, part 10" :h3)%>
+<%=(entry-date "2020-01-21")%>
 
 While I have a decent enough concept of the _source_ of the data generated through writing in plaintext, I don't yet have a good concept of the _target_ of that data. I intend to use `datahike` as a persistent storage format, but it's daunting to think about where to start.
 
-Here's a good bootstrapping exercise for understanding the format and how it works: a quotes page in Perun. It will read a `quotes.edn` file, dump the data parsed out from that quotes file into a `datahike` db, and then use that data to generate the `hiccup` content for the page. Once that's in place, I'll have a better idea of the schema I need to yank quotes out of the posts where they're quoted and add them to this DB.
+Here's a good bootstrapping exercise for understanding the format and how it works: a quotes page in Perun. It will read a <%=(in-code "quotes.edn")%> file, dump the data parsed out from that quotes file into a <%=(in-code "datahike")%> db, and then use that data to generate the <%=(in-code "hiccup")%> content for the page. Once that's in place, I'll have a better idea of the schema I need to yank quotes out of the posts where they're quoted and add them to this DB.
 
-One important benefit of using functions rather than markup to define quotes is the ability to *preserve context* by including the references back to the piece of writing containing the quotes. This was one of the great promises of project Xanadu, the ability to see in tandem the multiple layers of context surrounding a link to a passage from another page. I cannot create a system as fully dynamic as Xanadu, but I can use an intermediate evaluation step as text is read from its input format to capture the structure created by the text and its references.
+One important benefit of using functions rather than markup to define quotes is the ability to <%=(em "preserve context")%> by including the references back to the piece of writing containing the quotes. This was one of the great promises of project Xanadu, the ability to see in tandem the multiple layers of context surrounding a link to a passage from another page. I cannot create a system as fully dynamic as Xanadu, but I can use an intermediate evaluation step as text is read from its input format to capture the structure created by the text and its references.
 
-<span class="f2 b">Extensible Textual Notation, part 11</span>
-<span class="f4">2020-03-07</span>
+<%=(header "Extensible Textual Notation, part 11" :h3)%>
+<%=(entry-date "2020-03-07")%>
 
-After a couple of half-hearted attempts to replicate the lozenge syntax of `pollen` using a Clojure `ANTLR` parser, I discovered the very new but very fully-featured [`Ash Ra Template`](https://github.com/vivid-inc/ash-ra-template) library. 
+After a couple of half-hearted attempts to replicate the lozenge syntax of <%=(in-code "pollen")%> using a Clojure <%=(in-code "ANTLR")%> parser, I discovered the very new but very fully-featured <%=(link "https://github.com/vivid-inc/ash-ra-template" (in-code "ash-ra-template"))%> library. 
 
 While I recognize that building my own parser is a good programming challenge, I also need to ask myself whether I need to undertake it before doing the work that I want to do in a medium that actually supports it. Right now, I'd prefer the latter.
+
+<%=(header "Extensible Textual Notation, part 12" :h3)%>
+<%=(entry-date "2020-03-23")%>
+
+The text has extended itself beyond the limitations of Markdown. I now have the power of a real programming language at my disposal in my own writing, and I used it to replace every single backtick and bracket that Markdown required. In so doing, I more fluidly composed the structures provided by HTML by using tools better designed to manipulate them directly instead of burying them under a pre-selected menu of abstractions. I understand HTML better as a result - its structure was not hidden from me. By using a dynamic, computational medium for writing, I can perform Jenny Odell calls "context creation" - I can fully express the context of this page's own creation, false starts, half-baked parsers, and all.
+
+I just wish it hadn't taken until a <%=(link "https://en.wikipedia.org/wiki/2019%E2%80%9320_coronavirus_pandemic" "once-in a generation global crisis")%> to get here.
