@@ -28,26 +28,36 @@
 (defn render-file-contents [content]
   (render/page (art/render content art-config)))
 
-(defn render-all [in-dir out-dir]
-  (let [art-files
-        (->> in-dir
-             io/file
-             file-seq
-             (filter #(and (.isFile %)
-                           (.endsWith (.toString %) art/art-filename-suffix))))]
-    (doseq [f art-files]
-      (let [out-file (-> f
-                         (.getName)
-                         (.toString)
-                         (str/split art/art-filename-suffix-regex)
-                         first
-                         (#(str out-dir "/" %)))]
-        (println "Rendering" (.toString out-file) "from path:" in-dir)
-        (-> f
-            slurp
-            render-file-contents
-            (#(spit out-file %)))))))
+(defn render-files
+  ([art-files out-dir]
+   (doseq [f art-files]
+     (let [out-file (-> f
+                        io/file
+                        (.getName)
+                        (.toString)
+                        (str/split art/art-filename-suffix-regex)
+                        first
+                        (#(str out-dir "/" %)))]
+       (println "Rendering" (.toString out-file))
+       (-> f
+           slurp
+           render-file-contents
+           (#(spit out-file %))))))
+  ([art-files] (render-files art-files "public")))
 
-(defn -main []
-  (render-all "content" "public")
-  )
+(defn get-art-files [dir]
+  (->> dir
+       io/file
+       file-seq
+       (filter #(and (.isFile %)
+                     (.endsWith (.toString %) art/art-filename-suffix)))
+       (map #(.toString %))))
+
+(defn render-all [in-dir out-dir]
+  (let [art-files (get-art-files in-dir)]
+    (render-files art-files out-dir)))
+
+(defn -main
+  ([]
+   (render-all "content" "public"))
+  ([& files] (render-files files "public")))
