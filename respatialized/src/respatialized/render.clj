@@ -112,6 +112,9 @@
      (map (fn row [r] [:tr {:class row-class}
                        (map (fn [i] [:td i]) r)]) rows)])))
 
+(defn script [content attr-map]
+  (html [:script attr-map content]))
+
 (defn page
   "Converts a hiccup file to HTML."
   [content]

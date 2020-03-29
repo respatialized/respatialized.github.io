@@ -468,11 +468,11 @@ The text has extended itself beyond the limitations of Markdown. I now have the 
 
 I just wish it hadn't taken until a <%=(link "https://en.wikipedia.org/wiki/2019%E2%80%9320_coronavirus_pandemic" "once-in a generation global crisis")%> to get here.
 
-<%=(header (str "Paragraph detection within" (in-code "ash-ra-template")) :h3)%>
+<%=(header (str "Paragraph detection within " (in-code "ash-ra-template")) :h3)%>
 <%=(entry-date "2020-03-29")%>
 
 Overall, I'm quite pleased with how well <%=(in-code "ash-ra-template")%> is working to directly create HTML using the power of Clojure and hiccup only when I need it. Now that I know how to make my own rendering library <%=(link "https://github.com/vivid-inc/ash-ra-template/issues/2" (str "available to " (in-code "ash-ra-template")))%>, I'm seamlessly replacing Markdown's defaults with functions that I have total control over. But there's one thing missing from the experience of using markdown or other plaintext formats - paragraph detection. If I want paragraphs now, I have to insert <%=(in-code "[:p \"content\"]")%> blocks, which effectively means I'm <%=(em "just")%> writing in hiccup data structures and not plaintext, defeating the purpose of using a templating engine at all.
 
 Luckily, the documentation for <%=(link "https://docs.racket-lang.org/pollen/third-tutorial.html" (in-code "pollen"))%> suggests a path forward: post-processing the text after template evaluation to infer paragraph and linebreaks. The documentation for the <%=(link "https://docs.racket-lang.org/pollen/Decode.html#%28def._%28%28lib._pollen%2Fdecode..rkt%29._decode-paragraphs%29%29" (str (in-code "detect-paragraphs") " function"))%> also has some useful test cases for paragraph inference on the basis of pre-existing blocks.
 
-Tokenizing the text into paragraphs after evaluation also potentially allows for the recording of the text as facts in a database (see above).
+Tokenizing the text into paragraphs after evaluation also potentially allows for the recording of the text as facts in a database (see above). I'm not there yet, but I'm about to merge into master and leave Markdown behind for good. 
