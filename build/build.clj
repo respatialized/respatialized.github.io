@@ -1,8 +1,10 @@
 (ns build
   (:require [vivid.art :as art]
+            [vivid.art.parse :refer [parse]]
             [clojure.java.io :as io]
             [hiccup.core :refer [html]]
             [respatialized.render :as render]
+            [respatialized.postprocess :as postprocess]
             [clojure.string :as str]
             [clojure.java.classpath :as cp])
   (:gen-class))
@@ -42,6 +44,7 @@
        (-> f
            slurp
            render-file-contents
+           postprocess/detect-paragraphs
            (#(spit out-file %))))))
   ([art-files] (render-files art-files "public")))
 

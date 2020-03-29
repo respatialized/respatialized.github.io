@@ -1,6 +1,6 @@
 cd respatialized
-clj -R:cambada -m cambada.jar --app-version=SNAPSHOT
-clj -A:install target/respatialized-SNAPSHOT.jar
+clojure -R:cambada -m cambada.jar --app-version=SNAPSHOT
+clojure -A:install target/respatialized-SNAPSHOT.jar
 cd ../
-clj -m build
+clojure -m build
 
