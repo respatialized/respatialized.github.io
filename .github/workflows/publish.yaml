@@ -13,7 +13,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-      - run: (cd respatialized && clojure -R:cambada -m cambada.jar --app-version=SNAPSHOT && clojure -A:install target/respatialized-SNAPSHOT.jar)
+        run: (cd respatialized && clojure -R:cambada -m cambada.jar --app-version=SNAPSHOT && clojure -A:install target/respatialized-SNAPSHOT.jar)
       - uses: actions/cache@v1
         with:
           path: ~/.m2/repository
@@ -21,7 +21,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       - name: Render
-      - run: clojure -m build
+        run: clojure -m build
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
