@@ -4,9 +4,4 @@
   vivid/ash-ra-template {:mvn/version "0.4.0"}
   venantius/glow {:mvn/version "0.1.6"}
   hiccup {:mvn/version "2.0.0-alpha2"}
-  respatialized {:mvn/version "SNAPSHOT"}}
- :aliases
- {:cambada {:extra-deps {luchiniatwork/cambada
-                         {:mvn/version "1.0.2"}}}
-  :install {:extra-deps {deps-deploy {:mvn/version "RELEASE"}}
-            :main-opts ["-m" "deps-deploy.deps-deploy" "install"]}}}
+  respatialized {:mvn/version "SNAPSHOT"}}}

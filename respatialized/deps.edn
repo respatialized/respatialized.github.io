@@ -19,5 +19,8 @@
         }
  :aliases {:test {:extra-paths ["test"]
                   :extra-deps  {lambdaisland/kaocha {:mvn/version "0.0-601"}}
-                  :main-opts   ["-m" "kaocha.runner"]}}
- }
+                  :main-opts   ["-m" "kaocha.runner"]}
+           :cambada {:extra-deps {luchiniatwork/cambada
+                                  {:mvn/version "1.0.2"}}}
+           :install {:extra-deps {deps-deploy {:mvn/version "RELEASE"}}
+                     :main-opts ["-m" "deps-deploy.deps-deploy" "install"]}}}

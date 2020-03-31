@@ -1,7 +1,3 @@
-*.sqlite
-*.rkt~
-*.p~
-*.pm~
 *.swp
 *.html
 *.ltx
@@ -13,8 +9,6 @@
 *.toc
 util/out/
 compiled/
-pollen-cache/
-pollen.cache
 .DS_Store
 posts/img/originals
 *.rebuild
