@@ -62,5 +62,5 @@
 
 (defn -main
   ([]
-   (render-all "content" "public"))
-  ([& files] (render-files files "public")))
+   (render-all "content" "docs"))
+  ([& files] (render-files files "docs")))
