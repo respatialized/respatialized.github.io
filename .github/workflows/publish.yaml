@@ -30,7 +30,7 @@ jobs:
       - name: Render
         run: clojure -m build
       - name: Deploy
-        uses: amesIves/github-pages-deploy-action@releases/v3
+        uses: JamesIves/github-pages-deploy-action@3.4.6
         with:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           FOLDER: public
