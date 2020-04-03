@@ -20,7 +20,7 @@ jobs:
         run: |
           cd respatialized
           clojure -R:cambada -m cambada.jar --app-version=SNAPSHOT
-          clojure -A:install target/respatialized-SNAPSHOT.jar)
+          clojure -A:install target/respatialized-SNAPSHOT.jar
       - uses: actions/cache@v1
         with:
           path: ~/.m2/repository
