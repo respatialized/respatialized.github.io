@@ -28,7 +28,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       - name: Render
-      - run: clojure -m build
+        run: clojure -m build
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
