@@ -2,23 +2,27 @@
     font-family: 'Basier Square';
     font-weight: 400;
     font-style: normal;
-         url('../basiersquare-regular-webfont.woff2') format('woff2'),
-         url('../basiersquare-regular-webfont.woff') format('woff'),
+    url('https://respatialized.nyc3.digitaloceanspaces.com/webfonts/basiersquare-regular-webfont.woff2') format('woff2'),
 }
 
 @font-face {
     font-family: 'Basier Square';
     font-weight: 400;
     font-style: italic;
-    url('../basiersquare-regularitalic-webfont.woff2') format('woff2'),
-    url('../basiersquare-regularitalic-webfont.woff') format('woff'),
+    url('https://respatialized.nyc3.digitaloceanspaces.com/webfonts/basiersquare-regularitalic-webfont.woff2') format('woff2'),
+}
+
+@font-face {
+    font-family: 'Basier Square';
+    font-weight: 700;
+    font-style: bold;
+    url('https://respatialized.nyc3.digitaloceanspaces.com/webfonts/basiersquare-bold-webfont.woff2') format('woff2'),
 }
 
 @font-face {
     font-family: 'Basier Square Mono';
     font-weight: 400;
     font-style: normal;
-    url('../basiersquaremono-regular-webfont.woff2') format('woff2'),
-    url('../basiersquaremono-regular-webfont.woff') format('woff'),
+    url('https://respatialized.nyc3.digitaloceanspaces.com/webfonts/basiersquaremono-regular-webfont.woff2') format('woff2'),
 }
 
