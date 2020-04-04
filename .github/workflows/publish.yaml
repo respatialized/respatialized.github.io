@@ -31,8 +31,8 @@ jobs:
         run: |
           clojure -m build
       - name: Deploy
-        uses: tsunematsu21/actions-publish-gh-pages@v1.0.0
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          token: ${{ secrets.ACCESS_TOKEN }}
-          dir: public
-          branch: master
+          github_token: ${{ secrets.ACCESS_TOKEN }}
+          publish_dir: ./public
+          publish_branch: master
