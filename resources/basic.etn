@@ -1,9 +1,0 @@
-Here's an extremely basic prototype of ETN: breaking up code and prose by line.
-
-First we define a variable.
-
-◊(def var "variable")
-
-◊(str "this is string interpolation using the" var "defined above")
-
-This will help bootstrap a more rigorous core.spec definition in the future.

@@ -1,0 +1,23 @@
+<p><!DOCTYPE html>
+<html><article lang="en"><body class="bg-moon-gray ml3 basier"><div class="f4 lh-copy mw9"></p>
+<p><head><title>Respatialized | Clojure is my TI-83</title><meta charset="utf-8" /><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" /><meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport" /><link href="css/fonts.css" rel="stylesheet" type="text/css" /><link href="css/tachyons.min.css" rel="stylesheet" type="text/css" /></head>
+<link href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css" rel="stylesheet" type="text/css" />
+<div class="f3"><div class="b"><h1>Clojure Is My TI-83</h1></div></div></p>
+<p><div class="b"><h3>Part 1</h3></div>
+<div class="f4">2019-05-20</div></p>
+<p>I was brushing up on some statistics using the <a href="https://openstax.org/details/books/introductory-statistics">OpenStax Introductory Statistics</a> free textbook. The exercises call for punching in functions on a TI-83 to generate random numbers and compute correlation coefficients. I have a much more powerful tool at my disposal: Clojure. </p>
+<blockquote class="bl bw2 b--green w-60"><p class="f3 pl2 bold">LISP is a high-level language, but you can still feel the bits sliding between your toes.</p><span class="pl2">Guy Steele</span></blockquote>
+<p>Clojure is an unusually expressive programming language. Its minimal syntax and aggressive polymorphism surprised me with what my intuition came up with on the fly. Here's an example. I'm not super familiar with the standard library or the idiomatic way of doing things, so I was trying to figure out how to filter a vector based on whether the elements were contained in a set.</p>
+<p><div class="language-klipse code">; uncomment the lines one by one to get a better idea:
+;(#{3 4 5} 4)
+;(#{3 4 5} 2)
+;(map #{3 4 5} [1 2 3 4 5])
+(filter #{3 4 5} [1 2 3 4 5])</div></p>
+<p>Just like that. As soon as the idea came to me I found that I could call a data structure as a function and filter the data I wanted with no syntactic overhead. This expressive power means that it basically takes me as long to <em>implement</em> a function as it does to look up how it might be done on a graphing calculator.</p>
+<p>Further experiments and exercises confirmed that I could indeed feel the data sliding between my toes.</p>
+<p><div class="b"><h3>Part 2: Tidying Data</h3></div>
+<div class="f4">2019-07-07</div></p>
+<p>In order to do my <a href="https://cnx.org/contents/MBiUQmmY@23.31:i_O99VEg/1-6-Sampling-Experiment">self-assigned math homework</a>, I needed to ensure the data provided are in an appropriate format. Here's how the book provides the data.</p>
+<p><script>window.klipse_settings = {selector: '.language-klipse'};</script>
+<script async="async" src="https://storage.googleapis.com/app.klipse.tech/plugin/js/klipse_plugin.js"></script></p>
+</div></body><footer class="mb7"><div><a href="/">Home</a></div></footer></article></html>
