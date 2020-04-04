@@ -1,2 +1,2 @@
-*
-!.gitignore
+public/*.html
+public/*.rss
