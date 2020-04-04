@@ -29,11 +29,10 @@ jobs:
             ${{ runner.os }}-maven-
       - name: Render
         run: |
-          mkdir docs
           clojure -m build
       - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@3.4.6
+        uses: tsunematsu21/actions-publish-gh-pages@v1.0.0
         with:
-          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-          FOLDER: public
-          BRANCH: master
+          token: ${{ secrets.ACCESS_TOKEN }}
+          dir: public
+          branch: master
