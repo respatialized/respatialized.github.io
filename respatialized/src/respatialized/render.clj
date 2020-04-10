@@ -1,5 +1,6 @@
 (ns respatialized.render
   (:require [hiccup.page :as hp]
+            [comb.template :as template]
             [hiccup.core :refer [html]]
             [hiccup.element :as elem]
             [clojure.string :as string]
@@ -116,16 +117,19 @@
   (html [:script attr-map content]))
 
 (defn page
-  "Converts a hiccup file to HTML."
-  [content]
-  (hp/html5
-   [:article
-    {:lang "en"}
-    [:body {:class styles/page}
-     [:div {:class styles/copy} content]]
-    [:footer
-     {:class "mb7"}
-     [:div [:a {:href "/"} "Home"]]]]))
+  "Converts a comb/hiccup file to HTML."
+  [t]
+  (let [content (template/eval t)
+        page-meta (eval 'metadata)]
+    (hp/html5
+     (doc-header (:title page-meta ""))
+     [:article
+      {:lang "en"}
+      [:body {:class (:page-class page-meta styles/page)}
+       [:div {:class (:copy-class page-meta styles/copy)} content]]
+      [:footer
+       {:class "mb7"}
+       [:div [:a {:href "/"} "Home"]]]])))
 
 (defn index
   "Generates the index from the list of posts."
