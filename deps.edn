@@ -2,6 +2,7 @@
  :deps
  {org.clojure/java.classpath {:mvn/version "1.0.0"}
   vivid/ash-ra-template {:mvn/version "0.4.0"}
+  comb {:mvn/version "0.1.1"}
   venantius/glow {:mvn/version "0.1.6"}
   hiccup {:mvn/version "2.0.0-alpha2"}
   respatialized {:mvn/version "SNAPSHOT"}}}

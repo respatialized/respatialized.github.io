@@ -90,5 +90,5 @@
 
 (comment
   ; only show the window when doing interactive development
-  (def h2-display (clj2d/show-window h2-surface "RESPATIALIZED//HOLOTYPE2"))
+  (clj2d/show-window h2-surface "RESPATIALIZED//HOLOTYPE2")
   )

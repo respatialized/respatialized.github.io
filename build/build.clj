@@ -1,10 +1,12 @@
 (ns build
   (:require [vivid.art :as art]
             [vivid.art.parse :refer [parse]]
+            [comb.template :as template]
             [clojure.java.io :as io]
             [hiccup.core :refer [html]]
             [respatialized.render :as render]
             [respatialized.postprocess :as postprocess]
+            [respatialized.holotype :as holotype]
             [clojure.string :as str]
             [clojure.java.classpath :as cp])
   (:gen-class))

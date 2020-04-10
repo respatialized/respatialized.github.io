@@ -8,6 +8,6 @@
 
 A holotype is an exemplar of a new type.
 
-<%=(holotype/canvas->hiccup! holotype/h2-result "public/media/holotype-2.jpg" "holotype2")%>
+<%=(canvas->hiccup! h2-result "public/media/holotype-2.jpg" "holotype2")%>
 
 This new type blurs the separation between the content and the code used to create it.
