@@ -1,10 +1,11 @@
 (ns respatialized.holotype
-  "Beyond markdown with Perun."
+  "Beyond markdown with hiccup."
   (:require [hiccup.page :as hp]
             [respatialized.render :as render]
             [respatialized.structure.fractals :as fractals]
             [clojure2d.core :as clj2d]
             [clojure.java.io :as io]
+            [clojure.data.json :as json]
             [fastmath.core :as m]))
 
 
@@ -46,52 +47,48 @@
      [:div [:a {:href "/"} "//RESPATIALIZED"]]]]))
 
 
-(defn canvas->hiccup! [cnvs path desc]
-  "Takes a clojure2d canvas and creates a hiccup img structure with its output.
-   SIDE EFFECT: outputs an image at the path for the fn to refer to."
-  (let [{x :w y :h} cnvs
-        out-path (str "output/" path)
-        ]
-    (clj2d/save cnvs out-path)
-    (into [:img {:src out-path :alt desc}])))
+
 
 ;; adding another layer of indirection to this function could allow it to be called only at build-time (not sure how yet)
 
+(def h2-surface  (clj2d/canvas 900 1400))
 
-(def holotype2-surface  (clj2d/canvas 500 700))
-;; (def holotype2-display (clj2d/show-window holotype2-surface "RESPATIALIZED//HOLOTYPE2"))
 (def dejong-pts
   (->> [-0.1 1.0]
        (iterate (fractals/de-jong 1.318 2.014 0.001 2.07))
-       (map (fn [[x y]]
-              [(m/* 500 (m/+ 0.5 (m// x 4.0)))
-               (m/* 700 (m/+ 0.5 (m// y 4.0)))]))
-       (take 10000)))
+       (map (fn [[y x]]
+              [(m/* (:w h2-surface) (m/+ 0.7 (m// x 1.8)))
+               (m/* (:h h2-surface) (m/+ 0.5 (m// y 2.9)))]))
+       (take 80000)))
 
 (defn draw-pts [canvas pts]
   (doseq [[x y] pts]
     (clj2d/rect canvas x y 1 1))
   canvas)
 
-(defn two
-  "holotype 2: aggregation of attractor points; blur of points based on relative density.
-  larger points -> more blur."
-  [{meta :meta entry :entry}]
-  (let [img (clj2d/with-canvas-> holotype2-surface
-              (clj2d/set-background 0.0 0.0 0.0 0.0)
-              (clj2d/set-stroke 1)
-              (clj2d/set-color 50 50 50 100)
-              (draw-pts dejong-pts))]
-    (hp/html5
-     [:article
-      {:lang "en"}
-      (render/doc-header "HOLOTYPE-2")
-      [:body {:class "ml3 basier-mono bg-mid-gray"}
-       [:div {:class "f1 b white"} "HOLOTYPE//2"]
-       [:div [:p "render png at compile time using clojure2d and boot"]]
-       [:div (canvas->hiccup! img "holotype/2/01.png" "dejong" )]
-       [:footer {:class "white f3 mb7"}
-        [:div [:a {:href "/"} "//RESPATIALIZED"]]]]]))
+(defn pull-colors
+  ([path] (-> path
+              slurp
+              (#(json/read-str %))
+              (#(select-keys % ["colors" "special"]))))
+  ([] (pull-colors "/home/andrew/.cache/wal/colors.json")))
+
+(def current-colors (pull-colors))
+
+(def h2-result
+  (clj2d/with-canvas-> h2-surface
+    (clj2d/set-background (clojure2d.color/to-RGB (get-in current-colors ["colors" "color2"])))
+    (clj2d/set-stroke 1)
+    (clj2d/set-color (clojure2d.color/to-RGB (get-in current-colors ["special" "foreground"])))
+    (draw-pts dejong-pts)))
+
+(defn canvas->hiccup! [cnvs path desc]
+  "Takes a clojure2d canvas and creates a hiccup img structure with its output.
+   SIDE EFFECT: outputs an image at the path for the fn to refer to."
+    (clj2d/save cnvs path)
+    (into [:img {:src path :alt desc}]))
+
+(comment
+  ; only show the window when doing interactive development
+  (def h2-display (clj2d/show-window h2-surface "RESPATIALIZED//HOLOTYPE2"))
   )
-
-

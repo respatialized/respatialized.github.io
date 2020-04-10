@@ -1,0 +1,13 @@
+<% (require '[hiccup.core :refer [html]]
+            '[respatialized.render :refer :all]
+            '[respatialized.structure.fractals :as fractals]
+            '[respatialized.holotype :as holotype])%>
+
+<%=(doc-header "HOLOTYPE_/1")%>
+<%=(header "HOLOTYPE_/1" "f1")%>
+
+A holotype is an exemplar of a new type.
+
+<%=(holotype/canvas->hiccup! holotype/h2-result "public/media/holotype-2.jpg" "holotype2")%>
+
+This new type blurs the separation between the content and the code used to create it.

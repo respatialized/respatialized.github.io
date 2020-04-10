@@ -4,7 +4,6 @@
    [clojure2d.core :as clj2d]
    [fastmath.core :as m]))
 
-
 (m/use-primitive-operators)
 
 (defn clifford

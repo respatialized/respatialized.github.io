@@ -14,6 +14,8 @@
    {'hiccup {:mvn/version "2.0.0-alpha2"}
     'org.clojure/clojure {:mvn/version "1.10.0"}
     'respatialized {:mvn/version "SNAPSHOT"}
+    'clojure2d {:mvn/version "1.2.0-SNAPSHOT"}
+    'generateme/fastmath {:mvn/version "1.4.0-SNAPSHOT"}
     }
    })
 
