@@ -1,7 +1,6 @@
 <% (require '[hiccup.core :refer [html]]
             '[respatialized.render :refer :all]) %>
 
-<%=(doc-header "Against Metadata")%>
 <%=(header "Against Metadata")%>
 
 <%=(header "Frustrations with YAML" :h4)%>

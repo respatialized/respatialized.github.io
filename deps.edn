@@ -1,8 +1,30 @@
-{:paths ["build" "resources" "content"]
+{:paths ["src" "resources" "content"]
  :deps
- {org.clojure/java.classpath {:mvn/version "1.0.0"}
+ {
+  ;; core
+  org.clojure/clojure {:mvn/version "1.10.1"}
+  org.clojure/test.check {:mvn/version "0.10.0"}
+
+  ;; site generation
+  hiccup {:mvn/version "2.0.0-alpha2" :exclusions [org.clojure/clojure]}
+
+  ;; site content
+  clojure2d {:mvn/version "1.2.0-SNAPSHOT"}
+  generateme/fastmath {:mvn/version "1.4.0-SNAPSHOT"}
+  net.mikera/clisk {:mvn/version "0.11.0"}
+
+  ;; site indexing and dbs
+  io.replikativ/datahike {:mvn/version "0.2.0"}
+  spec-provider {:mvn/version "0.4.14"}
+  provisdom/spectomic {:mvn/version "0.7.11"}
+
+ ;; site building functions
   vivid/ash-ra-template {:mvn/version "0.4.0"}
   comb {:mvn/version "0.1.1"}
   venantius/glow {:mvn/version "0.1.6"}
-  hiccup {:mvn/version "2.0.0-alpha2"}
-  respatialized {:mvn/version "SNAPSHOT"}}}
+  ;; respatialized {:mvn/version "SNAPSHOT"}
+  }
+ :aliases {:test {:extra-paths ["test"]
+                  :extra-deps  {lambdaisland/kaocha {:mvn/version "0.0-601"}}
+                  :main-opts   ["-m" "kaocha.runner"]}}
+ }

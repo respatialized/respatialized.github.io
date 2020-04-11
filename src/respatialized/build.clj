@@ -1,15 +1,14 @@
-(ns build
-  (:require [vivid.art :as art]
-            [vivid.art.parse :refer [parse]]
-            [comb.template :as template]
-            [clojure.java.io :as io]
-            [hiccup.core :refer [html]]
-            [respatialized.render :as render]
-            [respatialized.postprocess :as postprocess]
-            [respatialized.holotype :as holotype]
-            [clojure.string :as str]
-            [clojure.java.classpath :as cp])
-  (:gen-class))
+(ns respatialized.build
+  (:require
+   [vivid.art :as art]
+   [vivid.art.parse :refer [parse]]
+   [comb.template :as template]
+   [clojure.java.io :as io]
+   [hiccup.core :refer [html]]
+   [respatialized.render :refer :all]
+   [respatialized.postprocess :as postprocess]
+   [respatialized.holotype :as holotype]
+   [clojure.string :as str]))
 
 (def art-config
   {:dependencies
@@ -31,10 +30,10 @@
   ([path pre] (check-art-form (slurp path) pre art-config))
   ([path] (check-art-form (slurp path) "")))
 
-(defn render-file-contents [content]
-  (render/page (art/render content art-config)))
+(defn render-art-file [content]
+  (page (art/render content art-config)))
 
-(defn render-files
+(defn render-art-files
   ([art-files out-dir]
    (doseq [f art-files]
      (let [out-file (-> f
@@ -47,10 +46,31 @@
        (println "Rendering" (.toString out-file))
        (-> f
            slurp
-           render-file-contents
+           render-art-file
            postprocess/detect-paragraphs
            (#(spit out-file %))))))
-  ([art-files] (render-files art-files "public")))
+  ([art-files] (render-art-files art-files "public")))
+
+(def template-suffix-regex #"#*[.]cc$")
+
+(defn render-comb-file
+  ([path page-fn out-dir]
+   (let [out-file (-> path
+                      io/file
+                      (.getName)
+                      (.toString)
+                      (str/split template-suffix-regex)
+                      first
+                      (#(str out-dir "/" %)))]
+   (-> path
+       slurp
+       page-fn
+       postprocess/detect-paragraphs
+       (#(spit out-file %))
+       )))
+  ([path page-fn] (render-comb-file path page-fn "public"))
+  ([path]
+   (render-comb-file path page "public")))
 
 (defn get-art-files [dir]
   (->> dir
@@ -60,11 +80,11 @@
                      (.endsWith (.toString %) art/art-filename-suffix)))
        (map #(.toString %))))
 
-(defn render-all [in-dir out-dir]
+(defn render-all-art [in-dir out-dir]
   (let [art-files (get-art-files in-dir)]
-    (render-files art-files out-dir)))
+    (render-art-files art-files out-dir)))
 
 (defn -main
   ([]
-   (render-all "content" "public"))
-  ([& files] (render-files files "public")))
+   (render-all-art "content" "public"))
+  ([& files] (render-art-files files "public")))
