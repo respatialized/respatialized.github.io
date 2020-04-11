@@ -85,8 +85,8 @@
 (defn canvas->hiccup! [cnvs path desc]
   "Takes a clojure2d canvas and creates a hiccup img structure with its output.
    SIDE EFFECT: outputs an image at the path for the fn to refer to."
-    (clj2d/save cnvs path)
-    (into [:img {:src path :alt desc}]))
+  (do (clj2d/save cnvs (str "public/" path)))
+  (into [:img {:src path :alt desc}]))
 
 (comment
   ; only show the window when doing interactive development
