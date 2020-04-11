@@ -1,6 +1,2 @@
 public/*.html
 public/*.rss
-/respatialized/.cpcache/
-/respatialized/classes/
-/respatialized/target/
-/respatialized/pom.xml
