@@ -48,9 +48,11 @@
   ([path] (image path "")))
 
 (defn code
-  ([text class] (html [:pre [:code {:class class} text]]))
+  ([text class] (html [:pre {:class class} [:code text]]))
   ([text] (code text styles/code)))
-(defn in-code [text] (html [:code text]))
+
+(defn in-code ([text] (in-code text styles/in-code))
+  ([text class] (html [:code {:class class} text])))
 
 (defn blockquote
   ([content author
