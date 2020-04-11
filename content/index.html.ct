@@ -20,3 +20,6 @@
        [:p [:a {:href "/working-definition.html"} "A Working Definition"]]
        [:p "a working definition of my own ideology."]))
 %>
+
+
+<%=(html [:div {:class "f3"} (strong "Site source: " (link "https://github.com/respatialized/respatialized.github.io" (in-code "github")))])%>
