@@ -472,3 +472,15 @@ Overall, I'm quite pleased with how well <%=(in-code "ash-ra-template")%> is wor
 Luckily, the documentation for <%=(link "https://docs.racket-lang.org/pollen/third-tutorial.html" (in-code "pollen"))%> suggests a path forward: post-processing the text after template evaluation to infer paragraph and linebreaks. The documentation for the <%=(link "https://docs.racket-lang.org/pollen/Decode.html#%28def._%28%28lib._pollen%2Fdecode..rkt%29._decode-paragraphs%29%29" (str (in-code "detect-paragraphs") " function"))%> also has some useful test cases for paragraph inference on the basis of pre-existing blocks.
 
 Tokenizing the text into paragraphs after evaluation also potentially allows for the recording of the text as facts in a database (see above). I'm not there yet, but I'm about to merge into master and leave Markdown behind for good. 
+
+<%=(header "Holotype: further steps towards simplicity" :h3)%>
+<%=(entry-date "2020-04-11")%>
+
+I made good progress generating content with <%=(in-code "ash-ra-template")%> - until I wanted to dynamically render an image as part of the build process. I ran into two walls imposed by the closed environment of <%=(in-code "ShimDandy")%>: lack of access to the local filesystem, and the Java classes necessary to render images using <%=(in-code "clojure2d")%> are not available in that context either.
+
+Fortunately, I recently discovered <%=(link "https://github.com/weavejester/comb" (in-code "comb"))%>, a library much like <%=(in-code "ash-ra-template")%> by the author of <%=(in-code "hiccup")%>, which is pretty much <%=(em "exactly")%> what I was thinking about building above, and its parser is exceptionally simple. It lets me seamlessly embed generative artwork into my pages as easily as I can use my templating functions to emphasize text or add headers. You can see an example <%=(link "holotype.html" "here.")%>
+
+In addition to that, the fact that the templates are evaluated in the same context as the rest of my code adds the following benefits:
+<%=(ul (str "I can define a map of metadata attributes at the top of the post that is available to the rendering function, so I can set page-level attributes from within each post itself - no kludges like " (link "https://github.com/hashobject/perun/blob/ca090ca77a3aac18b4ff0ac330febb88c26cab84/src/io/perun/yaml.clj" "YAML front matter") " - I handle my posts' data in pure Clojure.") "I no longer need to install my rendering code to my local maven repo to call it from the templates, which lets me" "rebuild all the pages from the REPL, and" (str "rebuild the pages " (em "much") " faster"))%>
+
+It even uses the same delimiters, which made it trivial to port all my existing pages over to the new library and simplify my project into a single namespace.
