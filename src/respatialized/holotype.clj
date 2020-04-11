@@ -16,19 +16,21 @@
     :style {:opacity 0.2}
    :r 1}])
 
-(def pts (into [:svg {:id "clifford" :width 500 :height 700}]
-               (map svg-pt
-                    (take 20000
-                          (iterate
-                           (fractals/clifford 1.7 1.7 0.6 1.2)
-                           [0.7 0.7])))))
+(defn pts []
+  (into [:svg {:id "clifford" :width 500 :height 700}]
+        (map svg-pt
+             (take 20000
+                   (iterate
+                    (fractals/clifford 1.7 1.7 0.6 1.2)
+                    [0.7 0.7])))))
 
-(def pts2 (into [:svg {:id "clifford" :width 500 :height 700}]
-               (map svg-pt
-                    (take 20000
-                          (iterate
-                           (fractals/clifford 1.7 2.7 0.9 1.2)
-                           [0.7 0.7])))))
+(defn pts2 []
+  (into [:svg {:id "clifford" :width 500 :height 700}]
+        (map svg-pt
+             (take 20000
+                   (iterate
+                    (fractals/clifford 1.7 2.7 0.9 1.2)
+                    [0.7 0.7])))))
 
 (defn one
   [{meta :meta entry :entry}]
@@ -40,8 +42,8 @@
      [:div {:class "f1 b white"} "HOLOTYPE//1"]
      [:div [:p "an example of using clojure alone to render a Perun post:"]]
      [:div [:p "render svg at compile time using hiccup data structures"]]
-     pts
-     pts2
+     (pts)
+     (pts2)
      [:div [:p "CAUTION RECOMMENDED // RESULTING PAGE WEIGHS 3.5MB"]]]
     [:footer {:class "white f3 mb7"}
      [:div [:a {:href "/"} "//RESPATIALIZED"]]]]))
@@ -52,14 +54,6 @@
 ;; adding another layer of indirection to this function could allow it to be called only at build-time (not sure how yet)
 
 (def h2-surface  (clj2d/canvas 900 1400))
-
-(def dejong-pts
-  (->> [-0.1 1.0]
-       (iterate (fractals/de-jong 1.318 2.014 0.001 2.07))
-       (map (fn [[y x]]
-              [(m/* (:w h2-surface) (m/+ 0.7 (m// x 1.8)))
-               (m/* (:h h2-surface) (m/+ 0.5 (m// y 2.9)))]))
-       (take 80000)))
 
 (defn draw-pts [canvas pts]
   (doseq [[x y] pts]
@@ -75,12 +69,21 @@
 
 (def current-colors (pull-colors))
 
-(def h2-result
-  (clj2d/with-canvas-> h2-surface
-    (clj2d/set-background (clojure2d.color/to-RGB (get-in current-colors ["colors" "color2"])))
-    (clj2d/set-stroke 1)
-    (clj2d/set-color (clojure2d.color/to-RGB (get-in current-colors ["special" "foreground"])))
-    (draw-pts dejong-pts)))
+(defn h2 []
+  (let
+      [dejong-pts
+       (->> [-0.1 1.0]
+            (iterate (fractals/de-jong 1.318 2.014 0.001 2.07))
+            (map (fn [[y x]]
+                   [(m/* (:w h2-surface) (m/+ 0.7 (m// x 1.8)))
+                    (m/* (:h h2-surface) (m/+ 0.5 (m// y 2.9)))]))
+            (take 80000))]
+    (clj2d/with-canvas-> h2-surface
+      (clj2d/set-background (clojure2d.color/to-RGB (get-in current-colors ["colors" "color2"])))
+      (clj2d/set-stroke 1)
+      (clj2d/set-color (clojure2d.color/to-RGB (get-in current-colors ["special" "foreground"])))
+      (draw-pts dejong-pts))
+    ))
 
 (defn canvas->hiccup! [cnvs path desc]
   "Takes a clojure2d canvas and creates a hiccup img structure with its output.
