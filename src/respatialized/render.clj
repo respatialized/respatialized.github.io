@@ -131,25 +131,5 @@
        {:class "mb7"}
        [:div [:a {:href "/"} "Home"]]]])))
 
-(defn index
-  "Generates the index from the list of posts."
-  []
-  (hp/html5 {:lang "en"}
-            (header "Respatialized")
-            [:body {:class styles/page}
-             [:div {:class "f1 b"} "Respatialized"]
-             [:div {:class "f3"} "recent writings"]
-             [:ul {:class "f4"}
-              [:li
-               [:p [:a {:href "/not-a-tree.html"} "This Website Is Not A Tree"]]
-               [:p "a metatextual introduction to this site as it is and as it could be."]]
-              [:li [:p [:a {:href "/against-metadata.html"} "Against Metadata"]]
-               [:p "rants against the apparent fact that metadata is treated as an afterthought in program design and configuration management."]]
-              [:li [:p [:a {:href "/information-cocoon.html"} "Reifying the Filter Bubble, part 1"]]
-               [:p "new digital infrastructure makes a metaphor less of one."]]
-              [:li [:p [:a {:href "/reifying-filter-bubble-2.html"} "Reifying the Filter Bubble, part 2"]]
-               [:p "notes against the 'decentralization' of an impoverished internet."]]
-              [:li
-               [:p [:a {:href "/working-definition.html"} "A Working Definition"]]
-               [:p "a working definition of my own ideology."]]]]))
+
 
