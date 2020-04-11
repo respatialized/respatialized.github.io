@@ -1,13 +1,11 @@
-<% (require '[hiccup.core :refer [html]]
-             '[respatialized.render :refer :all]) %>
-
+<% (def metadata {:title "AI: Beyond the Hype"}) %>
 
 <%=(header "AI: Beyond The Hype") %>
 <%=(header "Computation, labor, and power" :h2)%>
 
 I'm going to talk today about machine learning and AI.
 
-Supposedly we're just around the corner from a runaway breakthrough that changes our society as much as the invention of agriculture or the use of fossil fuels for motive power. I'm going to try and give you enough context for how this stuff works to persuade you of something you probably knew already: that fantasies of the impending obsolesence of human intelligence are Silicon Valley bullshit. But I also hope that I can convey <%(=(em "why")%> it's bullshit and demystify the actual technology so you can see through the hype in the future.
+Supposedly we're just around the corner from a runaway breakthrough that changes our society as much as the invention of agriculture or the use of fossil fuels for motive power. I'm going to try and give you enough context for how this stuff works to persuade you of something you probably knew already: that fantasies of the impending obsolesence of human intelligence are Silicon Valley bullshit. But I also hope that I can convey <%=(em "why")%> it's bullshit and demystify the actual technology so you can see through the hype in the future.
 
 Who am I? I work in the field as a data engineer and previously as a data scientist. My role is to transform what researchers come up with into software that can be repeated and scaled up to deal with newer and larger sets of data.
 

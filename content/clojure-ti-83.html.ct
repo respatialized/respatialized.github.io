@@ -1,9 +1,6 @@
-<% (require '[hiccup.core :refer [html]]
-            '[hiccup.page :refer [include-css]]
-            '[respatialized.render :refer :all]) %>
+<% (def metadata {:title "Clojure is my TI-83"}) %>
 
-<%=(doc-header "Clojure is my TI-83")%>
-<%=(html (include-css "https://storage.googleapis.com/app.klipse.tech/css/codemirror.css"))%>
+<%=(html (hp/include-css "https://storage.googleapis.com/app.klipse.tech/css/codemirror.css"))%>
 <%=(html [:div {:class "f3"} (header "Clojure Is My TI-83")])%>
 
 <%=(header "Part 1" :h3)%>

@@ -1,5 +1,4 @@
-<% (require '[hiccup.core :refer [html]]
-            '[respatialized.render :refer :all]) %>
+<% (def metadata {:title "Against Metadata"}) %>
 
 <%=(header "Against Metadata")%>
 

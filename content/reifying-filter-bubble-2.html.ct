@@ -1,7 +1,5 @@
-<% (require '[hiccup.core :refer [html]]
-            '[respatialized.render :refer :all]) %>
+<% (def metadata {:title "Reifying The Filter Bubble, part 2"})%>
 
-<%=(doc-header "Reifying The Filter Bubble, part 2")%>
 <%=(html [:div {:class "f3"} (header "Reifying The Filter Bubble, part 2")])%>
 <%=(entry-date "2019-12-27")%>
 

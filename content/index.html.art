@@ -1,3 +1,0 @@
-<% (require '[hiccup.core :refer [html]]
-            '[respatialized.render :refer :all]) %>
-

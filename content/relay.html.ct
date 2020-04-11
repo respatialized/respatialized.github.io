@@ -1,7 +1,5 @@
-<% (require '[hiccup.core :refer [html]]
-            '[respatialized.render :refer :all]) %>
+<% (def metadata {:title "//RELAY"}) %>
 
-<%=(doc-header "//RELAY")%>
 <%=(html [:div {:class "f1"} (header "//RELAY")])%>
 
 <%=(html [:div {:class "f3"}

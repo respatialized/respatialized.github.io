@@ -1,10 +1,6 @@
+<% (def metadata {:title "This Website Is Not A Tree"}) %>
 
-<% (require '[hiccup.core :refer [html]]
-            '[respatialized.render :refer :all]) %>
-
-<%=(doc-header "This Website Is Not A Tree")%>
 <%=(header "This Website Is Not A Tree")%>
-
 
 <%=(blockquote "It must be emphasized, lest the orderly mind shrink in horror from anything that is not clearly articulated and categorized in tree form, that the idea of overlap, ambiguity, multiplicity of aspect and the semilattice are not less orderly than the rigid tree, but more so. They represent a thicker, tougher, more subtle and more complex view of structure." (str "Christopher Alexander, " (link "https://www.patternlanguage.com/archive/cityisnotatree.html" "A City Is Not A Tree")))%>
 <%=(html [:div {:class "f7 tr"} "essential reading."])%>

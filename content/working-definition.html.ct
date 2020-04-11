@@ -1,5 +1,4 @@
-<% (require '[hiccup.core :refer [html]]
-            '[respatialized.render :refer :all]) %>
+<% (def metadata {:title "A Working Definition"}) %>
 
 <%=(doc-header "A Working Definition")%>
 <%=(html [:div {:class "f3"} (header "A Working Definition")])%>

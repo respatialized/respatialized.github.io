@@ -5,6 +5,7 @@
    [comb.template :as template]
    [clojure.java.io :as io]
    [hiccup.core :refer [html]]
+   [hiccup.page :as hp]
    [respatialized.render :refer :all]
    [respatialized.postprocess :as postprocess]
    [respatialized.holotype :as holotype]
@@ -51,7 +52,8 @@
            (#(spit out-file %))))))
   ([art-files] (render-art-files art-files "public")))
 
-(def template-suffix-regex #"#*[.]cc$")
+(def template-suffix ".ct")
+(def template-suffix-regex #"#*[.]ct$")
 
 (defn render-comb-file
   ([path page-fn out-dir]
@@ -62,6 +64,7 @@
                       (str/split template-suffix-regex)
                       first
                       (#(str out-dir "/" %)))]
+     (println "Rendering" (.toString out-file))
    (-> path
        slurp
        page-fn
@@ -71,6 +74,23 @@
   ([path page-fn] (render-comb-file path page-fn "public"))
   ([path]
    (render-comb-file path page "public")))
+
+(defn get-template-files [dir suffix]
+  (->> dir
+       io/file
+       file-seq
+       (filter #(and (.isFile %)
+                     (.endsWith (.toString %) suffix)))
+       (map #(.toString %))))
+
+(defn render-comb-files
+  ([dir page-fn out-dir]
+   (let [template-files (get-template-files dir template-suffix)]
+     (doseq [f template-files]
+       (render-comb-file f page-fn out-dir))))
+  ([dir page-fn] (render-comb-files dir page-fn "public"))
+  ([dir] (render-comb-files dir page "public"))
+  ([] (render-comb-files "content")))
 
 (defn get-art-files [dir]
   (->> dir

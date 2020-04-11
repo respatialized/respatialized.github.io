@@ -1,7 +1,7 @@
-<% (require '[hiccup.core :refer [html]]
+<% (def metadata {:title "Reifying The Filter Bubble"})
+  (require '[hiccup.core :refer [html]]
             '[respatialized.render :refer :all]) %>
 
-<%=(doc-header "Reifying The Filter Bubble")%>
 <%=(html [:div {:class "f3"} (header "Reifying The Filter Bubble")])%>
 
 <%=(html [:div {:class "mw9 mw8-ns cf"}
