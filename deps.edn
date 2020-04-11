@@ -19,11 +19,10 @@
   provisdom/spectomic {:mvn/version "0.7.11"}
 
  ;; site building functions
-  vivid/ash-ra-template {:mvn/version "0.4.0"}
   comb {:mvn/version "0.1.1"}
   venantius/glow {:mvn/version "0.1.6"}
-  ;; respatialized {:mvn/version "SNAPSHOT"}
   }
+ :jvm-opts ["--illegal-access=deny"]
  :aliases {:test {:extra-paths ["test"]
                   :extra-deps  {lambdaisland/kaocha {:mvn/version "0.0-601"}}
                   :main-opts   ["-m" "kaocha.runner"]}}
