@@ -64,10 +64,10 @@
   ([path] (-> path
               slurp
               (#(json/read-str %))
-              (#(select-keys % ["colors" "special"]))))
-  ([] (pull-colors "/home/andrew/.cache/wal/colors.json")))
+              (#(select-keys % ["colors" "special"])))))
 
-(def current-colors (pull-colors))
+(def current-colors
+  {"colors" {"color1" "#856237", "color6" "#3c342e", "color7" "#ccbaad", "color11" "#c4973b", "color4" "#3c3c49", "color3" "#8d7138", "color5" "#6b4747", "color2" "#5d5a4b", "color13" "#965050", "color15" "#fff5e4", "color12" "#454567", "color14" "#544234", "color8" "#383535", "color10" "#837c56", "color9" "#b9803b", "color0" "#1f1d1d"}, "special" {"background" "#1f1d1d", "foreground" "#fff5e4", "cursor" "#fff5e4"}})
 
 (defn h2 []
   (let
