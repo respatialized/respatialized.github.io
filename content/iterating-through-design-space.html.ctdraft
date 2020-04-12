@@ -1,0 +1,49 @@
+<% (def metadata {:title "Iterating through a design space"
+                  :date "2020-04-12"})%>
+
+<%=(header "Iterating through a design space")%>
+<%=(html [:p  {:class "f3"} (em "preserving the context and intent of changes to variables")])%>
+
+<%= (header "Identifying what changes" :h2)%>
+
+I got started programming using <%=(link "http://processing.org" (in-code "processing.org"))%>. Like many others just getting started, I had no idea what <%=(in-code "git")%> was, and my <%=(in-code "~/processing/")%> folder rapidly became filled with variations of the following:
+<%=(code (ul "circles01/" "circles01a/" "circles02/" "circles02a/" "circles02b/" "circles02b_1" "..."))%>
+
+I struggled to express the semantic differences between these different iterations of the same idea. Were they even the same idea? To what extent do two pieces of generative artwork that employ circles as a core element even embody the "same idea?" Needless to say, attempting to use a file path to capture these distinctions is a lost cause - using variations on a filename guaranteed that I would forget the relevant differences within a few days.
+
+This was part of the motivation for the library I currently use to produce 2d images. Long before I ever thought programming was something I could do, a friend sent me a link to Quil. I attempted to learn Clojure, Light Table, and the terminal all at once. I didn't get very far. But it may have planted the seed of functional programming in my mind, causing me to feel frustrated when trying to use Python to do data analysis or create artwork. I would periodically return to using Quil, and found that pure functions as opposed to inline state mutations do a better job of expressing <%=(em "what")%> is changing as a single semantic unit (the function) by encapsulating the <%=(em "how")%>. They forced me to think about the inputs and outputs in a more explicit way.
+
+Despite this, Quil still inherits from Processing a "sketch-centric" view of the world. Portioning off code into single-use folders or namespaces inhibits code reuse. Now that I'm more fluent with programming in general, it's not so hard for me to figure out how to create a library and install it to my own local Maven repo so I can reuse the code, but that's a pretty big ask for a beginner who just wants to make art. Breaking free of these limitations was the motivation for the library I currently use to render images:
+
+<%=(blockquote "I've been producing a lot of Processing code and started to suffer from limitations of working in 'write sketch and run' mode. Too much copy&paste between sketches, zillions of folders, zillions of processed images. And one day I fell in love with FP. This code is the answer." (link "https://github.com/Clojure2D/clojure2d/blob/b2eaf5b4cadf630bf23db5c610b1c39e174853dd/README.md" (str (in-code "clojure2d") " documentation")))%> 
+
+Whether done in an imperative or functional way, when building generative art sketches, one quickly discovers the "magic numbers" that yield the most visually appealing or interesting results. Tracking these gets easier with pure functions, but sometimes just leaving them inline feels incomplete. Here's an example from the <%=(link "https://github.com/respatialized/respatialized.github.io/blob/d4076a2b0e893d835a40122a4a974811c9b168d8/src/respatialized/structure/fractals.clj" "source code")%> to an image in another page:
+
+<%=(code
+"(ns respatialized.structure.fractals
+  (:require
+   [clojure2d.core :as clj2d]
+   [fastmath.core :as m]))
+
+(defn de-jong
+  [^Double a ^Double b ^Double c ^Double d]
+  (fn [[^Double x ^Double y]]
+    [(m/- (m/sin (m/* a y)) (m/cos (m/* b x)))
+     (m/- (m/sin (m/* c x)) (m/cos (m/* d y)))]))
+
+(def dejong1 (de-jong 1.641 1.902 0.316 1.525))
+(def dejong2 (de-jong 7.201 1.316 2.114 0.701))
+(def dejong3 (de-jong 1.317 2.014 0.001 2.07))
+(def dejong4 (de-jong 1.412 2.924 0.901 1.38))
+(def dejong5 (de-jong 1.5 1.5 1.5 1.5))
+(def dejong6 (de-jong 0.517 -2.001 0 2.07))")%>
+
+I have some nice looking values for the input parameters saved using named variables. This is less than ideal. In order to actually see the differences between these parameters, I have to run the code. I don't know what else is needed to turn this into an image - there's an implicit assumption about these numbers' execution context that doesn't make it into these definitions.
+
+<%=(header "Reference and Persistence" :h2)%>
+
+This conceptually the same problem that many people are trying to solve for machine learning pipelines (which happens to be my day job): how do we ensure that the output of an algorithm gets saved alongside all its input parameters in a way that lets us durably view changes to the inputs and outputs over time and across the parameter space? In order to do this in a sane and consistent way, we need a more expressive and well-thought-out solution than just putting magic numbers at the top of files.
+
+Tracking these values and how they may change the outputs sounds like a job for a database. Traditional databases are really bad for this problem, though - I really would prefer not to write a migration every time I think of a new algorithm to test that has a different number of input parameters than others.
+
+Enter datahike.

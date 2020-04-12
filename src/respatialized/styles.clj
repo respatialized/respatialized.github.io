@@ -5,7 +5,7 @@
 (def page "bg-moon-gray ml3 basier")
 (def copy "f4 lh-copy mw9")
 
-(def code "ws-normal navy bg-silver")
+(def code "ws-pre navy bg-silver")
 (def in-code "ws-normal navy")
 
 (def header-default "b")
