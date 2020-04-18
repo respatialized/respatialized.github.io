@@ -1,0 +1,50 @@
+<p><!DOCTYPE html>
+<html><head><title>Respatialized | Replicating lit with babashka</title><meta charset="utf-8" /><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" /><meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport" /><link href="css/fonts.css" rel="stylesheet" type="text/css" /><link href="css/tachyons.min.css" rel="stylesheet" type="text/css" /></head><article lang="en"><body class="bg-moon-gray ml3 basier"><div class="f4 lh-copy mw9"></p>
+<div class="b"><h1>Replicating lit with babashka</h1></div>
+<p>I want to move some notes I took on SICP to this repo. I also want to integrate my notes with the templating system I use to write these entries. That way, I can still pipe the file into the <code class="ws-normal navy">racket</code> cli for evaluation while also gaining the ability to render the prose using the features I've developed atop <code class="ws-normal navy">comb</code>.</p>
+<p>I think the best way to do so is to turn them into a lightweight literate programming format like <code class="ws-normal navy">lit</code>. However, I don't want my ability to execute this code to depend on my understanding of <code class="ws-normal navy">awk</code> - I want to keep as much as possible in a single language. So I'll replicate the features of <code class="ws-normal navy">lit</code> using <code class="ws-normal navy">babashka</code>. I haven't used it yet, and it seems like a decent enough exercise to get going with it.</p>
+<div class="b"><h3>Goals</h3></div>
+<ul><li>Comment out everything that's not in a code block and eliminate the code block fences so the result is an executable file.</li><li>Delimit the code blocks in such a way as to be transformed into displayable code blocks by a preprocessor that works with <code class="ws-normal navy">comb.</code></li></ul>
+<div class="b"><h3>Non-goals</h3></div>
+<ul><li>support for multiline comments.</li></ul>
+<p>Here's the first approximation of what's needed for this:</p>
+<p><pre class="class"><code>#!/usr/bin/env -S bb -i -o</p>
+<p>(require '[clojure.test :refer [is]])
+(def default-code-open "+begin_src")
+(def default-code-close "+end_src")
+(def default-comment ";")</p>
+<p>(defn comment-lines
+  "Comments out everything not between code fences, then removes the code fences to yield an executable script."
+  {:test (fn []
+           (is (= (comment-lines ["plaintext to comment"])
+                  [";plaintext to comment"]))
+           (is (= (comment-lines ["+begin_src" "(code 3)" "+end_src"])
+                  ["(code 3)"]))
+           (is (= (comment-lines ["test" "+begin_src" "(+ 1 1)" "+end_src" "test3"])
+                  [";test" "(+ 1 1)" ";test3"])))}
+  ([input-lines comment-char open-block close-block]
+   (loop [lines input-lines output-lines [] block? false]
+     (cond
+       (empty? lines) ; base case - the input is complete
+       output-lines
+       (empty? (first lines)) ; ignore blank lines
+       (recur (rest lines) (conj output-lines (first lines)) block?)
+       (= open-block (first lines))
+       (recur (rest lines) output-lines true)
+       (and block? (= (first lines) close-block))
+       (recur (rest lines) output-lines false)
+       block?
+       (recur (rest lines) (conj output-lines (first lines)) block?)
+       :else ; treate everything else as a comment
+       (recur (rest lines) (conj output-lines (str comment-char (first lines))) block?))))
+  ([input-lines] (comment-lines input-lines
+                                default-comment
+                                default-code-open
+                                default-code-close)))</p>
+<p>(clojure.test/run-tests)</p>
+<p>(comment-lines *input*)
+</code></pre></p>
+<p>At the top of the shebang, I use the options provided by GNU coreutils to make the script default to reading lines from stdin and printing lines to stdout, as any other script would. This means the script isn't necessarily portable, but it's for my own interactive use, so that doesn't matter.</p>
+<p>The body consists of a single recursive function that uses accumulator variables to keep track of whether the current line is inside or outside the code block. Because of the default namespaces, I can inline the tests right in the function definition, and just comment out the call to <code class="ws-normal navy">clojure.core/run-tests</code> when I want to use the script to as part of a pipeline.</p>
+<p>The second goal will allow me to inline the <code class="ws-normal navy">babashka</code> script in this file from its source rather than just copying and pasting it.
+</div></body><footer class="mb7"><div><a href="/">Home</a></div></footer></article></html></p>

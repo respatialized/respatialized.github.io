@@ -78,7 +78,7 @@ These have the benefit of being much closer to the day-to-day work of developers
 <p>Statically typed languages that rely on complex class hierarchies, especially because the compiler may make multiple passes across the codebase for definitions in different files ("... all you wanted was the banana." - Joe Armstrong) force you to ship all this supporting material to use one part of it. </p>
 <div><p class="f5"><em>aside: I don't intend this as an intrinsic dig at statically typed, compiled languages per se. Smart compilers can do dead code elimination, but usually this technique is put to the purpose of reducing </em> executable <em>size rather than reducing</em> dependency <em>size. It'd be very interesting to see a compiler targeting library code that minimizes the volume of the library code pulled in by the code which declares it as a dependency.<a href="https://www.unisonweb.org/docs/tour">Unison</a> has done some interesting work in this direction because of its ability to serialize algebraic data types and send them over the network to perform remote computation.</em></p></div>
 <p>So if instead of classes defined across files or nested relationships between algebraic data types defined at compile time, we had functions operating on simple, immutable values defined in self-contained s-expressions, plus some annotations:</p>
-<p><pre class="ws-normal navy bg-silver"><code>(defn myfunc
+<p><pre class="ws-pre navy bg-silver"><code>(defn myfunc
  {:calls #{this.ns/func other.ns/func}
 ...)</code></pre>
 <em>this could maybe be achieved even without the manual annotation if you used a macro to pull the symbols out of the function expression at compile time</em></p>
@@ -103,14 +103,14 @@ These have the benefit of being much closer to the day-to-day work of developers
 <div class="b"><h5>Structure from text</h5></div>
 <p>I want to replicate <code class="ws-normal navy">pollen</code>'s ability to let prose be prose while still incrementally bringing in a programming language when it's needed, but also combine it with Clojure's own data structures to capture the structure that emerges organically from the act of writing, so I could, for example, capture the table above not just as a sequence of textual elements but also preserve the structure of the tabular data itself for future use somewhere else. </p>
 <p>The simplest implementation of that would be just reading in the file line by line and constructing maps from the paragraphs separated by line breaks:</p>
-<p><pre class="ws-normal navy bg-silver"><code>{:id e4268ac2
+<p><pre class="ws-pre navy bg-silver"><code>{:id e4268ac2
  :text "Paragraph one."}
 {:id e4268ac3
  :text "Paragraph two."}
 </code></pre></p>
 <p>The initial reading process creates entities that serve as placeholders for text as it is when read and as it may be in the future, all recorded as facts in a EAVT/RDF semantic triple format. Knowledge atoms instead of data atoms. But a collection of facts doesn't preserve the ordering of their original composition, which is a lot of structure to throw away. There are two ways of preserving it that initially occurred to me:</p>
 <p>[1] <strong>files are entities too</strong> - just have them refer to their contents as distinct entities.</p>
-<p><pre class="ws-normal navy bg-silver"><code>{:entity 23542
+<p><pre class="ws-pre navy bg-silver"><code>{:entity 23542
  :attribute :filename
  :value "plaintext-file.txt"}
 {:entity 23542
@@ -119,7 +119,7 @@ These have the benefit of being much closer to the day-to-day work of developers
 </code></pre></p>
 <p>In this mode, order of paragraphs is asserted as a fact on the basis of the vector of entity ids of the constituent paragraphs.</p>
 <p>[2] Alternatively, the facts about the paragraph order could just be <strong>composites of other facts</strong>:</p>
-<p><pre class="ws-normal navy bg-silver"><code>{:entity 23542
+<p><pre class="ws-pre navy bg-silver"><code>{:entity 23542
   :attribute :contents
   :value [{:uuid ab50234 :text "opening paragraph goes here"}
           {:uuid ab50235 :text "second paragraph goes here"}]}
@@ -175,7 +175,7 @@ These have the benefit of being much closer to the day-to-day work of developers
 <p><div class="b"><h3>Extensible Textual Notation, part 7</h3></div>
 <div class="f4">2020-01-05</div></p>
 <p>With a markdown->hiccup parser in hand, I took on a warm-up exercise to map out the problem space and get comfortable with parsing the data I've already dumped in to these markdown files, I defined some contracts for the data formats I want to pull from the textual information using  <code class="ws-normal navy">clojure.spec</code>, which will serve as constraints on the expected behavior of other parsers I write to replace Markdown. It's pretty bare-bones so far, with stuff like the following:</p>
-<p><pre class="ws-normal navy bg-silver"><code>(defn same-size? [colls]
+<p><pre class="ws-pre navy bg-silver"><code>(defn same-size? [colls]
   (apply = (map count colls)))
 (defn col-kvs? [table-map] (spec/valid? (spec/map-of string? vector?)
                                         (dissoc table-map ::table-meta)))</p>
@@ -201,7 +201,7 @@ These have the benefit of being much closer to the day-to-day work of developers
 <p><div class="b"><h3>Extensible Textual Notation, part 8</h3></div>
 <div class="f4">2020-01-11</div></p>
 <p>One motivation for this concept was an incredibly useful design exercise when I was building a backend system at work: creating a <a href="https://www.evanmiller.org/feature-matrix.html">feature matrix</a> for the various sub-components to understand their interactions with one another and how those translate into both library code and user-facing features. (read Evan Miller's whole essay; it's a quick read and a succinct, lucid statement of a very powerful idea). In order to produce one, I had to step outside of my trusty text editor and flip over to Google Sheets to create a NxN grid, fill it up with the pair-wise interactions between the components, and then use an unholy spreadsheet formula to transpose those comma-delimited features into a discrete list with separate references to each column in the body of the matrix:</p>
-<pre class="ws-normal navy bg-silver"><code>=unique(transpose(split(join("|", 'Sheet1'!$B$3:$B$17, 'Sheet1'!$C$3:$C$17, 'Sheet1'!$D$3:$D$17, ... "|")))</code></pre>
+<pre class="ws-pre navy bg-silver"><code>=unique(transpose(split(join("|", 'Sheet1'!$B$3:$B$17, 'Sheet1'!$C$3:$C$17, 'Sheet1'!$D$3:$D$17, ... "|")))</code></pre>
 <p>It was the most beautiful <a href="https://wiki.c2.com/?WaterfallModel">waterfall planning</a> I've ever done. As you'd expect, looking back over the matrix now, I see how hopelessly out of date it is and how badly it serves its original purpose of defining tasks with enough granularity to yield tickets. </p>
 <p>The codebase is always the most up-to-date part of any software project. Everything else tends to lag behind, mostly due to the unavoidable fact that you don't always know what you need to build before you build it. But why can't we write documents in a way that lends itself a little better to the day-to-day work of software development? Why can't I plop a feature matrix right into my <code class="ws-normal navy">readme</code> and then programatically generate a set of test suites for the features within it? That way, by changing the top-level description of the project, I also change the definition of the software that ensures it functions as intended.</p>
 <p><em>please do not tell me that org-mode supports tables. I am not interested in a solution specific to emacs lisp that imposes a separation  between structured data and code by tangling out the code into separate files, and thus remains ignorant of the actual information generated by that code.</em></p>
