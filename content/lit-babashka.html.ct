@@ -1,19 +1,65 @@
-<%=(def metadata {:title "Replicating lit with babashka"
-                  :date "2020-04-18" })%>
+<%(def metadata {:title "Replicating lit with babashka"
+                 :date "2020-04-18"})%>
 
 <%=(header (:title metadata))%>
 
-I want to move some notes I took on SICP to this repo. I think the best way to do so is to turn them into a lightweight literate programming format like <%=(in-code "lit")%>
+I want to move some notes I took on SICP to this repo. I also want to integrate my notes with the templating system I use to write these entries. That way, I can still pipe the file into the <%=(in-code "racket")%> cli for evaluation while also gaining the ability to render the prose using the features I've developed atop <%=(in-code "comb")%>.
 
-I want to also integrate my notes with the templating system I use to write these entries. I don't want my ability to execute this code to depend on my understanding of <%=(in-code "awk")%> - I want to keep as much as possible in a single language. So I'll replicate the features of <%=(in-code "lit")%>
+I think the best way to do so is to turn them into a lightweight literate programming format like <%=(in-code "lit")%>. However, I don't want my ability to execute this code to depend on my understanding of <%=(in-code "awk")%> - I want to keep as much as possible in a single language. So I'll replicate the features of <%=(in-code "lit")%> using <%=(in-code "babashka")%>. I haven't used it yet, and it seems like a decent enough exercise to get going with it.
 
-I have two goals here:
+<%=(header "Goals" :h3)%>
 
-<%=(header "1. Comment out everything that's not in a code block and eliminate the code block fences so the result is an executable file." :h3)%>
-<%=(header (str "2. Delimit the code blocks in such a way as to be transformed into displayable code blocks by a preprocessor that works with " (in-code "comb")) :h3)%>
+<%=(ul "Comment out everything that's not in a code block and eliminate the code block fences so the result is an executable file." (str "Delimit the code blocks in such a way as to be transformed into displayable code blocks by a preprocessor that works with " (in-code "comb.")))%>
 
-The former is the default usage mode of the script. The latter is a function to be evaluated when the website gets built.
+<%=(header "Non-goals" :h3)%>
 
-Non-goals
+<%=(ul "support for multiline comments.")%>
 
-1. support for multiline comments
+Here's the first approximation of what's needed for this:
+
+<%=(code "#!/usr/bin/env -S bb -i -o
+
+(require '[clojure.test :refer [is]])
+(def default-code-open \"+begin_src\")
+(def default-code-close \"+end_src\")
+(def default-comment \";\")
+
+(defn comment-lines
+  \"Comments out everything not between code fences, then removes the code fences to yield an executable script.\"
+  {:test (fn []
+           (is (= (comment-lines [\"plaintext to comment\"])
+                  [\";plaintext to comment\"]))
+           (is (= (comment-lines [\"+begin_src\" \"(code 3)\" \"+end_src\"])
+                  [\"(code 3)\"]))
+           (is (= (comment-lines [\"test\" \"+begin_src\" \"(+ 1 1)\" \"+end_src\" \"test3\"])
+                  [\";test\" \"(+ 1 1)\" \";test3\"])))}
+  ([input-lines comment-char open-block close-block]
+   (loop [lines input-lines output-lines [] block? false]
+     (cond
+       (empty? lines) ; base case - the input is complete
+       output-lines
+       (empty? (first lines)) ; ignore blank lines
+       (recur (rest lines) (conj output-lines (first lines)) block?)
+       (= open-block (first lines))
+       (recur (rest lines) output-lines true)
+       (and block? (= (first lines) close-block))
+       (recur (rest lines) output-lines false)
+       block?
+       (recur (rest lines) (conj output-lines (first lines)) block?)
+       :else ; treate everything else as a comment
+       (recur (rest lines) (conj output-lines (str comment-char (first lines))) block?))))
+  ([input-lines] (comment-lines input-lines
+                                default-comment
+                                default-code-open
+                                default-code-close)))
+
+(clojure.test/run-tests)
+
+(comment-lines *input*)
+" true)%>
+
+At the top of the shebang, I use the options provided by GNU coreutils to make the script default to reading lines from stdin and printing lines to stdout, as any other script would. This means the script isn't necessarily portable, but it's for my own interactive use, so that doesn't matter.
+
+The body consists of a single recursive function that uses accumulator variables to keep track of whether the current line is inside or outside the code block. Because of the default namespaces, I can inline the tests right in the function definition, and just comment out the call to <%=(in-code "clojure.core/run-tests")%> when I want to use the script to as part of a pipeline.
+
+The second goal will allow me to inline the <%=(in-code "babashka")%> script in this file from its source rather than just copying and pasting it.

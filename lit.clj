@@ -9,10 +9,9 @@
 (defn comment-lines
   "Comments out everything not between code fences, then removes the code fences to yield an executable script."
   {:test (fn []
-           (is (= (comment-lines ["plaintext to comment"] ";" "//*" "*//")
+           (is (= (comment-lines ["plaintext to comment"])
                   [";plaintext to comment"]))
-           (is (= (comment-lines ["//*" "(code \"to execute\")" "*//"]
-                                 ";" "//*" "*//")
+           (is (= (comment-lines ["+begin_src" "(code \"to execute\")" "+end_src"])
                   ["(code \"to execute\")"]))
            (is (= (comment-lines ["test" "+begin_src" "(+ 1 1)" "+end_src" "test3"])
                   [";test" "(+ 1 1)" ";test3"]))
@@ -37,6 +36,6 @@
                                 default-code-open
                                 default-code-close)))
 
-;; (clojure.test/run-tests)
+(clojure.test/run-tests)
 
 (comment-lines *input*)
