@@ -1,0 +1,19 @@
+<%=(def metadata {:title "Replicating lit with babashka"
+                  :date "2020-04-18" })%>
+
+<%=(header (:title metadata))%>
+
+I want to move some notes I took on SICP to this repo. I think the best way to do so is to turn them into a lightweight literate programming format like <%=(in-code "lit")%>
+
+I want to also integrate my notes with the templating system I use to write these entries. I don't want my ability to execute this code to depend on my understanding of <%=(in-code "awk")%> - I want to keep as much as possible in a single language. So I'll replicate the features of <%=(in-code "lit")%>
+
+I have two goals here:
+
+<%=(header "1. Comment out everything that's not in a code block and eliminate the code block fences so the result is an executable file." :h3)%>
+<%=(header (str "2. Delimit the code blocks in such a way as to be transformed into displayable code blocks by a preprocessor that works with " (in-code "comb")) :h3)%>
+
+The former is the default usage mode of the script. The latter is a function to be evaluated when the website gets built.
+
+Non-goals
+
+1. support for multiline comments
