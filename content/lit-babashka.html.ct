@@ -17,7 +17,8 @@ I think the best way to do so is to turn them into a lightweight literate progra
 
 Here's the first approximation of what's needed for this:
 
-<%=(code "#!/usr/bin/env -S bb -i -o
+<%=(code "
+#!/usr/bin/env -S bb -i -o
 
 (require '[clojure.test :refer [is]])
 (def default-code-open \"+begin_src\")
@@ -56,10 +57,15 @@ Here's the first approximation of what's needed for this:
 (clojure.test/run-tests)
 
 (comment-lines *input*)
-" true)%>
+")%>
 
 At the top of the shebang, I use the options provided by GNU coreutils to make the script default to reading lines from stdin and printing lines to stdout, as any other script would. This means the script isn't necessarily portable, but it's for my own interactive use, so that doesn't matter.
 
 The body consists of a single recursive function that uses accumulator variables to keep track of whether the current line is inside or outside the code block. Because of the default namespaces, I can inline the tests right in the function definition, and just comment out the call to <%=(in-code "clojure.core/run-tests")%> when I want to use the script to as part of a pipeline.
 
 The second goal will allow me to inline the <%=(in-code "babashka")%> script in this file from its source rather than just copying and pasting it.
+
+
+<%=(header "Part 2" :h3)%>
+
+<%=(include-file "lit.clj")%>

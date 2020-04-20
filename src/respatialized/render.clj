@@ -134,4 +134,23 @@
        [:div [:a {:href "/"} "Home"]]]])))
 
 
+(def lit-open "//CODE{")
+(def lit-close "}//")
+(def comb-open "<%=(code \"")
+(def comb-close "\")%>")
 
+(defn fence-code [in-text]
+  (-> in-text
+      (string/replace lit-open comb-open)
+      (string/replace lit-close comb-close)))
+
+(defn include-file [file-path]
+  (-> file-path
+      slurp
+      code))
+
+(defn include-template-file [file-path]
+  (-> file-path
+      slurp
+      fence-code
+      template/eval))

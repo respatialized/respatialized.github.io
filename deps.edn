@@ -25,5 +25,7 @@
  :jvm-opts ["--illegal-access=deny"]
  :aliases {:test {:extra-paths ["test"]
                   :extra-deps  {lambdaisland/kaocha {:mvn/version "0.0-601"}}
-                  :main-opts   ["-m" "kaocha.runner"]}}
+                  :main-opts   ["-m" "kaocha.runner"]}
+           :serve {:extra-deps {nasus {:mvn/version "0.1.7"}}
+                   :main-opts ["-m" "http.server" "--dir" "public"]}}
  }
