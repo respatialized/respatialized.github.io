@@ -46,7 +46,7 @@ Within the Clojure world and beyond, there are a few tools that suggest directio
 
 <%= (header (in-code "perun") :h4) %>
 
-This is what I'm using to write and compile the blog itself right now. However, I don't like that most of the decisions about how to parse markdown into HTML are decided by the fiats of <%=(in-code "flexmark-java")%> I would much prefer to be able to manipulate the content in the form of  <%=(in-code "hiccup")%>  data structures as I see fit _before_ passing it to <%=(in-code "hiccup.core/html5")%> for rendering. <%=(link "https://github.com/hashobject/perun/issues/30" "This was discussed") %> in the <%=(in-code "perun")%> repo, but was set aside when the use case of hyphenation didn' t actually require it.
+This is what I'm using to write and compile the blog itself right now. However, I don't like that most of the decisions about how to parse markdown into HTML are decided by the fiats of <%=(in-code "flexmark-java")%> I would much prefer to be able to manipulate the content in the form of  <%=(in-code "hiccup")%>  data structures as I see fit <%=(em "before")%> passing it to <%=(in-code "hiccup.core/html5")%> for rendering. <%=(link "https://github.com/hashobject/perun/issues/30" "This was discussed") %> in the <%=(in-code "perun")%> repo, but was set aside when the use case of hyphenation didn' t actually require it.
 
 However, there are many other reasons you'd be interested in representing your writing as data.
 <%= (blockquote (em "if the book is a program, the source for that book should look more like your brain, and less like HTML (or XML or LaTeX or ...)?") (link "https://docs.racket-lang.org/pollen/second-tutorial.html" "Matthew Butterick")) %>
@@ -61,7 +61,7 @@ Anything less feels like an arbitrary step backward.
 
 <%= (header "Code documentation tools" :h5) %>
 
-The major area in which programmers _currently_ perform programmatic manipulation of prose and data in tandem is in the realm of documentation generators. In my experience, these tools fall into two broad categories:
+The major area in which programmers <%=(em "currently")%> perform programmatic manipulation of prose and data in tandem is in the realm of documentation generators. In my experience, these tools fall into two broad categories:
 
 - narrative-first tools like <%=(in-code "sphinx, reStructuredText")%>, etc. 
 They have one primary benefit: if they're to be of any use at all they require the author to write a good amount of prose introducing the project, its rationale and purpose, and the main ways of interacting with it. However, in these tools, docs are generally separate from code - even if they live in the same repo, they're often in <%=(in-code "docs/")%> and can easily come out of sync with the actual code.
@@ -78,7 +78,7 @@ As a code documentation tool, <%=(in-code "cod")%> feels like it has the right i
 
 <%= (header (link "https://docs.racket-lang.org/scribble/" (in-code "scribble")) :h6) %>
 
-The fact that Racket libraries tend to have _vastly_ superior documentation (on average) than any other programming language is a testament to the power of Scribble. Naturally, <%=(in-code "pollen")%> owes a lot to the starting point that <%=(in-code "scribble")%> created.
+The fact that Racket libraries tend to have <%=(em "vastly")%> superior documentation (on average) than any other programming language is a testament to the power of Scribble. Naturally, <%=(in-code "pollen")%> owes a lot to the starting point that <%=(in-code "scribble")%> created.
 
 <%= (header "Why look at code documentation tools?" :h5) %>
 
@@ -118,7 +118,7 @@ I've gone through myriad to-do apps, organizers, journaling systems. Here's a ta
 
 All of these advantages and disadvantages stem from one real underlying issue, in my view: each tool imposes its own view over the data you put into it, making alternative ways of looking at the same information difficult or impossible. Paul Chiusano has <%=(link "https://pchiusano.github.io/2016-10-13/view-inspired.html" "written nicely")%> about the conceptually weak data model an "intuitive" design imposes on the information it represents:
 
-<%=(blockquote "We often think about views first because views are concrete, and it’s what we interact with directly when we use software. But actually designing software ‘view first’ is problematic because it leads to rigid models that aren’t flexible enough to support the myriad of creative ways that people use your software. It also leads invariably to feature creep—when your model is overly influenced by some concrete views you had in mind during design, it invariably ends up insufficiently general purpose. So as your software becomes more popular, you start adding one-off ‘features’ to support concrete use cases that your users are asking for. A few years pass of this feature creep, and you have a bloated, complicated piece of software that no one gets joy out of using." (str "Paul Chiusano" (link "https://pchiusano.github.io/2016-10-13/view-inspired.html" "The design failures of view-first")))%>
+<%=(blockquote "We often think about views first because views are concrete, and it’s what we interact with directly when we use software. But actually designing software ‘view first’ is problematic because it leads to rigid models that aren’t flexible enough to support the myriad of creative ways that people use your software. It also leads invariably to feature creep—when your model is overly influenced by some concrete views you had in mind during design, it invariably ends up insufficiently general purpose. So as your software becomes more popular, you start adding one-off ‘features’ to support concrete use cases that your users are asking for. A few years pass of this feature creep, and you have a bloated, complicated piece of software that no one gets joy out of using." (str "Paul Chiusano, " (link "https://pchiusano.github.io/2016-10-13/view-inspired.html" "The design failures of view-first")))%>
 
 Every to-do list and knowledge management system suffers from this problem, In fact, I can feel the constraints imposed by the table above limiting what I want to say about each tool, so let's dive into what I mean by each of these words:
 
@@ -179,7 +179,7 @@ I started reading about the concept, glossing over the mathematical details in f
 
 <%=(header "Making the library metaphor in 'code library' concrete" :h5)%>
 
-<%=(html [:div [:p {:class "f5"} (em (str "heavily inspired by Rich Hickey's talk" (link "https://youtube.com/watch?v=oyLBGkS5ICk" "Spec-ulation")))]])%>
+<%=(html [:div [:p {:class "f5"} (em (str "heavily inspired by Rich Hickey's talk " (link "https://youtube.com/watch?v=oyLBGkS5ICk" "Spec-ulation")))]])%>
 
 Right now you have to take home the whole library when you write some code that uses one page of one book.
 
