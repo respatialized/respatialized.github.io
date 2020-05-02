@@ -1,6 +1,7 @@
 (ns respatialized.css
   "Tachyons-like compositional css generated with garden"
   (:require [garden.core :as garden]
+            [garden.units :as u]
             [garden.color]))
 
 (def wal-colors
@@ -29,43 +30,61 @@
 ;; SIZES
 ;;
 
-()
 
 
 ;; SPACING
 ;; utilities for dealing with spacing of elements: floats, line heights
 
+
 (defn create-scale [])
 
+(def base-font-size (u/em 1.5))
+(def line-height (u/em 1.45))
+(def baseline (u/em-div line-height 2))
+(def column-gap (u/em* baseline 4))
+(def row-gap (u/em* baseline 2))
+
+(defn max-widths [n]
+  (conj
+   (map
+    (fn [i] [(keyword (str ".mw" i)) {:max-width (u/em* i line-height)}])
+    (range 1 (+ n 1)))
+   [:.mw-full {:max-wdith "100%"}]))
+
+(defn max-heights [n]
+  (map
+   (fn [i] [(keyword (str ".mh" i)) {:max-height (u/em* i line-height)}])
+   (range 1 (+ n 1))))
 
 ;; COLOR
-;; GRID
 ;; BORDERS
 ;; DISPLAY
 ;; FONTS
+
+
 (def sans-serif "\"Basier Square\"")
 (def monospace "\"Basier Square Mono\"")
 
 (def html-rules
   [:html {:-webkit-font-smoothing "auto"
           :-moz-osx-font-smoothing "auto"
-          :text-rendering "optimizeLegibility"}])
+          :text-rendering "optimizeLegibility"
+          :font-family sans-serif
+          :background (get wal-colors "background")
+          :color (garden.color/lighten (get wal-colors "foreground") 10)
+          :line-height line-height
+          :font-size base-font-size}])
 
 (defn -main
   "main fn"
   []
   (->> [html-rules
-        [:body {:font-size "1.45em"
-                :line-height 1.45
-                :font-family sans-serif
-                :background (get wal-colors "background")
-                :color (garden.color/lighten (get wal-colors "foreground") 10)}]
+        (max-widths 80)
+        (max-heights 60)
         [:h1 :h2 :h3 :h4 :h5 :h6 {:color (get wal-colors "color6")}]
         [:a {:color (garden.color/lighten (get wal-colors "color1") 10)}]]
        garden/css
        (spit "public/css/main.css")))
 
 (comment
-  (-main)
-
-  )
+  (-main))

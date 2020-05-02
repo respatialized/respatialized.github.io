@@ -164,7 +164,7 @@ A lot of PIMs designed to support academic reseearch are "open" towards producin
 
 Here's a quick sketch of what this might be look like:
 
-<%=(html [:div (image "media/views_sketch.jpg" "views-sketch" "w-30")])%>
+<%=(html [:div (image "media/views_sketch.jpg" "views-sketch" "mw20")])%>
 
 The bottom has a pomodoro-style task tracker and the "current task", the right pane has a grouping of recent commits to keep the actual output of that task in mind as well. The role of these panes isn't the important part - the mechanism by which they're generated is. By pulling information from a common store, simple contextual visualizations of relevant parts of it would be easy to construct via Datalog queries. 
 
@@ -315,12 +315,12 @@ And yes, there's no small irony in the fact that the <%=(link "https://gitlab.co
 <%=(entry-date "2019-12-29")%>
 
 <%=(html [:r-grid {:columns 5}
-      [:r-cell {:span 2} (image "media/thinking-about-things.jpg")]
+      [:r-cell {:span 2} (image "media/thinking-about-things.jpg" "laptop sticker reading 'thinking about things'" "mw20")]
       [:r-cell {:span 3} (blockquote "I read relentlessly. I don’t do any programming not directed at making the computer do something useful, so I don’t do any exercises. I try to spend more time thinking about the problem than I do typing it in." (link "http://web.archive.org/web/20160918041754/http://codequarterly.com/2011/rich-hickey/" "Rich Hickey"))]])%>
 
 <%=(html [:p (em "inspiration for what the medium should make possible, and for my prose-first approach to thinking about it: Bret Victor's laptop sticker and Rich Hickey's mindset; the antithesis of the \"shut up and show me the code\" brogrammer ethos")])%>
 
-<%=(header (str "Beyond plain text: storing prose within" (in-code "datahike")) :h5)%>
+<%=(header (str "Beyond plain text: storing prose within " (in-code "datahike")) :h5)%>
 
 Here's a <%=(link "https://blog.datopia.io/2018/11/03/hitchhiker-tree/" "background post on the Datahike internals")%> for context about how the hitchhiker B-tree structure allows for self-balancing and efficient updates that "hitchhike" on queries.
 
