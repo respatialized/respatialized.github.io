@@ -36,6 +36,6 @@
                                 default-code-open
                                 default-code-close)))
 
-(clojure.test/run-tests)
+; (clojure.test/run-tests)
 
 (comment-lines *input*)
