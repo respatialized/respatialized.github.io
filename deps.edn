@@ -7,6 +7,10 @@
 
   ;; site generation
   hiccup {:mvn/version "2.0.0-alpha2" :exclusions [org.clojure/clojure]}
+  garden {:mvn/version "1.3.9"}
+
+  comb {:mvn/version "0.1.1"}
+  venantius/glow {:mvn/version "0.1.6"}
 
   ;; site content
   clojure2d {:mvn/version "1.2.0-SNAPSHOT"}
@@ -19,8 +23,6 @@
   provisdom/spectomic {:mvn/version "0.7.11"}
 
  ;; site building functions
-  comb {:mvn/version "0.1.1"}
-  venantius/glow {:mvn/version "0.1.6"}
   }
  :jvm-opts ["--illegal-access=deny"]
  :aliases {:test {:extra-paths ["test"]

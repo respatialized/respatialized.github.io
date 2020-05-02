@@ -2,8 +2,8 @@
   (:require [clojure.string :as s]))
 
 (def ^:const delims {:paragraph {:sep #"\n\n"
-                                 :begin "<p>"
-                                 :end "</p>"}
+                                 :begin "<r-cell span=row>"
+                                 :end "</r-cell>"}
                      :linebreak {:sep #"\n"
                                  :begin ""
                                  :end "<br>"}})

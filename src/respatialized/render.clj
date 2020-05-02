@@ -3,6 +3,7 @@
             [comb.template :as template]
             [hiccup.core :refer [html]]
             [hiccup.element :as elem]
+            [hiccup.util :as util]
             [clojure.string :as string]
             [clojure.java.io :as io]
             [respatialized.styles :as styles])
@@ -18,8 +19,10 @@
     [:meta {:charset "utf-8"}]
     [:meta {:http-equiv "X-UA-Compatible" :content "IE=edge,chrome=1"}]
     [:meta {:name "viewport" :content "width=device-width, initial-scale=1.0, user-scalable=no"}]
+    (hp/include-css "css/raster.css")
     (hp/include-css "css/fonts.css")
-    (hp/include-css "css/tachyons.min.css")]))
+    (hp/include-css "css/main.css")
+    ]))
 
 (defn header
   ([title level class] (html [:div {:class class} [level title]]))

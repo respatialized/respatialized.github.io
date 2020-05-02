@@ -314,9 +314,9 @@ And yes, there's no small irony in the fact that the <%=(link "https://gitlab.co
 <%=(header "Extensible Textual Notation, part 4" :h3)%>
 <%=(entry-date "2019-12-29")%>
 
-<%=(html [:div {:class "flex"}
-      [:div {:class "w-40"} (image "media/thinking-about-things.jpg")]
-      [:div {:class "pl3 w-40"} (blockquote "I read relentlessly. I don’t do any programming not directed at making the computer do something useful, so I don’t do any exercises. I try to spend more time thinking about the problem than I do typing it in." (link "http://web.archive.org/web/20160918041754/http://codequarterly.com/2011/rich-hickey/" "Rich Hickey"))]])%>
+<%=(html [:r-grid {:columns 5}
+      [:r-cell {:span 2} (image "media/thinking-about-things.jpg")]
+      [:r-cell {:span 3} (blockquote "I read relentlessly. I don’t do any programming not directed at making the computer do something useful, so I don’t do any exercises. I try to spend more time thinking about the problem than I do typing it in." (link "http://web.archive.org/web/20160918041754/http://codequarterly.com/2011/rich-hickey/" "Rich Hickey"))]])%>
 
 <%=(html [:p (em "inspiration for what the medium should make possible, and for my prose-first approach to thinking about it: Bret Victor's laptop sticker and Rich Hickey's mindset; the antithesis of the \"shut up and show me the code\" brogrammer ethos")])%>
 
