@@ -25,47 +25,47 @@
     ]))
 
 (defn header
-  ([title level class] (html [:div {:class class} [level title]]))
+  ([title level class]  [:div {:class class} [level title]])
   ([title level] (header title level styles/header-default))
   ([title] (header title :h1)))
 
 (defn entry-header
   ([text class]
-   (html [:div {:class class} text]))
+    [:div {:class class} text])
   ([text] (entry-header text styles/entry-header)))
 
 (defn entry-date
-  ([date class] (html [:div {:class class} date]))
+  ([date class]  [:div {:class class} date])
   ([date] (entry-date date styles/entry-date)))
 
-(defn em [& texts] (html (into [:em ] texts)))
-(defn strong [& texts] (html (into [:strong] texts)))
+(defn em [& texts]  (into [:em ] texts))
+(defn strong [& texts]  (into [:strong] texts))
 
 (defn link [url text]
-  (html (elem/link-to url text)))
+   (elem/link-to url text))
 
 (defn image
   ([path annotation class]
-   (html [:img {:src path :alt annotation :class class}]))
+    [:img {:src path :alt annotation :class class}])
   ([path annotation] (image path annotation styles/img-default))
   ([path] (image path "")))
 
 (defn code
-  ([text class] (html [:pre {:class class} [:code text]]))
+  ([text class]  [:pre {:class class} [:code text]])
   ([text] (code text styles/code)))
 
 (defn in-code ([text] (in-code text styles/in-code))
-  ([text class] (html [:code {:class class} text])))
+  ([text class]  [:code {:class class} text]))
 
 (defn blockquote
   ([content author
     {:keys [:outer-class
             :content-class
             :author-class]}]
-   (html
+
     [:blockquote {:class outer-class}
      [:p {:class content-class} content]
-     [:span {:class author-class} author]]))
+     [:span {:class author-class} author]])
   ([content author]
    (blockquote content author
                {:outer-class styles/blockquote-outer
@@ -76,9 +76,9 @@
   ([dir] [:p [:img {:src dir}]]))
 
 (defn ul [& items]
-  (html (into [:ul] (map (fn [i] [:li i]) items))))
+   (into [:ul] (map (fn [i] [:li i] items))))
 (defn ol [& items]
-  (html (into [:ol] (map (fn [i] [:li i]) items))))
+   (into [:ol] (map (fn [i] [:li i] items))))
 
 (defn sorted-map-vec->table
   "Converts a vector of maps to a HTML table."
@@ -88,11 +88,11 @@
          get-header (fn [k] [:th k])
          get-row (fn [rv] (into [:tr {:class row-class}]
                                 (map (fn [v] [:td v]) rv)))]
-     (html
+
       (into
        [:table
         [:tr {:class header-class} (map get-header ks)]]
-       (map get-row vs)))))
+       (map get-row vs))))
   ([sorted-map-vec]
    (sorted-map-vec->table sorted-map-vec
                           styles/table-header
@@ -100,26 +100,26 @@
 
 (defn sorted-map->table
   "Converts a sorted map (array of structs) to a html table."
-  [smap header-class row-class]
-  (html
+  ([smap header-class row-class]
    (into
     [:table
      [:tr {:class header-class} (map (fn [k] [:th k]) (keys smap))]]
     (map (fn row [r] [:tr {:class row-class}
-                      (map (fn [i] [:td i]) r)]) (vals smap)))))
+                      (map (fn [i] [:td i]) r)]) (vals smap))))
+  ([smap]
+   (sorted-map->table smap styles/table-header styles/table-row)))
 
 (defn vec->table
   "Converts a vector of vectors to a html table. Interprets the first vector as the header row."
   [[header & rows] header-class row-class]
-  (html
    (into
     [:table
      [:tr {class header-class} (map (fn [i] [:th i] header))]
      (map (fn row [r] [:tr {:class row-class}
-                       (map (fn [i] [:td i]) r)]) rows)])))
+                       (map (fn [i] [:td i]) r)]) rows)]))
 
 (defn script [content attr-map]
-  (html [:script attr-map content]))
+  [:script attr-map content])
 
 (defn page
   "Converts a comb/hiccup file to HTML."
