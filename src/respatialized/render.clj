@@ -1,19 +1,18 @@
 (ns respatialized.render
   (:require [hiccup.page :as hp]
-            [comb.template :as template]
             [hiccup.core :refer [html]]
             [hiccup.element :as elem]
             [hiccup.util :as util]
             [clojure.string :as string]
             [clojure.java.io :as io]
-            [respatialized.styles :as styles])
+            [respatialized.styles :as styles]
+            [respatialized.parse :refer [parse]])
   (:gen-class)
   )
 
 (defn doc-header
   "Returns a default header."
   [title]
-  (html
    [:head
     [:title (str "Respatialized | " title)]
     [:meta {:charset "utf-8"}]
@@ -22,7 +21,7 @@
     (hp/include-css "css/raster.css")
     (hp/include-css "css/fonts.css")
     (hp/include-css "css/main.css")
-    ]))
+    ])
 
 (defn header
   ([title level class]  [:div {:class class} [level title]])
@@ -81,7 +80,7 @@
    (into [:ol] (map (fn [i] [:li i] items))))
 
 (defn sorted-map-vec->table
-  "Converts a vector of maps to a HTML table."
+  "Converts a vector of maps to a hiccup table."
   ([sorted-map-vec header-class row-class]
    (let [ks (keys (first sorted-map-vec))
          vs (map vals sorted-map-vec)
@@ -99,7 +98,7 @@
                           styles/table-row)))
 
 (defn sorted-map->table
-  "Converts a sorted map (array of structs) to a html table."
+  "Converts a sorted map (array of structs) to a hiccup table."
   ([smap header-class row-class]
    (into
     [:table
@@ -110,7 +109,7 @@
    (sorted-map->table smap styles/table-header styles/table-row)))
 
 (defn vec->table
-  "Converts a vector of vectors to a html table. Interprets the first vector as the header row."
+  "Converts a vector of vectors to a hiccup table. Interprets the first vector as the header row."
   [[header & rows] header-class row-class]
    (into
     [:table
@@ -121,10 +120,24 @@
 (defn script [content attr-map]
   [:script attr-map content])
 
+(defn template->hiccup
+  "Converts a template file to hiccup data structures."
+  [t]
+  (let [content (parse t)
+        page-meta (eval 'metadata)]
+    [(doc-header (:title page-meta ""))
+     [:article
+      {:lang "en"}
+      [:body {:class (:page-class page-meta styles/page)}
+       [:div {:class (:copy-class page-meta styles/copy)} content]]
+      [:footer
+       {:class "mb7"}
+       [:div [:a {:href "/"} "Home"]]]]]))
+
 (defn page
   "Converts a comb/hiccup file to HTML."
   [t]
-  (let [content (template/eval t)
+  (let [content (parse t)
         page-meta (eval 'metadata)]
     (hp/html5
      (doc-header (:title page-meta ""))
@@ -135,6 +148,8 @@
       [:footer
        {:class "mb7"}
        [:div [:a {:href "/"} "Home"]]]])))
+
+
 
 
 (def lit-open "//CODE{")
@@ -156,4 +171,4 @@
   (-> file-path
       slurp
       fence-code
-      template/eval))
+      parse))

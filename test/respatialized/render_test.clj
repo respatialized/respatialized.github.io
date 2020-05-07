@@ -1,7 +1,8 @@
 (ns respatialized.render-test
   (:require [clojure.test :as t]
             [hiccup.core :refer [html]]
-            [respatialized.render :refer :all]))
+            [respatialized.render :refer :all]
+            [respatialized.parse :refer [parse]]))
 
 
 (def sample-header
@@ -29,4 +30,9 @@
         "<table><tr class=\"\"><th>a</th><th>b</th></tr><tr class=\"\"><td>1</td><td>2</td></tr><tr class=\"\"><td>3</td><td>4</td></tr></table>"))
 
      (= (html (sorted-map->table (sorted-map :a [1 2 3] :b [4 5 6])))
-       "<table><tr class=\"\"><th>a</th><th>b</th></tr><tr class=\"\"><td>1</td><td>2</td><td>3</td></tr><tr class=\"\"><td>4</td><td>5</td><td>6</td></tr></table>")))
+        "<table><tr class=\"\"><th>a</th><th>b</th></tr><tr class=\"\"><td>1</td><td>2</td><td>3</td></tr><tr class=\"\"><td>4</td><td>5</td><td>6</td></tr></table>")
+
+  (t/is (=
+         [[:div {:class "b"} [:h1 "test title"]]]
+         (parse "<%=(header \"test title\" :h1 \"b\")%>"))
+         "Template contents should be quoted on eval")))
