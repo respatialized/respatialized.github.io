@@ -15,6 +15,6 @@
           "Plaintext should be passed as-is")
     (t/is (= (parse "<%=[1 2 3]%>") [[1 2 3]]))
     (t/is (= (parse "<%=[\"a\" \"b\"]%>") [["a" "b"]])
-          "Escaped quotes in forms should be preserved."
-          )
-          ))
+          "Escaped quotes in forms should be preserved.")
+    (t/is (= (parse "<%(def var 3)%> foo <%=var%>") ["foo" 3])
+          "In-form defs should be evaluated successfully.")))
