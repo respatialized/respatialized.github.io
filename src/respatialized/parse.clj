@@ -26,7 +26,7 @@
       (nil? v)))
 
 (defn conj-non-nil [s & args]
-  (into [] (concat s (filter #(not (nil-or-empty? %)) args))))
+  (seq (concat s (filter #(not (nil-or-empty? %)) args))))
 
 (defn parse [src]
   (loop [src src form []]

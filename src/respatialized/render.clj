@@ -18,9 +18,7 @@
     [:meta {:charset "utf-8"}]
     [:meta {:http-equiv "X-UA-Compatible" :content "IE=edge,chrome=1"}]
     [:meta {:name "viewport" :content "width=device-width, initial-scale=1.0, user-scalable=no"}]
-    (hp/include-css "css/raster.css")
-    (hp/include-css "css/fonts.css")
-    (hp/include-css "css/main.css")
+    (hp/include-css "css/raster.css" "css/fonts.css" "css/main.css")
     ])
 
 (defn header
@@ -124,30 +122,22 @@
   "Converts a template file to hiccup data structures."
   [t]
   (let [content (parse t)
-        page-meta (eval 'metadata)]
-    [(doc-header (:title page-meta ""))
+        page-meta (eval 'metadata)
+        body (into [:body {:class (:page-class page-meta styles/page)}] content)
+        ]
+    (list (doc-header (:title page-meta ""))
      [:article
       {:lang "en"}
-      [:body {:class (:page-class page-meta styles/page)}
-       [:div {:class (:copy-class page-meta styles/copy)} content]]
+      body
+      [:div {:class (:copy-class page-meta styles/copy)} content]]
       [:footer
        {:class "mb7"}
-       [:div [:a {:href "/"} "Home"]]]]]))
+       [:div [:a {:href "/"} "Home"]]])))
 
 (defn page
   "Converts a comb/hiccup file to HTML."
   [t]
-  (let [content (parse t)
-        page-meta (eval 'metadata)]
-    (hp/html5
-     (doc-header (:title page-meta ""))
-     [:article
-      {:lang "en"}
-      [:body {:class (:page-class page-meta styles/page)}
-       [:div {:class (:copy-class page-meta styles/copy)} content]]
-      [:footer
-       {:class "mb7"}
-       [:div [:a {:href "/"} "Home"]]]])))
+  (hp/html5 (template->hiccup t)))
 
 
 
