@@ -4,14 +4,23 @@
 
 
 (t/deftest postprocessing
-  (t/testing "paragraph tokenization"
-    (t/is (= "<p>First paragraph</p>\n<p>Second paragraph</p>"
-             (detect-paragraphs "First paragraph\n\nSecond paragraph"))
-          "Implied paragraphs should be delimited with <p> tags")
+  (t/testing "postprocessing functions"
+    (t/is
+     (= [:r-cell [:p "a"] [:p "b"]]
+        (cell-paragraphs [:r-cell "a\n\nb"]))
+     (= [:r-cell {:span 3} [:p "a"] [:p "b"]]
+        (paragraphs :r-cell {:span 3} "a\n\nb"))
+     )
 
-    (t/is (= "<div>First paragraph</div>\n<div>Second paragraph</div>"
-             (detect-paragraphs "<div>First paragraph</div>\n\n<div>Second paragraph</div>"))
-          "Block delimited paragraphs should be left alone."))
+    (t/is
+     (=
+      '(([:r-cell {:span "row"} "first paragraph"]
+         [:r-cell {:span "row"} "second paragraph"])
+        [:r-grid [:r-cell [:p "first cell line"] [:p "second-cell-line"]]
+         [:r-cell [:p "another cell" ]]])
+      (tokenize '("first paragraph\n\nsecond paragraph"
+        [:r-grid [:r-cell "first cell line\n\nsecond-cell-line"]
+         [:r-cell "another cell"]]))
 
-  (t/testing "line breaks")
-  )
+      )
+    )))

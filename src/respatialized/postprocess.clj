@@ -1,22 +1,65 @@
 (ns respatialized.postprocess
-  (:require [clojure.string :as s]))
+  "Namespace for post-processing strings after hiccup parsing."
+  (:require
+   [com.rpl.specter :as sp]
+   [clojure.string :as string]))
 
-(def ^:const delims {:paragraph {:sep #"\n\n"
-                                 :begin "<r-cell span=row>"
-                                 :end "</r-cell>"}
-                     :linebreak {:sep #"\n"
-                                 :begin ""
-                                 :end "<br>"}})
 
-(def ^:const block-matcher #"<.*>.*</.*>")
+(defn paragraphs
+  ([elem attr s]
+   (if (= {} attr)
+     (map (fn [i] [elem i]) (string/split s #"\n\n"))
+     (map (fn [i] [elem attr i]) (string/split s #"\n\n"))))
+  ([elem attr] (fn [s] (paragraphs elem attr s)))
+  ([elem] (fn [s] (paragraphs elem {} s))))
 
-(defn detect-paragraphs [text]
-  (let [tokens (s/split text (get-in delims [:paragraph :sep]))]
-    (s/join
-     "\n"
-     (map (fn tag [t]
-            (if (re-matches block-matcher t) t
-                (str (get-in delims [:paragraph :begin])
-                     t
-                     (get-in delims [:paragraph :end]))))
-          tokens))))
+(defn cell-paragraphs [[_ & texts]]
+  (->> texts
+       (filter string?)
+       (map (paragraphs :p))
+       (apply concat)
+       (concat [:r-cell])))
+
+(defn tokenize [form]
+  (sp/multi-transform*
+   (sp/multi-path [CellWalker (sp/terminal cell-paragraphs)]
+                  [sp/ALL string? (sp/terminal (paragraphs :r-cell {:span "row"}))])
+   form))
+
+(sp/declarepath CellWalker)
+(sp/providepath CellWalker
+  (sp/if-path #(or (vector? %) (seq? %))
+    (sp/if-path [sp/FIRST #(= :r-cell %)]
+      (sp/continue-then-stay sp/ALL CellWalker)
+      [sp/ALL CellWalker])))
+
+(sp/declarepath DivWalker)
+(sp/providepath DivWalker
+  (sp/if-path #(or (vector? %) (seq? %))
+    (sp/if-path [sp/FIRST #(= :div %)]
+      (sp/continue-then-stay sp/ALL DivWalker)
+      [sp/ALL DivWalker])))
+
+
+(comment
+
+  (def sample-form '("first paragraph\n\nsecond paragraph"
+                     [:r-grid [:r-cell "first cell line\n\nsecond-cell-line"]
+                      [:r-cell "another cell"]]))
+
+  (sp/select DivWalker
+             [:.some [:nested [:elements [:div [:div "oh my"] [:div "f"]]]]])
+
+  (sp/select CellWalker [:r-grid [:r-cell "b"]])
+
+  (sp/select [CellWalker sample-form string?] sample-form)
+
+  (sp/transform* [CellWalker] cell-paragraphs sample-form)
+
+  (sp/multi-transform* (sp/multi-path [CellWalker (sp/terminal cell-paragraphs)]
+                                      [sp/ALL string? (sp/terminal (paragraphs :r-cell {:span "row"}))])
+                       sample-form)
+
+  (sp/transform [sp/ALL r-grid? sp/ALL r-cell?] identity sample-form)
+
+  )
