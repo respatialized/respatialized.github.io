@@ -18,6 +18,6 @@
 (def blockquote-author "pl3")
 
 (def table-header "")
-(def table-row "mr1")
+(def table-row "")
 
 (def img-default "w-50")

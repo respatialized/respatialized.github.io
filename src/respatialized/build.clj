@@ -1,6 +1,5 @@
 (ns respatialized.build
   (:require
-   [comb.template :as template]
    [clojure.java.io :as io]
    [hiccup.core :refer [html]]
    [hiccup.page :as hp]
