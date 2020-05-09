@@ -3,6 +3,12 @@
              [respatialized.render :refer [em]]
              [respatialized.parse :refer :all]))
 
+(defn ns-refer [f]
+  (require '[respatialized.render :refer [em]])
+  (f))
+
+(t/use-fixtures :once ns-refer)
+
 (t/deftest parser
   (t/testing "string parsing"
     (t/is (= (yield-expr "=:foo") :foo)
@@ -24,5 +30,5 @@
              [[:em 3]])
           "Namespace scoping should be preserved")
     (t/is (= (parse "<%=(em 3)%>")
-             [[:em 3]])
+             '([:em 3]))
           "Namespace scoping should be preserved")))

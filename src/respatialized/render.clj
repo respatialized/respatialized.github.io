@@ -128,8 +128,7 @@
     (list (doc-header (:title page-meta ""))
      [:article
       {:lang "en"}
-      body
-      [:div {:class (:copy-class page-meta styles/copy)} content]]
+      body]
       [:footer
        {:class "mb7"}
        [:div [:a {:href "/"} "Home"]]])))
