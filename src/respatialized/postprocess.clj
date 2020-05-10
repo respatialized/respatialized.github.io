@@ -4,7 +4,6 @@
    [com.rpl.specter :as sp]
    [clojure.string :as string]))
 
-
 (defn paragraphs
   ([elem attr s]
    (if (= {} attr)
@@ -20,11 +19,6 @@
        (apply concat)
        (concat [:r-cell])))
 
-(defn tokenize [form]
-  (sp/multi-transform*
-   (sp/multi-path [CellWalker (sp/terminal cell-paragraphs)]
-                  [sp/ALL string? (sp/terminal (paragraphs :r-cell {:span "row"}))])
-   form))
 
 (sp/declarepath CellWalker)
 (sp/providepath CellWalker
@@ -40,6 +34,11 @@
       (sp/continue-then-stay sp/ALL DivWalker)
       [sp/ALL DivWalker])))
 
+(defn tokenize [form]
+  (sp/multi-transform*
+   (sp/multi-path [CellWalker (sp/terminal cell-paragraphs)]
+                  [sp/ALL string? (sp/terminal (paragraphs :r-cell {:span "row"}))])
+   form))
 
 (comment
 

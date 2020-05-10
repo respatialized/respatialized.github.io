@@ -29,5 +29,11 @@
          [(sorted-map :a 1 :b 2) (sorted-map :a 3 :b 4)]))
         "<table><tr class=\"\"><th>a</th><th>b</th></tr><tr class=\"\"><td>1</td><td>2</td></tr><tr class=\"\"><td>3</td><td>4</td></tr></table>"))
 
-     (= (html (sorted-map->table (sorted-map :a [1 2 3] :b [4 5 6])))
-        "<table><tr class=\"\"><th>a</th><th>b</th></tr><tr class=\"\"><td>1</td><td>2</td><td>3</td></tr><tr class=\"\"><td>4</td><td>5</td><td>6</td></tr></table>")))
+    (t/is (= (html (sorted-map->table (sorted-map :a [1 2 3] :b [4 5 6])))
+             "<table><tr class=\"\"><th>a</th><th>b</th></tr><tr class=\"\"><td>1</td><td>2</td><td>3</td></tr><tr class=\"\"><td>4</td><td>5</td><td>6</td></tr></table>"))
+    (t/is (= (html [:r-cell {:span 3} "ab"])
+             "<r-cell span=\"3\">ab</r-cell>"))
+    (t/is (= (html [:r-grid {:columns 6} [:r-cell {:span 3} "ab"]])
+             "<r-grid columns=\"6\"><r-cell span=\"3\">ab</r-cell></r-grid>"))
+
+  ))

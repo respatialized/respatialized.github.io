@@ -20,7 +20,8 @@
          [:r-cell [:p "another cell" ]]])
       (tokenize '("first paragraph\n\nsecond paragraph"
         [:r-grid [:r-cell "first cell line\n\nsecond-cell-line"]
-         [:r-cell "another cell"]]))
+         [:r-cell "another cell"]]))))
 
-      )
-    )))
+    (t/is (= '([:r-grid [:r-cell [:p "ab"] [:p "cd"]]])
+             (tokenize '([:r-grid [:r-cell "ab\n\ncd"]]))))
+    (t/is (vector? (second (first (tokenize '([:r-grid [:r-cell "ab\n\ncd"]]))))))))
