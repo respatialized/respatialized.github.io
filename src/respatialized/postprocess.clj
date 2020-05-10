@@ -17,8 +17,8 @@
        (filter string?)
        (map (paragraphs :p))
        (apply concat)
-       (concat [:r-cell])))
-
+       (concat [:r-cell])
+       (into [])))
 
 (sp/declarepath CellWalker)
 (sp/providepath CellWalker

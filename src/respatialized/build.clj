@@ -3,7 +3,7 @@
    [clojure.java.io :as io]
    [hiccup.core :refer [html]]
    [hiccup.page :as hp]
-   [respatialized.render :refer :all]
+   [respatialized.render :as render :refer :all]
    [respatialized.postprocess :as postprocess]
    [respatialized.holotype :as holotype]
    [clojure.string :as str]))
@@ -24,12 +24,13 @@
    (-> path
        slurp
        page-fn
-       postprocess/detect-paragraphs
+       postprocess/tokenize
+       hp/html5
        (#(spit out-file %))
        )))
   ([path page-fn] (render-template-file path page-fn "public"))
   ([path]
-   (render-template-file path page "public")))
+   (render-template-file path render/template->hiccup "public")))
 
 (defn get-template-files [dir suffix]
   (->> dir
@@ -45,7 +46,7 @@
    (doseq [f template-files]
      (render-template-file f page-fn out-dir)))
   ([template-files page-fn] (render-template-files template-files page-fn "public"))
-  ([template-files] (render-template-files template-files page "public"))
+  ([template-files] (render-template-files template-files render/template->hiccup "public"))
   ([] (render-template-files (get-template-files "content" template-suffix))))
 
 (defn load-deps []
