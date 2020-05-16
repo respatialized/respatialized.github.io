@@ -577,6 +577,10 @@ h1, h2, h3, h4, h5, h6 {
   color: #F6971B;
 }
 
+r-cell {
+  padding-right: 1em;
+}
+
 a {
   color: hsla(193.33333, 20.930233%, 35.294117%, 1.0);
 }

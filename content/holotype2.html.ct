@@ -1,7 +1,4 @@
-<% (require '[hiccup.core :refer [html]]
-    '[respatialized.render :refer :all]
-    '[respatialized.structure.fractals :as fractals]
-    '[respatialized.holotype :as holotype])
+<%
 (def metadata {:title "HOLOTYPE///2"})
 %>
 

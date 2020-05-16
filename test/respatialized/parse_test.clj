@@ -17,7 +17,7 @@
           "Non-forms should be evaluated and not returned.")
 
     (t/is (= (parse "<%=:foo%> bar <%=:baz%>")
-             '(:foo "bar" :baz)))
+             '(:foo " bar " :baz)))
     (t/is (= (parse "some text") '("some text"))
           "Plaintext should be passed as-is")
     (t/is (= (parse "<%=[1 2 3]%>") '([1 2 3])))

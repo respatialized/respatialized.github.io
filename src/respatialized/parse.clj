@@ -34,5 +34,5 @@
       (if expr
         (recur
          after
-         (conj-non-nil form (string/trim before) (yield-expr expr)))
-        (conj-non-nil form (string/trim after))))))
+         (conj-non-nil form before (yield-expr expr)))
+        (conj-non-nil form after)))))

@@ -52,6 +52,7 @@
 (defn load-deps []
   (do (require '[respatialized.render :refer :all]
                '[respatialized.holotype :as holotype]
+               '[respatialized.structure.fractals :as fractals]
                '[hiccup.page :as hp]
                '[hiccup.core :refer [html]])))
 

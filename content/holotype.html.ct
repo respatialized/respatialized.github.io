@@ -1,5 +1,4 @@
-<% (require '[respatialized.holotype :as holotype])
-  (def metadata {:title "HOLOTYPE_/1"}) %>
+<% (def metadata {:title "HOLOTYPE_/1"}) %>
 
 <%=(header "HOLOTYPE_/1" :h1 "f1")%>
 

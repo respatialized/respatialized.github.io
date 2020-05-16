@@ -82,6 +82,7 @@
         (max-widths 80)
         (max-heights 60)
         [:h1 :h2 :h3 :h4 :h5 :h6 {:color (get wal-colors "color6")}]
+        [:r-cell {:padding-right (u/em 1)}]
         [:a {:color (garden.color/lighten (get wal-colors "color1") 10)}]]
        garden/css
        (spit "public/css/main.css")))
