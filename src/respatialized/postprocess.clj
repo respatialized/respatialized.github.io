@@ -12,13 +12,15 @@
   ([elem attr] (fn [s] (paragraphs elem attr s)))
   ([elem] (fn [s] (paragraphs elem {} s))))
 
-(defn cell-paragraphs [[_ & texts]]
+(defn cell-paragraphs [[_ attr? & texts]]
+  (let [texts (if (map? attr?) texts (cons attr? texts))
+        elem (if (map? attr?) [:r-cell attr?] [:r-cell])]
   (->> texts
        (filter string?)
        (map (paragraphs :p))
        (apply concat)
-       (concat [:r-cell])
-       (into [])))
+       (concat elem)
+       (into []))))
 
 (sp/declarepath CellWalker)
 (sp/providepath CellWalker
