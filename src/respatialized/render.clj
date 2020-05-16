@@ -6,9 +6,9 @@
             [clojure.string :as string]
             [clojure.java.io :as io]
             [respatialized.styles :as styles]
-            [respatialized.parse :refer [parse]])
-  (:gen-class)
-  )
+            [respatialized.parse :refer [parse]]
+            [respatialized.postprocess :refer [tokenize]])
+  (:gen-class))
 
 (defn doc-header
   "Returns a default header."
@@ -22,7 +22,7 @@
     ])
 
 (defn header
-  ([title level class]  [:div {:class class} [level title]])
+  ([title level class]  [:r-cell {:span "row" :class class} [level title]])
   ([title level] (header title level styles/header-default))
   ([title] (header title :h1)))
 
@@ -73,9 +73,9 @@
   ([dir] [:p [:img {:src dir}]]))
 
 (defn ul [& items]
-   (into [:ul] (map (fn [i] [:li i] items))))
+   (into [:ul] (map (fn [i] [:li i]) items)))
 (defn ol [& items]
-   (into [:ol] (map (fn [i] [:li i] items))))
+   (into [:ol] (map (fn [i] [:li i]) items)))
 
 (defn sorted-map-vec->table
   "Converts a vector of maps to a hiccup table."
@@ -118,13 +118,16 @@
 (defn script [content attr-map]
   [:script attr-map content])
 
+(def default-grid 8)
+
 (defn template->hiccup
   "Converts a template file to hiccup data structures."
   [t]
-  (let [content (parse t)
+  (let [content (tokenize (parse t))
         page-meta (eval 'metadata)
-        body (into [:body {:class (:page-class page-meta styles/page)}] content)
-        ]
+        body-content (list [:r-grid {:columns (:columns page-meta default-grid)} content])
+        body (into [:body {:class (:page-class page-meta styles/page)}]
+                   body-content)]
     (list (doc-header (:title page-meta ""))
      [:article
       {:lang "en"}

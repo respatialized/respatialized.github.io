@@ -24,7 +24,6 @@
    (-> path
        slurp
        page-fn
-       postprocess/tokenize
        hp/html5
        (#(spit out-file %))
        )))

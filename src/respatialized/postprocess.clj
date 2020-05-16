@@ -39,7 +39,8 @@
 (defn tokenize [form]
   (sp/multi-transform*
    (sp/multi-path [CellWalker (sp/terminal cell-paragraphs)]
-                  [sp/ALL string? (sp/terminal (paragraphs :r-cell {:span "row"}))])
+                  [sp/ALL string? (sp/terminal (paragraphs :r-cell {:span "row"}))]
+                  )
    form))
 
 (comment
