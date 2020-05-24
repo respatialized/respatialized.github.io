@@ -13,6 +13,7 @@
 
   ;; data munging
   com.rpl/specter {:mvn/version "1.1.3"}
+  meander/epsilon {:mvn/version "0.0.421"}
 
   ;; site content
   clojure2d {:mvn/version "1.2.0-SNAPSHOT"}
