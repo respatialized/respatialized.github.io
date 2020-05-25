@@ -24,7 +24,6 @@
   ([tag] (split-into-forms tag #"\n\n"))
   ([] (split-into-forms :p)))
 
-
 ; example after
 
 
@@ -49,6 +48,23 @@
           (if (pred h)
             (recur t (concat acc (splitter h)))
             (recur t (conj acc h)))))))
+
+(defn r-cell? [i] (and (seqable? i) (= (first i) :r-cell)))
+  (defn split-cell-contents [c]
+    (let [r (map #(if (string? %)
+                    ((split-into-forms :p) %) %) c)]
+      (if (vector? c) (into [] r) r)))
+
+  (def base-strategy
+    (m*/pipe (m*/pred string?)
+             (split-into-forms :r-cell {:span "row"} #"\n\n")))
+
+  (def cell-strategy
+    (m*/pipe (m*/pred r-cell?) split-cell-contents))
+
+  (def rewrite-form-2
+    (m*/some-td (m*/choice cell-strategy base-strategy)))
+
 
 (comment
 
@@ -169,26 +185,11 @@
   ;; recursively the cause of the stack overflow error?
   ;;
   ;;
-  (defn r-cell? [i] (and (seqable? i) (= (first i) :r-cell)))
-  (defn split-cell-contents [c]
-    (let [r (map #(if (string? %)
-                    ((split-into-forms :p) %) %) c)]
-      (if (vector? c) (into [] r) r)))
-
-  (def base-strategy
-    (m*/pipe (m*/pred string?)
-             (split-into-forms :r-cell {:span "row"} #"\n\n")))
-
-  (def cell-strategy
-    (m*/pipe (m*/pred r-cell?) split-cell-contents))
-
-  (def rewrite-form-2
-    (m*/some-td (m*/choice cell-strategy base-strategy)))
 
   (rewrite-form-2 sample-form)
 
-  ;; seems like it may have been the call to m*/attempt, which repeatedly
-  ;; retried until it got the stack overflow.
+  ;; seems like the problem may have been the call to m*/attempt,
+  ;; which repeatedly retried until it got the stack overflow.
   ;;
   ;; some-td produces the result I thought (m*/top-down (m*/attempt ...))
   ;; would achieve.
