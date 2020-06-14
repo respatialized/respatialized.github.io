@@ -15,11 +15,16 @@
         ")?"
         "(.*)\\z")))
 
-(defn yield-expr [expr]
+(defn eval-expr [expr]
   (if (.startsWith expr "=")
     (eval (edn/read-string (subs expr 1)))
     (do (eval (edn/read-string expr))
         nil)))
+
+(defn yield-expr [expr]
+  (if (.startsWith expr "=")
+    (edn/read-string (subs expr 1))
+    `(do ~(edn/read-string expr) nil)))
 
 (defn nil-or-empty? [v]
   (if (seqable? v) (empty? v)
@@ -28,11 +33,24 @@
 (defn conj-non-nil [s & args]
   (seq (concat s (filter #(not (nil-or-empty? %)) args))))
 
-(defn parse [src]
-  (loop [src src form []]
+(defn parse
+  ([src start-seq]
+  (into
+   start-seq
+   (loop [src src form []]
     (let [[_ before expr after] (re-matches parser-regex src)]
       (if expr
         (recur
          after
          (conj-non-nil form before (yield-expr expr)))
+        (conj-non-nil form after))))))
+  ([src] (parse src [])))
+
+(defn parse-eval [src]
+  (loop [src src form []]
+    (let [[_ before expr after] (re-matches parser-regex src)]
+      (if expr
+        (recur
+         after
+         (conj-non-nil form before (eval-expr expr)))
         (conj-non-nil form after)))))
