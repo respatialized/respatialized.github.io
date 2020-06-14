@@ -62,3 +62,5 @@
   ([& files]
    (load-deps)
    (render-template-files files)))
+
+(comment (-main))
