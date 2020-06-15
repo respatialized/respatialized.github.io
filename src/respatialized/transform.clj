@@ -7,8 +7,17 @@
 ; example before
 (def sample-form '("first paragraph\n\nsecond paragraph"
                    [:r-grid [:r-cell "first cell line\n\nsecond cell line"]
-                    [:r-cell "another cell"]]
+                            [:r-cell "another cell"]]
                    "third paragraph"))
+
+; example after
+(def sample-parsed-form
+  '([:r-cell {:span "row"} "first paragraph"]
+    [:r-cell {:span "row"} "second paragraph"]
+    [:r-grid
+     [:r-cell [:p "first cell line"] [:p "second cell line"]]
+     [:r-cell "another cell"]]
+    [:r-cell {:span "row"} "third paragraph"]))
 
 (defn split-into-forms
   ([text tag attr sep]
@@ -24,17 +33,6 @@
   ([tag] (split-into-forms tag #"\n\n"))
   ([] (split-into-forms :p)))
 
-; example after
-
-
-(def sample-parsed-form
-  '([:r-cell {:span "row"} "first paragraph"]
-    [:r-cell {:span "row"} "second paragraph"]
-    [:r-grid
-     [:r-cell [:p "first cell line"] [:p "second cell line"]]
-     [:r-cell "another cell"]]
-    [:r-cell {:span "row"} "third paragraph"]))
-
 ; warm up exercise: the vanilla clojure way to ignore
 ; the enclosing collection created by str/split
 (defn split-and-insert
@@ -42,29 +40,58 @@
   split it by the given function and insert the result into the
   original sequence."
   [seq pred splitter]
-  (loop [s seq acc []]
+  (let [v? (vector? seq)
+    r (loop [s seq acc []]
     (if (empty? s) acc ; base case
         (let [h (first s) t (rest s)]
           (if (pred h)
             (recur t (concat acc (splitter h)))
-            (recur t (conj acc h)))))))
+            (recur t (conj acc h))))))]
+    (if v? (apply vector r) r)))
 
-(defn r-cell? [i] (and (seqable? i) (= (first i) :r-cell)))
-  (defn split-cell-contents [c]
-    (let [r (map #(if (string? %)
-                    ((split-into-forms :p) %) %) c)]
-      (if (vector? c) (into [] r) r)))
+(defn apply-map
+  "If i matches any of the predicate keys in the given map, apply the corresponding fn to it. Otherwise, return i."
+  [fn-map i]
+  (loop [kvs fn-map]
+    (let [[pred func] (first kvs)]
+      (cond
+        (empty? kvs) i
+        (pred i) (func i)
+        :else (recur (rest kvs))))))
 
-  (def base-strategy
-    (m*/pipe (m*/pred string?)
-             (split-into-forms :r-cell {:span "row"} #"\n\n")))
+(defn r-cell? [i] (and (vector? i) (= (first i) :r-cell)))
+; checks if the given item is in a a vector but not a grid vector
+(defn not-grid-elem? [i]
+  (and (vector? i) (not (contains? #{:r-grid :r-cell} (first i)))))
+(defn split-cell-contents [c]
+  (let [r (map #(if (string? %)
+                  ((split-into-forms :p) %) %) c)]
+    (if (vector? c) (into [] r) r)))
 
-  (def cell-strategy
-    (m*/pipe (m*/pred r-cell?) split-cell-contents))
+(def base-strategy
+  (m*/pipe (m*/pred string?)
+           (split-into-forms :r-cell {:span "row"} #"\n\n")))
 
-  (def rewrite-form-2
-    (m*/some-td (m*/choice cell-strategy base-strategy)))
+(def elem-strategy
+    (m*/pipe (m*/pred not-grid-elem?)
+             identity))
 
+(def cell-strategy
+  (m*/pipe (m*/pred r-cell?) split-cell-contents))
+
+(def rewrite-form-2
+  (m*/some-td (m*/choice
+               elem-strategy
+               cell-strategy
+               base-strategy)))
+
+;; general form of the transformation
+;; [:r-cell "a\nb"] => [:r-cell "a" "b"]
+;; [:r-cell ?elem-to-split] => [:r-cell ?s1 ?s2 ... ?sn]
+;; does meander's term rewriting allow you to express this kind of
+;; transformation?
+;;
+;; if not,
 
 (comment
 
