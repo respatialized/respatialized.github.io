@@ -27,5 +27,5 @@
 
     (t/is (= '(([:r-cell {:span "row"} "first paragraph"]
                 [:r-cell {:span "row"} "second paragraph with " [:em "emphasis"] " text"]))
-             (rewrite-form-2 (respatialized.parse/parse sample-multi-form-input)))
+             (rewrite-form-2 (respatialized.parse/parse sample-multi-form-input '())))
           "non-grid elements should be left as is")))
