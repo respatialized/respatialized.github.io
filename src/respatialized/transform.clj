@@ -85,15 +85,96 @@
                cell-strategy
                base-strategy)))
 
+(def rewrite-form-2-trace (m*/trace rewrite-form-2))
+
 ;; general form of the transformation
 ;; [:r-cell "a\nb"] => [:r-cell "a" "b"]
 ;; [:r-cell ?elem-to-split] => [:r-cell ?s1 ?s2 ... ?sn]
 ;; does meander's term rewriting allow you to express this kind of
-;; transformation?
+;; transformation? can you do "one to many" transformations that
+;; put the returned values into the correct position in the sequence?
 ;;
-;; if not,
+;; if not, then rewrite-form-2 is the best that can be done right now.
+;;
+;; or perhaps it's just a question of piping together more than one
+;; transformation - split in one go, then pattern match on the split
+;; values in another
+;;
+;;
+;; from the cookbook:
+;; https://github.com/noprompt/meander/blob/epsilon/doc/cookbook.md#recursion-reduction-and-aggregation
+;; "Patterns can call themselves with the m/cata operator. This is like recursion.
+;; You can leverage self recursion to accumulate a result."
+;;
+;; it includes a very succinct example of the power of term rewriting
+;; to express general computation - it's kinda like lambda calculus with
+;; more rules of application that modify the terms under evaluation
+;;
+;;
+;; actually it's a lot simpler to do this:
+;;  (m/rewrites ["a\nb" "c\nd" 2 3 4 5 "e\nf"]
+;;    (m/scan (m/pred string? !s))
+;;    [:r-grid . [:r-cell !s] ...])
+;;
+;; the dot (.) and ellipsis (...) operators
+;; do exactly this in the context of a containing sequence
+;;
+;; so the strategy looks something like this for the simplest case:
+;; 1. collect the strings
+;; 2. split the strings
+;; 3. flatten the resulting sequence
+;; 4. collect those strings (!split-strings)
+;; 5. insert them like [:r-grid . [:r-cell !split-strings] ...]
+;;
+;; the advanced case is to ensure the strings get split differently
+;; based on their surrounding context.
+
+(defn tokenize-seq [seq sep token]
+  (m/rewrite seq
+    [(m/or
+      (m/and (m/pred string?)
+             (m/app #(str/split % sep)
+                    [(m/app (fn [i] [token i]) !xs) ...]))
+      !xs) ...]
+    [!xs ...]))
+
+
+
 
 (comment
+
+  ; tip from the library author via clojurians slack:
+  (m/rewrite [1 2 "a" "b" "c"]  [,,, (m/or (m/pred string? !s) _) ...]
+                                    [:ul . [:li !s] ...])
+
+  ; another from Jimmy Miller (another contributor)
+  (m/rewrite ["ad,sf" 1 "asd,fa,sdf" 2 3]
+    [(m/or
+      (m/and (m/pred string?) (m/app #(clojure.string/split % #",") [!xs ...]))
+      !xs) ...]
+    [!xs ...])
+
+
+
+  ;; using m/$ to match the context of an individual form
+  (m/match [:r-cell "a\nb"]
+    (m/$ ?context (m/pred string? ?s))
+    (?context (str/split ?s #"\n")))
+
+  (m/rewrite [() '(1 2 3)] ;; Initial state
+    ;; Intermediate step with recursion
+    [?current (?head & ?tail)]
+    (m/cata [(?head & ?current) ?tail])
+
+    ;; Done
+    [?current ()] ?current)
+
+(m/rewrite [() '(1 2 3 :a :b)] ;; Initial state
+    ;; Intermediate step with recursion
+    [?current ((m/$ (m/pred keyword? ?k)) & ?tail)]
+    (m/cata [(?k & ?current) ?tail])
+    ;; Done
+    [?current ()] ?current)
 
   (split-and-insert [1 2 3 "a|b|c"] string? #(str/split % #"\|"))
 
