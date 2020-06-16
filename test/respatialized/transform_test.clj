@@ -7,6 +7,21 @@
 
 (t/deftest transforms
   (t/testing "splitter fns"
+
+    (t/is (= (tokenize-seq [1 2 3 "a\nb" 4 "c\nd" 5] #"\n" [:p])
+             [1 2 3 [:p "a"] [:p "b"] 4 [:p "c"] [:p "d"] 5])
+          "tokenizer rewrite should tokenize text appropriately")
+
+    (t/is (= ((tokenizer  #"\n" [:r-cell {:span "row"}]) [1 2 3 "a\nb" 4 "c\nd" 5])
+             [1 2 3
+              [:r-cell {:span "row"} "a"]
+              [:r-cell {:span "row"} "b"]
+              4
+              [:r-cell {:span "row"} "c"]
+              [:r-cell {:span "row"} "d"]
+              5])
+          "tokenizer strategy should tokenize text appropriately")
+
     (t/is (= (split-into-forms (first sample-form) :p {} #"\n\n")
              '([:p "first paragraph"] [:p "second paragraph"]))
           "splitter should tokenize text appropriately"))

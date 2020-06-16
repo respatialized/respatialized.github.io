@@ -134,7 +134,16 @@
     [(m/or
       (m/and (m/pred string?)
              (m/app #(str/split % sep)
-                    [(m/app (fn [i] [token i]) !xs) ...]))
+                    [(m/app (fn [i] (into token [i])) !xs) ...]))
+      !xs) ...]
+    [!xs ...]))
+
+(defn tokenizer [sep token]
+   (m*/rewrite
+    [(m/or
+      (m/and (m/pred string?)
+             (m/app #(str/split % sep)
+                    [(m/app (fn [i] (into token [i])) !xs) ...]))
       !xs) ...]
     [!xs ...]))
 
