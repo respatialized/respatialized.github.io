@@ -158,9 +158,12 @@
 
 (def rewrite-form-3
   (m*/some-td
-    (tokenizer [:p])
+    (m*/trace (tokenizer [:p]))
    ))
 
+;; one challenge: pattern matching on the context to ensure that redundant rewrites
+;; don't happen - guarding against things like [:p [:p [:p "text"]]]
+;; these blow up certain strategies with stack overflow errors
 
 (comment
 

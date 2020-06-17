@@ -1,5 +1,6 @@
 (ns respatialized.transform-test
   (:require [respatialized.transform :refer :all]
+            [hiccup.core]
             [clojure.test :as t]))
 
 (def sample-multi-form-input
@@ -20,6 +21,9 @@
           "tokenizer strategy should not tokenize strings into character sequences.")
 
     (t/is (= [[:p "abc"]] ((tokenizer #"\n" [:p]) ["abc"]) )
+          "tokenizer strategy should not tokenize strings into character sequences.")
+
+    (t/is (= '([:p "abc"]) ((tokenizer #"\n" [:p]) '("abc")) )
           "tokenizer strategy should not tokenize strings into character sequences.")
 
     (t/is (=
