@@ -12,15 +12,29 @@
              [1 2 3 [:p "a"] [:p "b"] 4 [:p "c"] [:p "d"] 5])
           "tokenizer rewrite should tokenize text appropriately")
 
-    (t/is (= ((tokenizer  #"\n" [:r-cell {:span "row"}]) [1 2 3 "a\nb" 4 "c\nd" 5])
-             [1 2 3
+
+    (t/is (= [[:p "a"] [:p "b"]] ((tokenizer #"\n" [:p]) ["a\nb"]) )
+          "tokenizer strategy should tokenize text appropriately")
+
+    (t/is (= "abc" ((tokenizer #"\n" [:p]) "abc") )
+          "tokenizer strategy should not tokenize strings into character sequences.")
+
+    (t/is (= [[:p "abc"]] ((tokenizer #"\n" [:p]) ["abc"]) )
+          "tokenizer strategy should not tokenize strings into character sequences.")
+
+    (t/is (=
+           [1 2 3
               [:r-cell {:span "row"} "a"]
               [:r-cell {:span "row"} "b"]
               4
               [:r-cell {:span "row"} "c"]
               [:r-cell {:span "row"} "d"]
-              5])
+              5]
+           ((tokenizer  #"\n" [:r-cell {:span "row"}]) [1 2 3 "a\nb" 4 "c\nd" 5])
+             )
           "tokenizer strategy should tokenize text appropriately")
+
+
 
     (t/is (= (split-into-forms (first sample-form) :p {} #"\n\n")
              '([:p "first paragraph"] [:p "second paragraph"]))

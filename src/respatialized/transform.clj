@@ -129,30 +129,45 @@
 ;; the advanced case is to ensure the strings get split differently
 ;; based on their surrounding context.
 
-(defn tokenize-seq [seq sep token]
+(defn tokenize-seq
+  ([seq sep token]
   (m/rewrite seq
-    [(m/or
+    (m/seqable (m/or
       (m/and (m/pred string?)
              (m/app #(str/split % sep)
                     [(m/app (fn [i] (into token [i])) !xs) ...]))
-      !xs) ...]
+      !xs) ...)
     [!xs ...]))
+  ([sep token] (fn [seq] (tokenize-seq seq sep token)))
+  ([token] (tokenize-seq #"\n\n" token))
+  ([] (tokenize-seq [:r-cell {:span "row"}])))
 
-(defn tokenizer [sep token]
-   (m*/rewrite
-    [(m/or
+(defn tokenizer ([sep token]
+  (m*/guard sequential? (m*/rewrite
+    (m/seqable
+     (m/or
       (m/and (m/pred string?)
              (m/app #(str/split % sep)
                     [(m/app (fn [i] (into token [i])) !xs) ...]))
-      !xs) ...]
-    [!xs ...]))
+      !xs) ...)
+    [!xs ...])))
+  ([token] (tokenizer #"\n\n" token)))
 
+;; the general idea: apply the rewriting to the sequence, then recurse into
+;; the subsequences and do it again.
 
+(def rewrite-form-3
+  (m*/some-td
+    (tokenizer [:p])
+   ))
 
 
 (comment
 
   ; tip from the library author via clojurians slack:
+  (m/rewrite [1 2 "a" "b" "c"]  (m/seqable (m/or (m/pred string? !s) _) ...)
+                                    [:ul . [:li !s] ...])
+
   (m/rewrite [1 2 "a" "b" "c"]  [,,, (m/or (m/pred string? !s) _) ...]
                                     [:ul . [:li !s] ...])
 
