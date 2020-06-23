@@ -194,12 +194,13 @@
                       current-elem (last final)]
                   (cond
                     (and (string? h) (re-find re h))
-                    (let [[hh tt] (str/split h re 2)]
+                    (let [[hh & tt] (str/split h re)
+                          rest (map (fn [i] [:p i]) tt)]
                       (if (and (vector? current-elem) (= (first current-elem) :p))
-                        (recur (concat [tt] t)
+                        (recur (concat rest t)
                                (conj (apply vector (drop-last 1 final))
                                      (conj current-elem hh)))
-                        (recur (concat [tt] t) (conj final [:p hh]))))
+                        (recur (concat rest t) (conj final [:p hh]))))
                     (string? h)
                     (if (and (vector? current-elem) (= (first current-elem) :p))
                       (recur t
@@ -214,7 +215,7 @@
                       (recur t (conj final [:p h])))
                     :else
                     (recur t (conj final h))))))]
-    (if v? (apply vector (reverse r)) (reverse r))))
+    (if v? (apply vector r)  r)))
 
 (comment
 
