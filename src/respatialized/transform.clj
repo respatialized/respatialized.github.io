@@ -201,16 +201,10 @@
                                (conj (apply vector (drop-last 1 final))
                                      (conj current-elem hh)))
                         (recur (concat rest t) (conj final [:p hh]))))
-                    (string? h)
+                    (or (string? h) (inline-elem? h))
                     (if (and (vector? current-elem) (= (first current-elem) :p))
                       (recur t
-                             (conj (drop-last 1 final)
-                                   (conj current-elem h)))
-                      (recur t (conj final [:p h])))
-                    (inline-elem? h)
-                    (if (and (vector? current-elem) (= (first current-elem) :p))
-                      (recur t
-                             (conj (drop-last 1 final)
+                             (conj (apply vector (drop-last 1 final))
                                    (conj current-elem h)))
                       (recur t (conj final [:p h])))
                     :else
@@ -221,17 +215,17 @@
 
                                         ; tip from the library author via clojurians slack:
   (m/rewrite [1 2 "a" "b" "c"]  (m/seqable (m/or (m/pred string? !s) _) ...)
-    [:ul . [:li !s] ...])
+             [:ul . [:li !s] ...])
 
   (m/rewrite [1 2 "a" "b" "c"]  [(m/or (m/pred string? !s) _) ...]
-    [:ul . [:li !s] ...])
+             [:ul . [:li !s] ...])
 
                                         ; another from Jimmy Miller (another contributor)
   (m/rewrite ["ad,sf" 1 "asd,fa,sdf" 2 3]
-    [(m/or
-      (m/and (m/pred string?) (m/app #(clojure.string/split % #",") [!xs ...]))
-      !xs) ...]
-    [!xs ...])
+             [(m/or
+               (m/and (m/pred string?) (m/app #(clojure.string/split % #",") [!xs ...]))
+               !xs) ...]
+             [!xs ...])
 
 
 
@@ -244,43 +238,43 @@
 
   (m/rewrite [() '(1 2 3)] ;; Initial state
     ;; Intermediate step with recursion
-    [?current (?head & ?tail)]
-    (m/cata [(?head & ?current) ?tail])
+             [?current (?head & ?tail)]
+             (m/cata [(?head & ?current) ?tail])
 
     ;; Done
-    [?current ()] ?current)
+             [?current ()] ?current)
 
   (m/rewrite [() '(1 2 3 :a :b)] ;; Initial state
     ;; Intermediate step with recursion
-    [?current ((m/$ (m/pred keyword? ?k)) & ?tail)]
-    (m/cata [(?k & ?current) ?tail])
+             [?current ((m/$ (m/pred keyword? ?k)) & ?tail)]
+             (m/cata [(?k & ?current) ?tail])
     ;; Done
-    [?current ()] ?current)
+             [?current ()] ?current)
 
   (split-and-insert [1 2 3 "a|b|c"] string? #(str/split % #"\|"))
 
                                         ; find top-level strings
   (m/search sample-form
-    (_ ... (m/pred string? ?s) . _ ...)
-    ?s)
+            (_ ... (m/pred string? ?s) . _ ...)
+            ?s)
 
                                         ; find grid cells
   (m/search sample-form
-    (_ ... (m/pred #(= (first %) :r-grid) ?g) . _ ...)
-    ?g)
+            (_ ... (m/pred #(= (first %) :r-grid) ?g) . _ ...)
+            ?g)
 
                                         ; split and insert into top-level list (attempt)
   (m/find
-    (m/rewrites ["a\nb" "c"] [_ ... (m/app #(str/split % #"\n") ?s) . _ ...] ?s)
-    [?i]
-    ?i)
+   (m/rewrites ["a\nb" "c"] [_ ... (m/app #(str/split % #"\n") ?s) . _ ...] ?s)
+   [?i]
+   ?i)
 
   (def p
     (m*/top-down
      (m*/match
-       (m/pred string? ?s) (keyword ?s)
-       (m/pred int? ?i) (inc ?i)
-       ?x ?x)))
+      (m/pred string? ?s) (keyword ?s)
+      (m/pred int? ?i) (inc ?i)
+      ?x ?x)))
 
   (p [1 ["a" 2] "b" 3 "c"])
 
@@ -289,9 +283,9 @@
   (def rewrite-form
     (m*/bottom-up
      (m*/match
-       (m/pred string? ?s) (m/app (split-into-forms :r-cell {:span "row"} #"\n\n") ?s)
+      (m/pred string? ?s) (m/app (split-into-forms :r-cell {:span "row"} #"\n\n") ?s)
                                         ;(m/pred #(= (first %) :r-cell) ?c) (map (split-into-forms :p {} #"\n\n") ?c)
-       ?x ?x)))
+      ?x ?x)))
 
   (rewrite-form sample-form)
 
@@ -309,28 +303,28 @@
 
   ;; meander.epsilon/find
   (m/find hiccup
-    (m/with [%h1 [!tags {:as !attrs} . %hiccup ...]
-             %h2 [!tags . %hiccup ...]
-             %h3 !xs
-             %hiccup (m/or %h1 %h2 %h3)]
-      %hiccup)
-    [!tags !attrs !xs])
+          (m/with [%h1 [!tags {:as !attrs} . %hiccup ...]
+                   %h2 [!tags . %hiccup ...]
+                   %h3 !xs
+                   %hiccup (m/or %h1 %h2 %h3)]
+                  %hiccup)
+          [!tags !attrs !xs])
 
   (m/rewrites
-    ("first paragraph\n\nsecond paragraph"
-     [:r-grid
-      [:r-cell "first cell line\n\nsecond cell line"]
-      [:r-cell "another cell"]]
-     "third paragraph")
+   ("first paragraph\n\nsecond paragraph"
+    [:r-grid
+     [:r-cell "first cell line\n\nsecond cell line"]
+     [:r-cell "another cell"]]
+    "third paragraph")
 
-    (m/with [%s (m/pred string?)])
+   (m/with [%s (m/pred string?)])
 
-    (([:r-cell {:span "row"} "first paragraph"]
-      [:r-cell {:span "row"} "second paragraph"])
-     [:r-grid
-      [:r-cell "first cell line\n\nsecond cell line"]
-      [:r-cell "another cell"]]
-     ([:r-cell {:span "row"} "third-paragraph"])))
+   (([:r-cell {:span "row"} "first paragraph"]
+     [:r-cell {:span "row"} "second paragraph"])
+    [:r-grid
+     [:r-cell "first cell line\n\nsecond cell line"]
+     [:r-cell "another cell"]]
+    ([:r-cell {:span "row"} "third-paragraph"])))
 
   ;; the idea we're trying to express in meander - contextual splitting
   ;; of text into items.
@@ -351,10 +345,10 @@
   (def rewrite-form
     (m*/bottom-up
      (m*/match
-       (m/pred string? ?s)
+      (m/pred string? ?s)
        (m/rewrites (str/split ?s #"\n\n")
-         [_ ... ?s . _ ...]
-         [:p ?s])
+                   [_ ... ?s . _ ...]
+                   [:p ?s])
        ?x ?x)))
 
   (rewrite-form sample-form)
