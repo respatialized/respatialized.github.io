@@ -63,7 +63,10 @@
 
 
     (t/is (= [:r-cell [:p "a"] [:p "b"] [:p "c"] :d :e]
-             (tokenize-elem [:r-cell "a\nb\nc" :d :e] #"\n")))
+             (tokenize-elem [:r-cell "a\nb\nc" :d :e] #"\n"))
+
+          )
+    
     (t/is (= [:r-cell [:p "a" [:em "b"]] :c :d]
              (tokenize-elem [:r-cell "a" [:em "b"] :c :d] #"\n")))
 

@@ -197,7 +197,7 @@
                     (let [[hh tt] (str/split h re 2)]
                       (if (and (vector? current-elem) (= (first current-elem) :p))
                         (recur (concat [tt] t)
-                               (conj (drop-last 1 final)
+                               (conj (apply vector (drop-last 1 final))
                                      (conj current-elem hh)))
                         (recur (concat [tt] t) (conj final [:p hh]))))
                     (string? h)
@@ -210,7 +210,7 @@
                     (if (and (vector? current-elem) (= (first current-elem) :p))
                       (recur t
                              (conj (drop-last 1 final)
-                                   (conj current-elem [h])))
+                                   (conj current-elem h)))
                       (recur t (conj final [:p h])))
                     :else
                     (recur t (conj final h))))))]
