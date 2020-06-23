@@ -188,10 +188,10 @@
   original element. Leaves sub-elements as is."
   [seq re]
   (let [v? (vector? seq)
-        r (loop [s (apply list seq) final '()]
+        r (loop [s (apply list seq) final []]
             (if (empty? s) final ; base case
                 (let [h (first s) t (rest s)
-                      current-elem (first final)]
+                      current-elem (last final)]
                   (cond
                     (and (string? h) (re-find re h))
                     (let [[hh tt] (str/split h re 2)]
