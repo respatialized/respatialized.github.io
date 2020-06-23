@@ -26,6 +26,9 @@
     (t/is (= '([:p "abc"]) ((tokenizer #"\n" [:p]) '("abc")) )
           "tokenizer strategy should not tokenize strings into character sequences.")
 
+    (t/is (= [:p "abc"] ((tokenizer #"\n" [:p]) [:p "abc"]))
+          "tokenizer strategy should guard against already-tokenized sequences.")
+
     (t/is (=
            [1 2 3
               [:r-cell {:span "row"} "a"]
@@ -46,19 +49,33 @@
 
   (t/testing "transforms"
     (t/is (=  '(([:r-cell {:span "row"} "first paragraph"]
-                [:r-cell {:span "row"} "second paragraph"])
-               [:r-grid
-                [:r-cell ([:p "first cell line"] [:p "second cell line"])]
-                [:r-cell ([:p "another cell"])]]
+                 [:r-cell {:span "row"} "second paragraph"])
+                [:r-grid
+                 [:r-cell ([:p "first cell line"] [:p "second cell line"])]
+                 [:r-cell ([:p "another cell"])]]
                 ([:r-cell {:span "row"} "third paragraph"]))
-            (rewrite-form-2 sample-form))
+              (rewrite-form-2 sample-form))
           "prototype transformers should yield appropriate results")
 
     (t/is (= "<r-cell span=\"row\">first paragraph</r-cell><r-cell span=\"row\">second paragraph</r-cell><r-grid><r-cell><p>first cell line</p><p>second cell line</p></r-cell><r-cell><p>another cell</p></r-cell></r-grid><r-cell span=\"row\">third paragraph</r-cell>"
              (hiccup.core/html (rewrite-form-2 sample-form)))
           "transformed text should be valid hiccup input")
 
-    (t/is (= '(([:r-cell {:span "row"} "first paragraph"]
-                [:r-cell {:span "row"} "second paragraph with " [:em "emphasis"] " text"]))
-             (rewrite-form-2 (respatialized.parse/parse sample-multi-form-input '())))
+
+    (t/is (= [:r-cell [:p "a"] [:p "b"] [:p "c"] :d :e]
+             (tokenize-elem [:r-cell "a\nb\nc" :d :e] #"\n")))
+    (t/is (= [:r-cell [:p "a" [:em "b"]] :c :d]
+             (tokenize-elem [:r-cell "a" [:em "b"] :c :d] #"\n")))
+
+    (t/is (= [:r-grid [:r-cell [:p "some text with" [:em "emphasis"] "added"]]]
+             (rewrite-form-3 [:r-grid [:r-cell "some text with" [:em "emphasis"] "added"]])
+             "tokenization should group inline elements appropriately"))
+
+    (t/is (= [:r-grid [:r-cell [:p "some text with"] [:p "newline and" [:em "emphasis"] "added"]]]
+             (rewrite-form-3 [:r-grid [:r-cell "some text with\n\nnewline and" [:em "emphasis"] "added"]])
+             "tokenization should group inline elements appropriately"))
+
+    (t/is (= '([:r-cell {:span "row"} "first paragraph"]
+               [:r-cell {:span "row"} "second paragraph with " [:em "emphasis"] " text"])
+             (rewrite-form-3 (respatialized.parse/parse sample-multi-form-input )))
           "non-grid elements should be left as is")))
