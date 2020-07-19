@@ -40,14 +40,14 @@
 
     (t/is (=
            [1 2 3
-              [:r-cell {:span "row"} "a"]
-              [:r-cell {:span "row"} "b"]
-              4
-              [:r-cell {:span "row"} "c"]
-              [:r-cell {:span "row"} "d"]
-              5]
+            [:r-cell {:span "row"} "a"]
+            [:r-cell {:span "row"} "b"]
+            4
+            [:r-cell {:span "row"} "c"]
+            [:r-cell {:span "row"} "d"]
+            5]
            ((tokenizer  #"\n" [:r-cell {:span "row"}]) [1 2 3 "a\nb" 4 "c\nd" 5])
-             )
+           )
           "tokenizer strategy should tokenize text appropriately")
 
 
@@ -72,9 +72,7 @@
 
 
     (t/is (= [:r-cell [:p "a"] [:p "b"] [:p "c"] :d :e]
-             (tokenize-elem [:r-cell "a\nb\nc" :d :e] #"\n"))
-
-          )
+             (tokenize-elem [:r-cell "a\nb\nc" :d :e] #"\n")))
     
     (t/is (= [:r-cell [:p "a" [:em "b"]] :c :d]
              (tokenize-elem [:r-cell "a" [:em "b"] :c :d] #"\n")))
