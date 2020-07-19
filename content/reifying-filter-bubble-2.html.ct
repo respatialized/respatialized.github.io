@@ -1,6 +1,6 @@
 <% (def metadata {:title "Reifying The Filter Bubble, part 2"})%>
 
-<%=(html [:div {:class "f3"} (header "Reifying The Filter Bubble, part 2")])%>
+<%=[:r-cell {:span "row"} (header (:title metadata) :h3)]%>
 <%=(entry-date "2019-12-27")%>
 
 In reading about the potential of conflict-free replicated data types, I was brought to the hype around Jack Dorsey's research team developing a <%=(link "https://twitter.com/jack/status/1204766078468911106" "'decentralized'")%> to Twitter's proprietary implementation of an activity feed. From there, I came to Stephen Wolfram's <%=(link "https://writings.stephenwolfram.com/2019/06/testifying-at-the-senate-about-a-i-selected-content-on-the-internet/" "testimony before Congress")%> about AI and algorithmic recommendations and what can be done to make platforms fairer and more transparent.
@@ -11,7 +11,7 @@ They seemed like decent enough arguments, as far as that goes. But as I was read
 
 <%=(header "Media For The Masses" :h3)%>
 
-Wolfram, Dorsey, and even the people in Dorsey's mentions grumbling about the fact that ActivityPub already exists all share the same unquestioned assumption: that the future of the 'decentralized' internet is still a trough of undifferentiated content slurry shoved in front of users. That what people want is just a <%=(em "feed")%>, but perhaps with a little more market-friendly <%=(em "choice")%>. The bold vision from the originator of <%=(em "A New Kind Of Science")%> boils down to adding some premium channels to the cable package for the savvy consumer.
+Wolfram, Dorsey, and even the people in Dorsey's mentions grumbling about the fact that ActivityPub already exists all share the same unquestioned assumption: that the future of the 'decentralized' internet is still a trough of undifferentiated content slurry shoved in front of users. That what people want is just a <%=[:em "feed"]%>, but perhaps with a little more market-friendly <%=(em "choice")%>. The bold vision from the originator of <%=(em "A New Kind Of Science")%> boils down to adding some premium channels to the cable package for the savvy consumer.
 
 <%=(blockquote "Another objection is that my idea makes even worse the tendency with modern technology for people to live inside “content bubbles” where they never broaden their points of view. Well, of course, there can be providers who offer broader content. But people could choose “content bubbles” providers. The good thing, though, is that they’re choosing them, and they know they’re doing that, just like they know they’re choosing to watch one television channel and not another." (em "Wolfram, ibid"))%>
 
