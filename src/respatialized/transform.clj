@@ -1,6 +1,7 @@
 (ns respatialized.transform
   (:require
    [clojure.string :as str]
+   [clojure.zip :as zip]
    [meander.epsilon :as m]
    [meander.strategy.epsilon :as m*]))
 
@@ -58,6 +59,9 @@
         (empty? kvs) i
         (pred i) (func i)
         :else (recur (rest kvs))))))
+
+(defn grid-elem [i]
+  (and (vector? i) (contains? #{:r-grid :r-cell} (first i))))
 
 (defn r-cell? [i] (and (vector? i) (= (first i) :r-cell)))
 ; checks if the given item is in a a vector but not a grid vector
@@ -375,3 +379,64 @@
   ;; some-td produces the result I thought (m*/top-down (m*/attempt ...))
   ;; would achieve.
   )
+
+;; trying something different: a zipper
+
+(defn orphan? [e] (or (string? e) (inline? e)))
+  (defn already-tokenized? [e]
+    (and (vector? e) (= (first e) :p)))
+
+  (defn group-orphans
+    ([encloser s]
+     (into encloser
+           (mapcat
+            #(if (orphan? (first %))
+               (list (apply vector %))
+               %)
+            (partition-by #(or (orphan? %) (already-tokenized? %)) s))))
+    ([encloser] (fn [s] (group-orphans encloser s))))
+
+  (group-orphans [:p] ["orphan text"
+                       [:em "with emphasis added"]])
+
+  (defn get-orphans [loc]
+    (cond
+      (zip/end? loc) loc
+      (and (zip/branch? loc)
+           (some orphan? (zip/children loc)) ; are there orphans?
+           (not (every? orphan?
+                        (zip/children loc))))
+      (if (= :r-cell (first (zip/up loc)))
+        (recur (zip/edit loc (group-orphans [:p])))
+        (recur (zip/edit loc (group-orphans [:r-cell {:span "row"}])))
+        )
+      :else (recur (zip/next loc))))
+
+(comment
+  (def orphan-trees
+    '([:r-grid
+       "orphan text"
+       [:em "with emphasis added"]
+       [:r-cell "non-orphan text"]]
+      ))
+
+  (def orphan-grid-zipper
+    (zip/zipper not-inline? identity (fn [_ c] c) (first orphan-trees)))
+
+  (-> orphan-grid-zipper zip/next zip/node)
+  (-> orphan-grid-zipper zip/next zip/next zip/node)
+  (-> orphan-grid-zipper zip/next zip/next zip/next zip/node)
+  ;; defining a custom predicate for a zipper lets you ignore inline elements and
+  ;; only recurse into the subsequences that actually define child relationships
+
+  (-> orphan-grid-zipper zip/next zip/next zip/up zip/node)
+  (-> orphan-grid-zipper zip/next zip/next zip/next zip/next zip/next zip/up zip/node)
+  ;; with a zipper you can always access the enclosing element
+  ;; to perform contextual operations by matching on the parent element type
+
+
+  (partition-by #(and (string? %) (some? (re-find #"\n\n" %))) [1 2 3 3 "a" "b" "c\n\nd" 4 3])
+  ;; a standard library function that may be useful for paragraph splitting
+
+
+  (get-orphans orphan-grid-zipper))

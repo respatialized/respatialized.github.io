@@ -6,6 +6,15 @@
 (def sample-multi-form-input
   "first paragraph\n\nsecond paragraph with <%=[:em \"emphasis\"]%> text")
 
+(def orphan-trees
+   '([:r-grid
+      "orphan text"
+      [:r-cell "non-orphan text"]]
+     ))
+
+(def orphan-zip
+  (zip/zipper not-inline? identity (fn [_ c] c) (first orphan-trees)))
+
 (t/deftest transforms
   (t/testing "splitter fns"
 
@@ -81,4 +90,15 @@
     (t/is (= '([:r-cell {:span "row"} "first paragraph"]
                [:r-cell {:span "row"} "second paragraph with " [:em "emphasis"] " text"])
              (rewrite-form-3 (respatialized.parse/parse sample-multi-form-input )))
-          "non-grid elements should be left as is")))
+          "non-grid elements should be left as is")
+
+
+
+    (t/is (=
+            [:r-grid
+             [:r-cell {:span "row"} "orphan text"
+               [:em "with emphasis added"]]
+              [:r-cell "non-orphan text"]]
+             (-> orphan-zip get-orphans zip/node)))
+    
+    ))
