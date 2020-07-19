@@ -111,11 +111,11 @@
                       [:em "with emphasis added"]
                       [:r-cell "non-orphan text"]])))
 
-    ;; (t/is (=
-    ;;        [:r-grid
-    ;;         [:r-cell {:span "row"} "orphan text"
-    ;;          [:em "with emphasis added"]]
-    ;;         [:r-cell "non-orphan text"]]
-    ;;        (-> orphan-zip get-orphans zip/node)))
+    (t/is (=
+           [:r-grid
+            [:r-cell {:span "row"} "orphan text"
+             [:em "with emphasis added"]]
+            [:r-cell "non-orphan text"]]
+           (-> orphan-zip get-orphans zip/node)))
     
     ))

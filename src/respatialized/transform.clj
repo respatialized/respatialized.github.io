@@ -438,9 +438,7 @@
                  #(and (vector? %) (contains? #{:p :r-cell} (first %)))
                  [:r-grid "orphan text"
                   [:em "with emphasis added"]
-                  [:r-cell "non-orphan text"]])
-
-  )
+                  [:r-cell "non-orphan text"]]))
 
 
 (defn get-orphans [loc]
@@ -455,13 +453,16 @@
           (fn [i] (and (vector? i) (= (first i) :p)))
           (fn [i] (and (vector? i) (= (first i) :r-cell))))]
     (cond
-      (zip/end? loc) loc
+      (zip/end? loc) loc                  ; are we at the end?
+      (already-tokenized? (zip/node loc)) ; has this node been processed?
+      (recur (zip/next loc))              ; if yes, continue
       (and (zip/branch? loc)
-           (some orphan? (zip/children loc)) ; are there orphans?
-           (not (every? #(or (already-tokenized? %)
-                             (keyword? %))   ; have they been processed?
+           (some orphan? (zip/children loc))        ; are there orphans?
+           (not (every? #(or (already-tokenized? %) ; have they been processed?
+                             (keyword? %)
+                             (= {:span "row"} %))
                         (zip/children loc))))
-      (recur (zip/edit loc (group-orphans loc-group)))
+      (recur (zip/edit loc (group-orphans loc-group already-tokenized?)))
       :else (recur (zip/next loc)))))
 
 (comment
@@ -492,7 +493,7 @@
   ;; a standard library function that may be useful for paragraph splitting
 
 
-  (get-orphans respatialized.transform-test/orphan-zip)
+  (zip/node (get-orphans respatialized.transform-test/orphan-zip))
  
   ;; this doesn't work because it partitions the entire enclosing sequence
   ;; when actually we just want to partition the orphans
