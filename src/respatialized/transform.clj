@@ -403,42 +403,66 @@
   (and (vector? e) (= (first e) :p)))
 
 (defn group-orphans
-    ([encloser s]
+    ([encloser tokenized? s]
      (let [grouper
            (fn [s]
-             (apply vector (mapcat
-                            (fn [i] (if (orphan? (first i))
-                                      (into encloser (apply vector i))
-                                      i))
-                            (partition-by #(or (orphan? %) (already-tokenized? %)) s))))]
-       (if (keyword? (first s)) [(first s) (grouper (rest s))]
+             (apply vector
+                    (map
+                     (fn [i]
+                       (cond
+                         (orphan? (first i))
+                         (into encloser (apply vector i))
+                         (tokenized? (first i)) (first i)
+                         :else
+                         i))
+                     (partition-by #(cond
+                                      (orphan? %) :orphan
+                                      (tokenized? %) :tokenized) s))))]
+       (if (keyword? (first s)) (into [(first s)] (grouper (rest s)))
            (grouper s)
            )))
-  ([encloser] (fn [s] (group-orphans encloser s))))
+  ([encloser tokenized?] (fn [s] (group-orphans encloser tokenized? s))))
 
 (comment
-  (group-orphans [:p] ["orphan text"
-                       [:em "with emphasis added"]])
+  (group-orphans [:p]
+                 already-tokenized?
+                 ["orphan text"
+                  [:em "with emphasis added"]])
 
-  (group-orphans [:p] [:r-grid "orphan text"
-                       [:em "with emphasis added"]])
- 
+  (group-orphans [:p]
+                 already-tokenized?
+                 [:r-grid "orphan text"
+                  [:em "with emphasis added"]])
+
+  (group-orphans [:p]
+                 #(and (vector? %) (contains? #{:p :r-cell} (first %)))
+                 [:r-grid "orphan text"
+                  [:em "with emphasis added"]
+                  [:r-cell "non-orphan text"]])
+
   )
 
 
 (defn get-orphans [loc]
-  (println loc)
-  (cond
-    (zip/end? loc) loc
-    (and (zip/branch? loc)
-         (some orphan? (zip/children loc)) ; are there orphans?
-         (not (every? orphan?
-                      (zip/children loc))))
-    (if (= :r-cell (first (zip/up loc)))
-      (recur (zip/edit loc (group-orphans [:p])))
-      (recur (zip/edit loc (group-orphans [:r-cell {:span "row"}])))
-      )
-    :else (recur (zip/next loc))))
+  (let [parent-type
+        (if (-> loc zip/up)
+          (-> loc (zip/up) (zip/node) first)
+          :r-grid)
+        loc-group (if (= :r-grid parent-type)
+                    [:r-cell {:span "row"}] [:p])
+        already-tokenized?
+        (if (= loc-group [:p])
+          (fn [i] (and (vector? i) (= (first i) :p)))
+          (fn [i] (and (vector? i) (= (first i) :r-cell))))]
+    (cond
+      (zip/end? loc) loc
+      (and (zip/branch? loc)
+           (some orphan? (zip/children loc)) ; are there orphans?
+           (not (every? #(or (already-tokenized? %)
+                             (keyword? %))   ; have they been processed?
+                        (zip/children loc))))
+      (recur (zip/edit loc (group-orphans loc-group)))
+      :else (recur (zip/next loc)))))
 
 (comment
   (def orphan-trees
@@ -449,7 +473,8 @@
       ))
 
   (def orphan-grid-zipper
-    (zip/zipper not-inline? identity (fn [_ c] c) (first orphan-trees)))
+    (zip/zipper not-inline? identity (fn [_ c] c)
+                (first respatialized.transform-test/orphan-trees)))
 
   (-> orphan-grid-zipper zip/next zip/node)
   (-> orphan-grid-zipper zip/next zip/next zip/node)
@@ -467,7 +492,7 @@
   ;; a standard library function that may be useful for paragraph splitting
 
 
-  (get-orphans orphan-grid-zipper)
+  (get-orphans respatialized.transform-test/orphan-zip)
  
   ;; this doesn't work because it partitions the entire enclosing sequence
   ;; when actually we just want to partition the orphans

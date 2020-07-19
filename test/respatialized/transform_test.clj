@@ -92,16 +92,24 @@
           "non-grid elements should be left as is")
 
 
-    (t/is (= [:p "orphan text" [:em "with emphasis added"]]
-             (group-orphans [:p] ["orphan text"
-                                  [:em "with emphasis added"]])))
-
     (t/is (=
            [:r-grid [:p "orphan text"
                      [:em "with emphasis added"]]]
            (group-orphans [:p]
+                          already-tokenized?
                           [:r-grid "orphan text"
                            [:em "with emphasis added"]])))
+
+    (t/is
+     (=
+      [:r-grid [:p "orphan text"
+                [:em "with emphasis added"]]
+       [:r-cell "non-orphan text"]]
+      (group-orphans [:p]
+                     #(and (vector? %) (contains? #{:p :r-cell} (first %)))
+                     [:r-grid "orphan text"
+                      [:em "with emphasis added"]
+                      [:r-cell "non-orphan text"]])))
 
     ;; (t/is (=
     ;;        [:r-grid
