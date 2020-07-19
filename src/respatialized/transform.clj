@@ -206,7 +206,7 @@
                                 (conj (apply vector (drop-last 1 final))
                                       (conj current-elem hh)))
                          (recur (concat rest t) (conj final [:p hh]))))
-                     (or (string? h) (inline-elem? h))
+                     (or (string? h) (inline? h))
                      (if (and (vector? current-elem) (= (first current-elem) :p))
                        (recur t
                               (conj (apply vector (drop-last 1 final))
@@ -398,34 +398,47 @@
 ;; trying something different: a zipper
 
 (defn orphan? [e] (or (string? e) (inline? e)))
-  (defn already-tokenized? [e]
-    (and (vector? e) (= (first e) :p)))
 
-  (defn group-orphans
+(defn already-tokenized? [e]
+  (and (vector? e) (= (first e) :p)))
+
+(defn group-orphans
     ([encloser s]
-     (into encloser
-           (mapcat
-            #(if (orphan? (first %))
-               (list (apply vector %))
-               %)
-            (partition-by #(or (orphan? %) (already-tokenized? %)) s))))
-    ([encloser] (fn [s] (group-orphans encloser s))))
+     (let [grouper
+           (fn [s]
+             (apply vector (mapcat
+                            (fn [i] (if (orphan? (first i))
+                                      (into encloser (apply vector i))
+                                      i))
+                            (partition-by #(or (orphan? %) (already-tokenized? %)) s))))]
+       (if (keyword? (first s)) [(first s) (grouper (rest s))]
+           (grouper s)
+           )))
+  ([encloser] (fn [s] (group-orphans encloser s))))
 
+(comment
   (group-orphans [:p] ["orphan text"
                        [:em "with emphasis added"]])
 
-  (defn get-orphans [loc]
-    (cond
-      (zip/end? loc) loc
-      (and (zip/branch? loc)
-           (some orphan? (zip/children loc)) ; are there orphans?
-           (not (every? orphan?
-                        (zip/children loc))))
-      (if (= :r-cell (first (zip/up loc)))
-        (recur (zip/edit loc (group-orphans [:p])))
-        (recur (zip/edit loc (group-orphans [:r-cell {:span "row"}])))
-        )
-      :else (recur (zip/next loc))))
+  (group-orphans [:p] [:r-grid "orphan text"
+                       [:em "with emphasis added"]])
+ 
+  )
+
+
+(defn get-orphans [loc]
+  (println loc)
+  (cond
+    (zip/end? loc) loc
+    (and (zip/branch? loc)
+         (some orphan? (zip/children loc)) ; are there orphans?
+         (not (every? orphan?
+                      (zip/children loc))))
+    (if (= :r-cell (first (zip/up loc)))
+      (recur (zip/edit loc (group-orphans [:p])))
+      (recur (zip/edit loc (group-orphans [:r-cell {:span "row"}])))
+      )
+    :else (recur (zip/next loc))))
 
 (comment
   (def orphan-trees
@@ -454,4 +467,8 @@
   ;; a standard library function that may be useful for paragraph splitting
 
 
-  (get-orphans orphan-grid-zipper))
+  (get-orphans orphan-grid-zipper)
+ 
+  ;; this doesn't work because it partitions the entire enclosing sequence
+  ;; when actually we just want to partition the orphans
+  )

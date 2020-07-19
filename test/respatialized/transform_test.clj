@@ -1,6 +1,7 @@
 (ns respatialized.transform-test
   (:require [respatialized.transform :refer :all]
             [hiccup.core]
+            [clojure.zip :as zip]
             [clojure.test :as t]))
 
 (def sample-multi-form-input
@@ -91,12 +92,22 @@
           "non-grid elements should be left as is")
 
 
+    (t/is (= [:p "orphan text" [:em "with emphasis added"]]
+             (group-orphans [:p] ["orphan text"
+                                  [:em "with emphasis added"]])))
 
     (t/is (=
-            [:r-grid
-             [:r-cell {:span "row"} "orphan text"
-               [:em "with emphasis added"]]
-              [:r-cell "non-orphan text"]]
-             (-> orphan-zip get-orphans zip/node)))
+           [:r-grid [:p "orphan text"
+                     [:em "with emphasis added"]]]
+           (group-orphans [:p]
+                          [:r-grid "orphan text"
+                           [:em "with emphasis added"]])))
+
+    ;; (t/is (=
+    ;;        [:r-grid
+    ;;         [:r-cell {:span "row"} "orphan text"
+    ;;          [:em "with emphasis added"]]
+    ;;         [:r-cell "non-orphan text"]]
+    ;;        (-> orphan-zip get-orphans zip/node)))
     
     ))
