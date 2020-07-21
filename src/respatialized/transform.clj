@@ -451,11 +451,7 @@
       (already-tokenized? (zip/node loc)) ; has this node been processed?
       (recur (zip/next loc))              ; if yes, continue
       (and (zip/branch? loc)
-           (some orphan? (zip/children loc))        ; are there orphans?
-           (not (every? #(or (already-tokenized? %) ; have they been processed?
-                             (keyword? %)
-                             (= {:span "row"} %))
-                        (zip/children loc))))
+           (some orphan? (zip/children loc))) ; are there orphans in the child node?
       (recur (zip/edit loc (group-orphans loc-group already-tokenized?)))
       :else (recur (zip/next loc)))))
 
