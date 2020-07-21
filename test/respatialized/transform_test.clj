@@ -8,10 +8,9 @@
   "first paragraph\n\nsecond paragraph with <%=[:em \"emphasis\"]%> text")
 
 (def orphan-trees
-   '([:r-grid
-      "orphan text"
-      [:r-cell "non-orphan text"]]
-     ))
+  '([:r-grid
+     "orphan text" [:em "with emphasis added"]
+     [:r-cell "non-orphan text"]]))
 
 (def orphan-zip
   (zip/zipper not-inline? identity (fn [_ c] c) (first orphan-trees)))
@@ -23,17 +22,16 @@
              [1 2 3 [:p "a"] [:p "b"] 4 [:p "c"] [:p "d"] 5])
           "tokenizer rewrite should tokenize text appropriately")
 
-
-    (t/is (= [[:p "a"] [:p "b"]] ((tokenizer #"\n" [:p]) ["a\nb"]) )
+    (t/is (= [[:p "a"] [:p "b"]] ((tokenizer #"\n" [:p]) ["a\nb"]))
           "tokenizer strategy should tokenize text appropriately")
 
-    (t/is (= "abc" ((tokenizer #"\n" [:p]) "abc") )
+    (t/is (= "abc" ((tokenizer #"\n" [:p]) "abc"))
           "tokenizer strategy should not tokenize strings into character sequences.")
 
-    (t/is (= [[:p "abc"]] ((tokenizer #"\n" [:p]) ["abc"]) )
+    (t/is (= [[:p "abc"]] ((tokenizer #"\n" [:p]) ["abc"]))
           "tokenizer strategy should not tokenize strings into character sequences.")
 
-    (t/is (= '([:p "abc"]) ((tokenizer #"\n" [:p]) '("abc")) )
+    (t/is (= '([:p "abc"]) ((tokenizer #"\n" [:p]) '("abc")))
           "tokenizer strategy should not tokenize strings into character sequences.")
 
     (t/is (= [:p "abc"] ((tokenizer #"\n" [:p]) [:p "abc"]))
@@ -47,11 +45,8 @@
             [:r-cell {:span "row"} "c"]
             [:r-cell {:span "row"} "d"]
             5]
-           ((tokenizer  #"\n" [:r-cell {:span "row"}]) [1 2 3 "a\nb" 4 "c\nd" 5])
-           )
+           ((tokenizer  #"\n" [:r-cell {:span "row"}]) [1 2 3 "a\nb" 4 "c\nd" 5]))
           "tokenizer strategy should tokenize text appropriately")
-
-
 
     (t/is (= (split-into-forms (first sample-form) :p {} #"\n\n")
              '([:p "first paragraph"] [:p "second paragraph"]))
@@ -71,10 +66,9 @@
              (hiccup.core/html (rewrite-form-2 sample-form)))
           "transformed text should be valid hiccup input")
 
-
     (t/is (= [:r-cell [:p "a"] [:p "b"] [:p "c"] :d :e]
              (tokenize-elem [:r-cell "a\nb\nc" :d :e] #"\n")))
-    
+
     (t/is (= [:r-cell [:p "a" [:em "b"]] :c :d]
              (tokenize-elem [:r-cell "a" [:em "b"] :c :d] #"\n")))
 
@@ -88,9 +82,8 @@
 
     (t/is (= '([:r-cell {:span "row"} "first paragraph"]
                [:r-cell {:span "row"} "second paragraph with " [:em "emphasis"] " text"])
-             (rewrite-form-3 (respatialized.parse/parse sample-multi-form-input )))
+             (rewrite-form-3 (respatialized.parse/parse sample-multi-form-input)))
           "non-grid elements should be left as is")
-
 
     (t/is (=
            [:r-grid [:p "orphan text"
@@ -116,6 +109,4 @@
             [:r-cell {:span "row"} "orphan text"
              [:em "with emphasis added"]]
             [:r-cell "non-orphan text"]]
-           (-> orphan-zip get-orphans zip/node)))
-    
-    ))
+           (-> orphan-zip get-orphans zip/node)))))
