@@ -429,30 +429,30 @@
                  [:r-grid "orphan text"
                   [:em "with emphasis added"]])
 
-  (group-orphans [:p]
+  (group-orphans [:r-cell {:span "row"}]
                  #(and (vector? %) (contains? #{:p :r-cell} (first %)))
                  [:r-grid "orphan text"
                   [:em "with emphasis added"]
                   [:r-cell "non-orphan text"]]))
 
+(defn r-cell? [i]
+  (and (vector? i) (= :r-cell (first i))))
+
 (defn get-orphans [loc]
   (let [parent-type
         (if (-> loc zip/up)
           (-> loc (zip/up) (zip/node) first)
-          :r-grid)
-        loc-group (if (= :r-grid parent-type)
-                    [:r-cell {:span "row"}] [:p])
-        already-tokenized?
-        (if (= loc-group [:p])
-          (fn [i] (and (vector? i) (= (first i) :p)))
-          (fn [i] (and (vector? i) (= (first i) :r-cell))))]
+          :r-grid)]
     (cond
-      (zip/end? loc) loc                  ; are we at the end?
-      (already-tokenized? (zip/node loc)) ; has this node been processed?
-      (recur (zip/next loc))              ; if yes, continue
+      (zip/end? loc) loc                ; are we at the end?
+      (r-cell? (zip/node loc))          ; has this node been processed?
+      (recur (zip/next loc))            ; if yes, continue
+      (= parent-type :r-cell)           ; are we not in a context with orphans?
+      (recur (zip/next loc))            ; then continue
       (and (zip/branch? loc)
            (some orphan? (zip/children loc))) ; are there orphans in the child node?
-      (recur (zip/edit loc (group-orphans loc-group already-tokenized?)))
+      (recur (zip/edit loc (group-orphans [:r-cell {:span "row"}]
+                                          (fn [i] (and (vector? i) (= (first i) :r-cell))))))
       :else (recur (zip/next loc)))))
 
 
