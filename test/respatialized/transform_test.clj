@@ -10,10 +10,16 @@
 (def orphan-trees
   '([:r-grid
      "orphan text" [:em "with emphasis added"]
-     [:r-cell "non-orphan text"]]))
+     [:r-cell "non-orphan text"]]
+    [:r-grid
+     "orphan text" [:em "with emphasis added"] "and\n\nlinebreak"
+     [:r-cell "non-orphan text\n\nwith linebreak"]]))
 
 (def orphan-zip
   (zip/zipper not-inline? identity (fn [_ c] c) (first orphan-trees)))
+
+(def orphan-zip-2
+  (zip/zipper not-inline? identity (fn [_ c] c) (second orphan-trees)))
 
 (t/deftest transforms
   (t/testing "splitter fns"
@@ -109,4 +115,17 @@
             [:r-cell {:span "row"} "orphan text"
              [:em "with emphasis added"]]
             [:r-cell "non-orphan text"]]
-           (-> orphan-zip get-orphans zip/node)))))
+           (-> orphan-zip get-orphans zip/node)))
+
+    (t/is (= [:a "b" "c" :d "e" "f"]
+           (split-strings [:a "b\n\nc" :d "e" "f"] #"\n\n")))
+
+    (t/is (=
+           [:r-grid
+            [:r-cell {:span "row"}
+             [:p "orphan text"
+              [:em "with emphasis added"] "and"]
+             [:p "linebreak"]]
+            [:r-cell [:p "non-orphan text"]]]
+           (-> orphan-zip-2 get-orphans tokenize-paragraphs zip/node)))
+    ))

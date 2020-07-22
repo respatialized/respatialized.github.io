@@ -455,6 +455,7 @@
       (recur (zip/edit loc (group-orphans loc-group already-tokenized?)))
       :else (recur (zip/next loc)))))
 
+
 (comment
 
   (def orphan-grid-zipper
@@ -481,4 +482,63 @@
 
   ;; this doesn't work because it partitions the entire enclosing sequence
   ;; when actually we just want to partition the orphans
+  )
+
+
+;; split the string, then group the orphans
+;;
+(comment
+  (map #(if (string? %) (clojure.string/split % #"\n\n") %) [:a "b\n\nc" :d "e" "f"])
+  ;; nope, needs to put all the split ones into the enclosing sequence
+
+  (apply vector (reduce (fn [acc next]
+                          (if (string? next)
+                            (concat acc (clojure.string/split next #"\n\n"))
+                            (concat acc (list next))))
+                        []
+                        (apply list [:a "b\n\nc" :d "e" "f"])
+                        ))
+ 
+  )
+
+;; group the orphans, then split the string
+
+
+(defn split-strings
+  "Split any strings in the sequence by the regex and insert them into the sequence. Ignore any non-strings."
+  ([vec re]
+   (apply
+    vector
+    (reduce
+     (fn [acc next]
+       (if (string? next)
+         (concat acc (clojure.string/split next re))
+         (concat acc (list next))))
+     []
+     (apply list vec))))
+  ([re] (fn [v] (split-strings v re))))
+
+(defn para? [i] (and (vector? i) (= :p (first i))))
+
+(defn tokenize-paragraphs [loc]
+  (println loc)
+  (cond
+    (zip/end? loc) loc                  ; are we at the end?
+    (para? loc)                         ; has this node been processed?
+    (recur (zip/next loc))              ; if yes, continue
+    (and (zip/branch? loc)
+         (some string? (zip/children loc)) ; are there strings in the child node?
+         (not (every? para? (zip/children loc))))
+    (recur (zip/edit loc (split-strings #"\n\n")))
+    :else (recur (zip/next loc))))
+
+
+(comment
+  (-> respatialized.transform-test/orphan-zip-2
+      get-orphans
+      zip/node
+      (#(zip/zipper not-inline? identity (fn [_ c] c) %))
+      tokenize-paragraphs
+      zip/node)
+
   )
