@@ -13,6 +13,7 @@
 
   ;; data munging
   meander/epsilon {:mvn/version "0.0.421"}
+  org.clojure/data.finger-tree {:mvn/version "0.0.3"}
 
   ;; site content
   clojure2d {:mvn/version "1.2.0-SNAPSHOT"}
@@ -24,7 +25,7 @@
   spec-provider {:mvn/version "0.4.14"}
   provisdom/spectomic {:mvn/version "0.7.11"}
 
- ;; site building functions
+  ;; site building functions
   }
  :jvm-opts ["--illegal-access=deny"]
  :aliases {:test {:extra-paths ["test"]

@@ -118,7 +118,13 @@
            (-> orphan-zip get-orphans zip/node)))
 
     (t/is (= [:a "b" "c" :d "e" "f"]
-           (split-strings [:a "b\n\nc" :d "e" "f"] #"\n\n")))
+             (split-strings [:a "b\n\nc" :d "e" "f"] #"\n\n")))
+
+    (t/is (=
+           [:r-cell [:p "some"] [:p "text" [:em "with emphasis"]]]
+           (detect-paragraphs [:r-cell "some\n\ntext" [:em "with emphasis"]]
+                              #"\n\n")
+           ))
 
     (t/is (=
            [:r-grid
@@ -126,6 +132,11 @@
              [:p "orphan text"
               [:em "with emphasis added"] "and"]
              [:p "linebreak"]]
-            [:r-cell [:p "non-orphan text"]]]
-           (-> orphan-zip-2 get-orphans tokenize-paragraphs zip/node)))
-    ))
+            [:r-cell [:p "non-orphan text"]
+             [:p "with linebreak"]]]
+           (-> orphan-zip-2
+               get-orphans
+               zip/node
+               (#(zip/zipper not-in-form? identity (fn [_ c] c) %))
+               tokenize-paragraphs
+               zip/node)))))

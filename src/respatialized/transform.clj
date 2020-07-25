@@ -2,6 +2,7 @@
   (:require
    [clojure.string :as str]
    [clojure.zip :as zip]
+   [clojure.data.finger-tree :as ftree :refer [counted-double-list ft-split-at ft-concat]]
    [meander.epsilon :as m]
    [meander.strategy.epsilon :as m*]))
 
@@ -182,11 +183,11 @@
 ;; solving this challenge is actually the key to solving the issue
 ;; with inline elements not getting absorbed correctly
 
-(def inline-elems #{:em :li :ol :ul :p}) ; elements that should be considered part of the same form
-(defn inline? [e] (and (vector? e)
+(def in-form-elems #{:em :li :ol :ul :p}) ; elements that should be considered part of the same form
+(defn in-form? [e] (and (vector? e)
                        (contains? inline-elems (first e))))
-(defn not-inline? [e] (and (vector? e)
-                           (not (contains? inline-elems (first e)))))
+(defn not-in-form? [e] (and (vector? e)
+                            (not (contains? in-form-elems (first e)))))
 
 (defn tokenize-elem
   "For each string in the element split it by the given regex,
@@ -206,7 +207,7 @@
                                 (conj (apply vector (drop-last 1 final))
                                       (conj current-elem hh)))
                          (recur (concat rest t) (conj final [:p hh]))))
-                     (or (string? h) (inline? h))
+                     (or (string? h) (in-form? h))
                      (if (and (vector? current-elem) (= (first current-elem) :p))
                        (recur t
                               (conj (apply vector (drop-last 1 final))
@@ -393,7 +394,7 @@
 
 ;; trying something different: a zipper
 
-(defn orphan? [e] (or (string? e) (inline? e)))
+(defn orphan? [e] (or (string? e) (in-form? e)))
 
 (defn already-tokenized? [e]
   (and (vector? e) (= (first e) :p)))
@@ -459,7 +460,7 @@
 (comment
 
   (def orphan-grid-zipper
-    (zip/zipper not-inline? identity (fn [_ c] c)
+    (zip/zipper not-in-form? identity (fn [_ c] c)
                 (first respatialized.transform-test/orphan-trees)))
 
   (-> orphan-grid-zipper zip/next zip/node)
@@ -503,6 +504,72 @@
 
 ;; group the orphans, then split the string
 
+(defn line-break? [i]
+  (and (string? i) (some? (re-find #"\n\n" i))))
+
+(comment
+  (def sample-cdl
+    (ftree/counted-double-list :r-cell
+                               "some text" "more text\n\nwith linebreak"
+                               [:em "and emphasis"]
+                               "another \n\n linebreak"))
+
+  (partition-by line-break? sample-cdl)
+
+  (reduce
+   (fn [acc next]
+     (let [ix (count acc)]
+       (if (line-break? next) ...
+           ()
+           )))
+   (ftree/counted-double-list)
+
+   )
+
+  )
+
+(defn collect-inline [vec]
+  (let [cdl (ftree/counted-double-list vec)])
+  (reduce
+   (fn [])
+   ))
+
+(defn para? [i] (and (vector? i) (= :p (first i))))
+(def inline-elems #{:em :ol :ul})
+(defn inline? [i] (and (vector? i) (contains? inline-elems (first i))))
+
+(defn detect-paragraphs
+  "For each string in the element split it by the given regex, and insert the result into the original element. Leaves sub-elements as is and inserts them into the preceding paragraph."
+  ([seq re]
+   (let [v? (vector? seq)
+         r (loop [s (apply ftree/counted-double-list seq)
+                  final (ftree/counted-double-list)]
+             (if (empty? s) final       ; base case
+                 (let [h (first s) t (rest s)
+                       current-elem (last final)]
+                   (cond
+                     (and (string? h) (some? (re-find re h)))
+                     (let [[hh & tt] (str/split h re)
+                           rest (map (fn [i] [:p i]) tt)]
+                       (if (para? current-elem)
+                         (recur (concat rest t)
+                                (conj (drop-last 1 final)
+                                      (conj current-elem hh)))
+                         (recur (concat rest t) (conj final [:p hh]))))
+                     (or (string? h) (inline? h))
+                     (if (para? current-elem)
+                       (recur t
+                              (conj (first (ftree/ft-split-at final (- (count final) 1)))
+                                    (conj current-elem h)))
+                       (recur t (conj final [:p h])))
+                     :else
+                     (recur t (conj final h))))))]
+     (if v? (apply vector r)  r)))
+  ([re] (fn [seq] (tokenize-elem seq re))))
+
+(comment
+  (detect-paragraphs [:r-cell "some\n\ntext" [:em "with emphasis"]]
+                     #"\n\n"))
 
 (defn split-strings
   "Split any strings in the sequence by the regex and insert them into the sequence. Ignore any non-strings."
@@ -518,10 +585,8 @@
      (apply list vec))))
   ([re] (fn [v] (split-strings v re))))
 
-(defn para? [i] (and (vector? i) (= :p (first i))))
 
 (defn tokenize-paragraphs [loc]
-  (println loc)
   (cond
     (zip/end? loc) loc                  ; are we at the end?
     (para? loc)                         ; has this node been processed?
@@ -529,15 +594,18 @@
     (and (zip/branch? loc)
          (some string? (zip/children loc)) ; are there strings in the child node?
          (not (every? para? (zip/children loc))))
-    (recur (zip/edit loc (split-strings #"\n\n")))
+    (recur (zip/edit loc (detect-paragraphs #"\n\n")))
     :else (recur (zip/next loc))))
 
-
 (comment
+
+  (split-strings [:r-grid {:span "row"} "some text\n\nwith line break"] #"\n\n")
+
+
   (-> respatialized.transform-test/orphan-zip-2
       get-orphans
       zip/node
-      (#(zip/zipper not-inline? identity (fn [_ c] c) %))
+      (#(zip/zipper not-in-form? identity (fn [_ c] c) %))
       tokenize-paragraphs
       zip/node)
 
