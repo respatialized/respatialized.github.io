@@ -31,7 +31,7 @@
       (nil? v)))
 
 (defn conj-non-nil [s & args]
-  (seq (concat s (filter #(not (nil-or-empty? %)) args))))
+  (reduce conj s (filter #(not (nil-or-empty? %)) args)))
 
 (defn parse
   ([src start-seq]
@@ -44,13 +44,16 @@
          after
          (conj-non-nil form before (yield-expr expr)))
         (conj-non-nil form after))))))
-  ([src] (parse src [])))
+  ([src] (parse src [:div])))
 
-(defn parse-eval [src]
-  (loop [src src form []]
-    (let [[_ before expr after] (re-matches parser-regex src)]
-      (if expr
-        (recur
-         after
-         (conj-non-nil form before (eval-expr expr)))
-        (conj-non-nil form after)))))
+(defn parse-eval
+  ([src start-seq]
+   (into start-seq
+         (loop [src src form []]
+           (let [[_ before expr after] (re-matches parser-regex src)]
+             (if expr
+               (recur
+                after
+                (conj-non-nil form before (eval-expr expr)))
+               (conj-non-nil form after))))))
+  ([src] (parse-eval src [:div])))
