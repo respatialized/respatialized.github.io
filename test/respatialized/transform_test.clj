@@ -31,10 +31,10 @@
    " DB alongside the code that is affected by that configuration in a way that reliably links the two."])
 
 (def orphan-zip
-  (zip/zipper not-in-form? identity (fn [_ c] c) (first orphan-trees)))
+  (form-zipper (first orphan-trees)))
 
 (def orphan-zip-2
-  (zip/zipper not-in-form? identity (fn [_ c] c) (second orphan-trees)))
+  (form-zipper (second orphan-trees)))
 
 (t/deftest transforms
 
@@ -73,6 +73,18 @@
            (detect-paragraphs [:r-cell "some\n\ntext" [:em "with emphasis"]]
                               #"\n\n")))
 
+    (t/is
+     (=
+      [:r-cell
+       {:span "row"}
+       [:p "orphan text" [:em "with emphasis added"] "and"]
+       [:p "linebreak"]]
+      (detect-paragraphs [:r-cell
+                          {:span "row"}
+                          "orphan text"
+                          [:em "with emphasis added"]
+                          "and\n\nlinebreak"] #"\n\n")))
+
     (t/is (=
            [:r-grid
             [:r-cell {:span "row"}
@@ -88,19 +100,40 @@
                tokenize-paragraphs
                zip/node)))
 
+    (t/is (=
+           [:r-grid
+            [:r-cell {:span "row"}
+             [:p "orphan text"
+              [:em "with emphasis added"] "and"]
+             [:p "linebreak"]]
+            [:r-cell [:p "non-orphan text"]
+             [:p "with linebreak"]]]
+           (-> [:r-grid
+                [:r-cell
+                 {:span "row"}
+                 "orphan text"
+                 [:em "with emphasis added"]
+                 "and\n\nlinebreak"]
+                [:r-cell "non-orphan text\n\nwith linebreak"]]
+               form-zipper
+               tokenize-paragraphs
+               zip/node)))
+
+
+
     (t/is (= [:div
-               '([:div
+              '([:div
                  {:class "f3"}
                  [:a
                   {:href "https://github.com/attic-labs/noms"}
                   "Noms: The Versioned, Forkable, Syncable Database"]])
-               [:r-cell
-                {:span "row"}
-                [:p "Linked in the comments on Truyers' post was "
-                 [:code {:class "ws-normal navy"} "noms"]
-                 ", a database directly inspired by Git's decentralized and immutable data model, but designed from the ground up to have a better query model and more flexible schema. Unfortunately, it seems to be unmaintained and not ready for prime time. Additionally, for the use case I'm describing, it's unclear how to effectively distribute the configuration data stored in a "
-                 [:code {:class "ws-normal navy"} "noms"]
-                 " DB alongside the code that is affected by that configuration in a way that reliably links the two."]]]
+              [:r-cell
+               {:span "row"}
+               [:p "Linked in the comments on Truyers' post was "
+                [:code {:class "ws-normal navy"} "noms"]
+                ", a database directly inspired by Git's decentralized and immutable data model, but designed from the ground up to have a better query model and more flexible schema. Unfortunately, it seems to be unmaintained and not ready for prime time. Additionally, for the use case I'm describing, it's unclear how to effectively distribute the configuration data stored in a "
+                [:code {:class "ws-normal navy"} "noms"]
+                " DB alongside the code that is affected by that configuration in a way that reliably links the two."]]]
              (-> sample-text parse-eval process-text)))
 
     (t/is

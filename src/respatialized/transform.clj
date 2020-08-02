@@ -188,7 +188,7 @@
                          (empty? hh) (recur (concat rest t) final)
                          (para? current-elem)
                          (recur (concat rest t)
-                                (conj (drop-last 1 final)
+                                (conj (first (ft-split-at final (- (count final) 1)))
                                       (conj current-elem hh)))
                          :else (recur (concat rest t) (conj final [:p hh]))))
                      (or (string? h) (inline? h))
@@ -223,7 +223,7 @@
   ([re] (fn [v] (split-strings v re))))
 
 (defn para-tokenized? [e]
-  (or (map? e) (keyword? e) (para?)))
+  (or (map? e) (keyword? e) (para? e)))
 
 (defn tokenize-paragraphs [loc]
   (cond
@@ -232,7 +232,7 @@
     (recur (zip/next loc))              ; if yes, continue
     (and (zip/branch? loc)
          (some string? (zip/children loc)) ; are there strings in the child node?
-         (not (every? para? (zip/children loc))))
+         (not (every? para-tokenized? (zip/children loc))))
     (recur (zip/edit loc (detect-paragraphs #"\n\n")))
     :else (recur (zip/next loc))))
 
