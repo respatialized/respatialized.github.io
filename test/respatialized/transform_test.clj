@@ -21,6 +21,14 @@
 
 (def sample-text "<%=[:div {:class \"f3\"} (link \"https://github.com/attic-labs/noms\" \"Noms: The Versioned, Forkable, Syncable Database\")]%>\n\nLinked in the comments on Truyers' post was <%=(in-code \"noms\")%>, a database directly inspired by Git's decentralized and immutable data model, but designed from the ground up to have a better query model and more flexible schema. Unfortunately, it seems to be unmaintained and not ready for prime time. Additionally, for the use case I'm describing, it's unclear how to effectively distribute the configuration data stored in a <%=(in-code \"noms\")%> DB alongside the code that is affected by that configuration in a way that reliably links the two.")
 
+(def sample-front-matter [:div
+                          "\n\n"
+                          [:r-cell {:span "row", :class "b"} [:h1 "Against Metadata"]]
+                          "\n\n"
+                          [:r-cell {:span "row", :class "b"} [:h4 "Frustrations with YAML"]]
+                          "\n"
+                          [:div {:class "f4"} "2019-08-16"]])
+
 (def sample-code-form
   [:r-cell
    {:span "row"}
@@ -100,6 +108,12 @@
                tokenize-paragraphs
                zip/node)))
 
+    (t/is (vector?
+           (-> sample-front-matter
+               form-zipper
+               tokenize-paragraphs
+               zip/node)))
+
     (t/is (=
            [:r-grid
             [:r-cell {:span "row"}
@@ -118,8 +132,6 @@
                form-zipper
                tokenize-paragraphs
                zip/node)))
-
-
 
     (t/is (= [:div
               '([:div

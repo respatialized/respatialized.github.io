@@ -21,10 +21,9 @@
      [:r-cell "another cell"]]
     [:r-cell {:span "row"} "third paragraph"]))
 
-
 (def in-form-elems #{:em :li :ol :ul :p :a :code}) ; elements that should be considered part of the same form
 (defn in-form? [e] (and (vector? e)
-                       (contains? in-form-elems (first e))))
+                        (contains? in-form-elems (first e))))
 (defn not-in-form? [e] (and (vector? e)
                             (not (contains? in-form-elems (first e)))))
 
@@ -121,6 +120,8 @@
 
 ;; split the string, then group the orphans
 ;;
+
+
 (comment
   (map #(if (string? %) (clojure.string/split % #"\n\n") %) [:a "b\n\nc" :d "e" "f"])
   ;; nope, needs to put all the split ones into the enclosing sequence
@@ -130,12 +131,10 @@
                             (concat acc (clojure.string/split next #"\n\n"))
                             (concat acc (list next))))
                         []
-                        (apply list [:a "b\n\nc" :d "e" "f"])
-                        ))
- 
-  )
+                        (apply list [:a "b\n\nc" :d "e" "f"]))))
 
 ;; group the orphans, then split the string
+
 
 (defn line-break? [i]
   (and (string? i) (some? (re-find #"\n\n" i))))
@@ -153,19 +152,13 @@
    (fn [acc next]
      (let [ix (count acc)]
        (if (line-break? next) ...
-           ()
-           )))
-   (ftree/counted-double-list)
-
-   )
-
-  )
+           ())))
+   (ftree/counted-double-list)))
 
 (defn collect-inline [vec]
   (let [cdl (ftree/counted-double-list vec)])
   (reduce
-   (fn [])
-   ))
+   (fn [])))
 
 (defn para? [i] (and (vector? i) (= :p (first i))))
 (def inline-elems #{:em :ol :ul :code :span :a})
@@ -204,9 +197,7 @@
 
 (comment
   (detect-paragraphs [:r-cell "some\n\ntext" [:em "with emphasis"]]
-                     #"\n\n")
-
-  )
+                     #"\n\n"))
 
 (defn split-strings
   "Split any strings in the sequence by the regex and insert them into the sequence. Ignore any non-strings."
@@ -251,12 +242,9 @@
 
   (split-strings [:r-grid {:span "row"} "some text\n\nwith line break"] #"\n\n")
 
-
   (-> respatialized.transform-test/orphan-zip-2
       get-orphans
       zip/node
       (#(zip/zipper not-in-form? identity (fn [_ c] c) %))
       tokenize-paragraphs
-      zip/node)
-
-  )
+      zip/node))
