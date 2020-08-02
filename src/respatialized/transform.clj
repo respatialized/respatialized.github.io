@@ -200,7 +200,7 @@
                      :else
                      (recur t (conj final h))))))]
      (if v? (apply vector r)  r)))
-  ([re] (fn [seq] (tokenize-elem seq re))))
+  ([re] (fn [seq] (detect-paragraphs seq re))))
 
 (comment
   (detect-paragraphs [:r-cell "some\n\ntext" [:em "with emphasis"]]
@@ -222,6 +222,8 @@
      (apply list vec))))
   ([re] (fn [v] (split-strings v re))))
 
+(defn para-tokenized? [e]
+  (or (map? e) (keyword? e) (para?)))
 
 (defn tokenize-paragraphs [loc]
   (cond
