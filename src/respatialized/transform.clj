@@ -185,7 +185,7 @@
                      (let [[hh & tt] (str/split h re)
                            rest (map (fn [i] [:p i]) tt)]
                        (cond
-                         (empty? hh) (recur (concat rest t) current-elem)
+                         (empty? hh) (recur (concat rest t) final)
                          (para? current-elem)
                          (recur (concat rest t)
                                 (conj (drop-last 1 final)
@@ -194,7 +194,7 @@
                      (or (string? h) (inline? h))
                      (if (para? current-elem)
                        (recur t
-                              (conj (first (ftree/ft-split-at final (- (count final) 1)))
+                              (conj (first (ft-split-at final (- (count final) 1)))
                                     (conj current-elem h)))
                        (recur t (conj final [:p h])))
                      :else
@@ -204,7 +204,9 @@
 
 (comment
   (detect-paragraphs [:r-cell "some\n\ntext" [:em "with emphasis"]]
-                     #"\n\n"))
+                     #"\n\n")
+
+  )
 
 (defn split-strings
   "Split any strings in the sequence by the regex and insert them into the sequence. Ignore any non-strings."

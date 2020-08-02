@@ -110,10 +110,21 @@
      (=
       [:r-cell
        {:span "row"}
-       [:p "\n\nLinked in the comments on Truyers' post was "
+       [:p "Linked in the comments on Truyers' post was "
         [:code {:class "ws-normal navy"} "noms"]
         ", a database directly inspired by Git's decentralized and immutable data model, but designed from the ground up to have a better query model and more flexible schema. Unfortunately, it seems to be unmaintained and not ready for prime time. Additionally, for the use case I'm describing, it's unclear how to effectively distribute the configuration data stored in a "
         [:code {:class "ws-normal navy"} "noms"]
         " DB alongside the code that is affected by that configuration in a way that reliably links the two."]]
-      (-> sample-code-form form-zipper tokenize-paragraphs zip/node))))
-  )
+      (-> sample-code-form form-zipper tokenize-paragraphs zip/node)))
+
+
+    (t/is
+     (=
+      [:r-cell
+       {:span "row"}
+       [:p "Linked in the comments on Truyers' post was "
+        [:code {:class "ws-normal navy"} "noms"]
+        ", a database directly inspired by Git's decentralized and immutable data model, but designed from the ground up to have a better query model and more flexible schema. Unfortunately, it seems to be unmaintained and not ready for prime time. Additionally, for the use case I'm describing, it's unclear how to effectively distribute the configuration data stored in a "
+        [:code {:class "ws-normal navy"} "noms"]
+        " DB alongside the code that is affected by that configuration in a way that reliably links the two."]]
+      (detect-paragraphs sample-code-form #"\n\n")))))
