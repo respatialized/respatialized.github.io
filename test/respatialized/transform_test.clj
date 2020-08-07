@@ -114,6 +114,18 @@
                tokenize-paragraphs
                zip/node)))
 
+    (t/is (vector?
+           (-> [:r-cell [:h1 "some text"]]
+               form-zipper
+               tokenize-paragraphs
+               zip/node)))
+
+    (t/is (vector?
+           (-> [:div [:r-cell "some text"]]
+               form-zipper
+               tokenize-paragraphs
+               zip/node)))
+
     (t/is (=
            [:r-grid
             [:r-cell {:span "row"}

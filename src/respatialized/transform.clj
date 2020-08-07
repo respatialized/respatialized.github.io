@@ -21,7 +21,8 @@
      [:r-cell "another cell"]]
     [:r-cell {:span "row"} "third paragraph"]))
 
-(def in-form-elems #{:em :li :ol :ul :p :a :code}) ; elements that should be considered part of the same form
+(def in-form-elems #{:em :li :ol :ul :p :a :code ;; :div
+                     :h1 :h2 :h3 :h4 :h5 :h6}) ; elements that should be considered part of the same form
 (defn in-form? [e] (and (vector? e)
                         (contains? in-form-elems (first e))))
 (defn not-in-form? [e] (and (vector? e)
@@ -193,7 +194,8 @@
                      :else
                      (recur t (conj final h))))))]
      (if v? (apply vector r)  r)))
-  ([re] (fn [seq] (detect-paragraphs seq re))))
+  ([re] (fn [seq] (detect-paragraphs seq re)))
+  ([] (detect-paragraphs #"\n\n")))
 
 (comment
   (detect-paragraphs [:r-cell "some\n\ntext" [:em "with emphasis"]]
@@ -219,7 +221,7 @@
 (defn tokenize-paragraphs [loc]
   (cond
     (zip/end? loc) loc                  ; are we at the end?
-    (para? loc)                         ; has this node been processed?
+    (para? (zip/node loc))                         ; has this node been processed?
     (recur (zip/next loc))              ; if yes, continue
     (and (zip/branch? loc)
          (some string? (zip/children loc)) ; are there strings in the child node?
