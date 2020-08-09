@@ -252,21 +252,23 @@
   [node]
   (if (vector? node)
     (if (map? (second node))
-      (seq (subvec node 2))
-      (seq (subvec node 1)))
+      (subvec node 2)
+      (subvec node 1))
     node))
 
 (defn form-zipper [f]
   (zip/zipper not-in-form? children make f))
 
-(defn process-text [form]
-  (-> form
-      form-zipper
-      get-orphans
-      zip/node
-      form-zipper
-      tokenize-paragraphs
-      zip/node))
+(defn process-text
+  ([form elem]
+   (-> form
+       form-zipper
+       (get-orphans elem)
+       zip/node
+       form-zipper
+       tokenize-paragraphs
+       zip/node))
+  ([form] (process-text form full-row)))
 
 (comment
 
@@ -275,6 +277,8 @@
   (-> respatialized.transform-test/orphan-zip-2
       get-orphans
       zip/node
-      (#(zip/zipper not-in-form? identity (fn [_ c] c) %))
+      form-zipper
       tokenize-paragraphs
-      zip/node))
+      zip/node)
+
+  )

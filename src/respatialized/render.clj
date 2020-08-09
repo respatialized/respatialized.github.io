@@ -32,14 +32,14 @@
   ([text] (entry-header text styles/entry-header)))
 
 (defn entry-date
-  ([date class]  [:div {:class class} date])
+  ([date class]  [:span {:class class} date])
   ([date] (entry-date date styles/entry-date)))
 
 (defn em [& texts]  (into [:em ] texts))
 (defn strong [& texts]  (into [:strong] texts))
 
 (defn link [url text]
-   (elem/link-to url text))
+  [:a {:href url} text])
 
 (defn image
   ([path annotation class]
@@ -121,20 +121,18 @@
 (def default-grid 8)
 
 (defn template->hiccup
-  "Converts a template file to hiccup data structures."
+  "Converts a template file to a hiccup data structure for the page."
   [t]
-  (let [content (tokenize (parse t))
+  (let [content (process-text
+                 (parse-eval t [])
+                 [:r-cell {:span "1-6"}])
         page-meta (eval 'metadata)
-        body-content (list [:r-grid {:columns (:columns page-meta default-grid)} content])
-        body (into [:body {:class (:page-class page-meta styles/page)}]
-                   body-content)]
-    (list (doc-header (:title page-meta ""))
-     [:article
-      {:lang "en"}
-      body]
-      [:footer
-       {:class "mb7"}
-       [:div [:a {:href "/"} "Home"]]])))
+        body-content (into [:r-grid {:columns (:columns page-meta default-grid)}] content)]
+    [:body (doc-header (:title page-meta ""))
+     [:article {:lang "en"} body-content]
+     [:footer
+      {:class "mb7"}
+      [:div [:a {:href "/"} "Home"]]]]))
 
 (defn page
   "Converts a comb/hiccup file to HTML."
