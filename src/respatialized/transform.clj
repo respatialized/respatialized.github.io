@@ -229,7 +229,30 @@
     (recur (zip/edit loc (detect-paragraphs #"\n\n")))
     :else (recur (zip/next loc))))
 
-(defn form-zipper [f] (zip/zipper not-in-form? identity (fn [_ c] c) f))
+(defn- make
+  "Return the node, skipping attribute maps if present."
+  {:license {:source "https://github.com/davidsantiago/hickory"
+             :type "Eclipse Public License, v1.0"}}
+  [node children]
+  (if (vector? node)
+    (if (map? (second node))
+      (into (subvec node 0 2) children)
+      (apply vector (first node) children))
+    children))
+
+(defn- children
+  "Return the node's children, skipping attribute maps if present."
+  {:license {:source "https://github.com/davidsantiago/hickory"
+             :type "Eclipse Public License, v1.0"}}
+  [node]
+  (if (vector? node)
+    (if (map? (second node))
+      (seq (subvec node 2))
+      (seq (subvec node 1)))
+    node))
+
+(defn form-zipper [f]
+  (zip/zipper not-in-form? children make f))
 
 (defn process-text [form]
   (-> form
