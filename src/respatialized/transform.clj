@@ -21,7 +21,9 @@
      [:r-cell "another cell"]]
     [:r-cell {:span "row"} "third paragraph"]))
 
-(def in-form-elems #{:em :li :ol :ul :p :a :code ;; :div
+(def full-row [:r-cell {:span "row"}])
+
+(def in-form-elems #{:em :li :ol :ul :p :a :code :span ;; :div
                      :h1 :h2 :h3 :h4 :h5 :h6}) ; elements that should be considered part of the same form
 (defn in-form? [e] (and (vector? e)
                         (contains? in-form-elems (first e))))
@@ -73,22 +75,25 @@
 (defn r-cell? [i]
   (and (vector? i) (= :r-cell (first i))))
 
-(defn get-orphans [loc]
-  (let [parent-type
-        (if (-> loc zip/up)
-          (-> loc (zip/up) (zip/node) first)
-          :r-grid)]
-    (cond
-      (zip/end? loc) loc                ; are we at the end?
-      (r-cell? (zip/node loc))          ; has this node been processed?
-      (recur (zip/next loc))            ; if yes, continue
-      (= parent-type :r-cell)           ; are we not in a context with orphans?
-      (recur (zip/next loc))            ; then continue
-      (and (zip/branch? loc)
-           (some orphan? (zip/children loc))) ; are there orphans in the child node?
-      (recur (zip/edit loc (group-orphans [:r-cell {:span "row"}]
-                                          (fn [i] (and (vector? i) (= (first i) :r-cell))))))
-      :else (recur (zip/next loc)))))
+(defn get-orphans
+  ([location elem]
+   (loop [loc location]
+     (let [parent-type
+           (if (-> loc zip/up)
+             (-> loc (zip/up) (zip/node) first)
+             :r-grid)]
+       (cond
+         (zip/end? loc) loc             ; are we at the end?
+         (r-cell? (zip/node loc))       ; has this node been processed?
+         (recur (zip/next loc))         ; if yes, continue
+         (= parent-type :r-cell)        ; are we not in a context with orphans?
+         (recur (zip/next loc))         ; then continue
+         (and (zip/branch? loc)
+              (some orphan? (zip/children loc))) ; are there orphans in the child node?
+         (recur (zip/edit loc (group-orphans elem
+                                             (fn [i] (and (vector? i) (= (first i) :r-cell))))))
+         :else (recur (zip/next loc))))))
+  ([location] (get-orphans location full-row)))
 
 (comment
 
