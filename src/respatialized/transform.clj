@@ -23,7 +23,8 @@
 
 (def full-row [:r-cell {:span "row"}])
 
-(def in-form-elems #{:em :li :ol :ul :p :a :code :span ;; :div
+(def in-form-elems #{:em :li :ol :ul :p :a :code :span
+                     :blockquote :pre
                      :h1 :h2 :h3 :h4 :h5 :h6}) ; elements that should be considered part of the same form
 (defn in-form? [e] (and (vector? e)
                         (contains? in-form-elems (first e))))

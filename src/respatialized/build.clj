@@ -4,7 +4,6 @@
    [hiccup.core :refer [html]]
    [hiccup.page :as hp]
    [respatialized.render :as render :refer :all]
-   [respatialized.postprocess :as postprocess]
    [respatialized.holotype :as holotype]
    [clojure.string :as str]))
 

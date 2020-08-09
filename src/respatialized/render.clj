@@ -6,8 +6,8 @@
             [clojure.string :as string]
             [clojure.java.io :as io]
             [respatialized.styles :as styles]
-            [respatialized.parse :refer [parse]]
-            [respatialized.postprocess :refer [tokenize]])
+            [respatialized.transform :refer [process-text]]
+            [respatialized.parse :refer [parse parse-eval]])
   (:gen-class))
 
 (defn doc-header
