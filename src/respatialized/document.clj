@@ -1,10 +1,11 @@
-(ns respatialized.transform
+(ns respatialized.document
+  "Namespace for document processing."
   (:require
    [clojure.string :as str]
    [clojure.zip :as zip]
    [clojure.data.finger-tree :as ftree :refer [counted-double-list ft-split-at ft-concat]]
-   [meander.epsilon :as m]
-   [meander.strategy.epsilon :as m*]))
+   [clojure.spec.alpha :as spec]
+   ))
 
 ; example before
 (def sample-form '("first paragraph\n\nsecond paragraph"
@@ -168,7 +169,7 @@
    (fn [])))
 
 (defn para? [i] (and (vector? i) (= :p (first i))))
-(def inline-elems #{:em :ol :ul :code :span :a})
+(def inline-elems #{:em :ol :ul :code :span :a :li})
 (defn inline? [i] (and (vector? i) (contains? inline-elems (first i))))
 
 (defn detect-paragraphs
@@ -280,6 +281,204 @@
       zip/node
       form-zipper
       tokenize-paragraphs
-      zip/node)
+      zip/node))
 
+;; SPEC SPEC SPEC SPEC
+
+;; a valid document is a collection of grid cells
+;; what's the tree shape?
+;; [:body [:head ...] [:article [:r-grid [:r-cell ...]]] [:footer ...]]
+;; pretty simple, really
+
+;; a grid cell is a collection of elements that are in-form but not inline
+;; (e.g. paragraphs, headers)
+;;
+;; why does this matter?
+;; because the solution shouldn't be ad-hoc if the goal is to assign a semantics
+;; to document structure.
+
+(comment
+  (spec/exercise (spec/cat :type in-form-elems
+                           :attr-map (spec/? map?)
+                           :contents (spec/* some?))))
+
+;; exercising the spec reveals the need to constrain the values more
+;; it also indicates that there's a hierarchy within the in-form-elems
+;; e.g. a paragraph can contain emphasis but emphasis can't contain a paragraph
+;; list items should only be within a list
+
+;; part of this ordering comes from the inherent semantics of HTML
+;; part of it is my own choice to impose order
+
+(def doc-tree
+  {:p #{:ul :em :h5 :h4 :ol :h6 :code :h2 :h1 :h3 :a}
+   :pre #{:em :span :a}
+   :em #{:code :a :span}
+   :a #{:em :span}
+   :code #{:em :a :span}
+   :ol #{:li}
+   :ul #{:li}
+   :li #{:code :em :a :span}
+   :h1 #{:code :em :span :a}
+   :h2 #{:code :em :span :a}
+   :h3 #{:code :em :span :a}
+   :h4 #{:code :em :span :a}
+   :h5 #{:code :em :span :a}
+   :h6 #{:code :em :span :a}
+   })
+
+;; can we use the matched :type from earlier in the spec/cat
+;; later on for additional pattern matching?
+;; no, says Alex Miller
+;; just enumerate that map as a spec, it's really not that hard
+
+(spec/def ::attr-map
+  (spec/map-of #{:href :id :title :src :alt :lang
+                 :span}
+               string?))
+
+(spec/def ::p
+  (spec/cat
+   :type #{:p}
+   :attr-map (spec/? ::attr-map)
+   :contents
+   (spec/spec
+    (spec/*
+     (spec/or :text string?
+              :subform
+              (spec/or
+               :pre ::pre
+               :em ::em
+               :a ::a
+               :code ::code
+               :ol ::ol
+               :ul ::ul
+               :li ::li
+               :header ::header))))))
+
+(spec/def ::a
+  (spec/cat
+   :type #{:a}
+   :attr-map (spec/? ::attr-map)
+   :contents
+   (spec/spec
+    (spec/*
+     (spec/or :text string?
+              :subform
+              (spec/or
+               :em ::em
+               :span ::span))))))
+
+(spec/def ::em
+  (spec/cat
+   :type #{:em}
+   :attr-map (spec/? ::attr-map)
+   :contents
+    (spec/*
+     (spec/or :text string?
+              :subform
+              (spec/or
+               :code ::code
+               :a ::a
+               :span ::span)))))
+
+(spec/def ::pre
+  (spec/cat
+   :type #{:pre}
+   :attr-map (spec/? ::attr-map)
+   :contents
+   (spec/* (spec/or :text string?
+                     :subform
+                     (spec/or :code ::code
+                              :a ::a
+                              :span ::span)))))
+
+(spec/def ::span
+  (spec/cat
+   :type #{:span}
+   :attr-map (spec/? ::attr-map)
+   :contents
+   (spec/* (spec/or :text string?
+                    :subform (spec/or :a ::a
+                                      :em ::em)))))
+
+(spec/def ::code
+  (spec/cat
+   :type #{:code}
+   :attr-map (spec/? ::attr-map)
+   :contents
+   (spec/* (spec/or :text string?
+                     :subform (spec/or :em ::em
+                                       :a ::a
+                                       :span ::span)))))
+(spec/def ::ol
+  (spec/cat :type #{:ol}
+            :attr-map (spec/? ::attr-map)
+            :items (spec/* ::li)))
+
+(spec/def ::ul
+  (spec/cat :type #{:ul}
+            :attr-map (spec/? ::attr-map)
+            :items (spec/* ::li)))
+
+(spec/def ::li
+  (spec/cat
+   :type #{:li}
+   :attr-map (spec/? ::attr-map)
+   :contents
+   (spec/* (spec/or :text string?
+                     :subform (spec/or :code ::code
+                                       :em ::em
+                                       :span ::span
+                                       :a ::a)))))
+(spec/def ::header
+  (spec/cat
+   :type #{:h1 :h2 :h3 :h4 :h5 :h6}
+   :attr-map (spec/? ::attr-map)
+   :contents (spec/*
+               (spec/or :text string?
+                        :subform (spec/or :code ::code
+                                          :em ::em
+                                          :span ::span
+                                          :a ::a)))))
+
+(spec/def ::in-form-elem
+  (spec/or :header ::header
+           :em ::em
+           :a ::a
+           :ul ::ul
+           :ol ::ol
+           :p ::p
+           :pre ::pre
+           :code ::code))
+
+(spec/def ::grid-cell
+  (spec/cat :type #{:r-cell}
+            :attr-map (spec/? ::attr-map)
+            :contents (spec/* (spec/spec ::in-form-elem))))
+
+(spec/def ::grid
+  (spec/cat :type #{:r-grid}
+            :attr-map (spec/? ::attr-map)
+            :contents (spec/* (spec/spec ::grid-cell))))
+
+(spec/fdef process-text
+  :args (spec/cat
+         :form (spec/and vector? #(#{:r-grid} (first %)))
+         :row ::grid-cell)
+  :ret ::grid)
+
+(comment
+
+  (spec/explain ::in-form-elem [:em "text"])
+
+  (spec/conform ::in-form-elem [:em {:id "emphasis"} "text" "more text"])
+
+  (spec/conform ::grid-cell [:r-cell {:span "row"} [:p "text"]])
+  (spec/conform ::grid [:r-grid [:r-cell {:span "row"} [:p "text"]]])
+
+  (process-text [:r-grid "orphan text"])
+ 
+  (process-text [:r-cell "cell text"])
+ 
   )
