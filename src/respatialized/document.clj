@@ -342,8 +342,7 @@
    :type #{:p}
    :attr-map (spec/? ::attr-map)
    :contents
-   (spec/spec
-    (spec/*
+   (spec/*
      (spec/or :text string?
               :subform
               (spec/or
@@ -354,20 +353,19 @@
                :ol ::ol
                :ul ::ul
                :li ::li
-               :header ::header))))))
+               :header ::header)))))
 
 (spec/def ::a
   (spec/cat
    :type #{:a}
    :attr-map (spec/? ::attr-map)
    :contents
-   (spec/spec
-    (spec/*
+   (spec/*
      (spec/or :text string?
               :subform
               (spec/or
                :em ::em
-               :span ::span))))))
+               :span ::span)))))
 
 (spec/def ::em
   (spec/cat
@@ -455,17 +453,20 @@
 (spec/def ::grid-cell
   (spec/cat :type #{:r-cell}
             :attr-map (spec/? ::attr-map)
-            :contents (spec/* (spec/spec ::in-form-elem))))
+            :contents (spec/* ::in-form-elem)))
 
 (spec/def ::grid
   (spec/cat :type #{:r-grid}
             :attr-map (spec/? ::attr-map)
-            :contents (spec/* (spec/spec ::grid-cell))))
+            :contents (spec/* ::grid-cell)))
 
 (spec/fdef process-text
-  :args (spec/cat
-         :form (spec/and vector? #(#{:r-grid} (first %)))
-         :row ::grid-cell)
+  :args
+  (spec/alt
+   :unary (spec/cat :form (spec/and vector? #(#{:r-grid} (first %))))
+   :binary (spec/cat
+            :form (spec/and vector? #(#{:r-grid} (first %)))
+            :row  ::grid-cell))
   :ret ::grid)
 
 (comment
@@ -475,6 +476,8 @@
   (spec/conform ::in-form-elem [:em {:id "emphasis"} "text" "more text"])
 
   (spec/conform ::grid-cell [:r-cell {:span "row"} [:p "text"]])
+  (spec/conform ::grid-cell [:r-cell {:span "row"}])
+
   (spec/conform ::grid [:r-grid [:r-cell {:span "row"} [:p "text"]]])
 
   (process-text [:r-grid "orphan text"])

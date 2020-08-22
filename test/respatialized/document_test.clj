@@ -4,7 +4,9 @@
             [respatialized.build :refer [load-deps]]
             [hiccup.core]
             [clojure.zip :as zip]
-            [clojure.test :as t]))
+            [clojure.test :as t]
+            [clojure.spec.test.alpha :as st]
+            ))
 
 (load-deps)
 
@@ -182,6 +184,16 @@
         " DB alongside the code that is affected by that configuration in a way that reliably links the two."]]
       (detect-paragraphs sample-code-form #"\n\n")))
 
-   
+
 
     ))
+
+(t/deftest properties
+  (st/instrument 'respatialized.document/process-text)
+
+  )
+
+(comment
+  (process-text [:r-grid "orphan text"] [:r-cell {:span "1-6"}])
+
+  )
