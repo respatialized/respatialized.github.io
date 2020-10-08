@@ -4,8 +4,13 @@
             [respatialized.build :refer [load-deps]]
             [hiccup.core]
             [clojure.zip :as zip]
+            [clojure.spec.alpha :as spec]
             [clojure.test :as t]
             [clojure.spec.test.alpha :as st]
+            [clojure.test.check :as tc]
+            [clojure.test.check.generators :as gen]
+            [clojure.spec.gen.alpha :as sgen]
+            [clojure.test.check.properties :as prop]
             ))
 
 (load-deps)
@@ -184,16 +189,27 @@
         " DB alongside the code that is affected by that configuration in a way that reliably links the two."]]
       (detect-paragraphs sample-code-form #"\n\n")))
 
-
-
     ))
 
 (t/deftest properties
   (st/instrument 'respatialized.document/process-text)
+  (st/check 'respatialized.document/process-text)
+
+  ;; (prop/for-all sgen/generate)
+
 
   )
 
 (comment
   (process-text [:r-grid "orphan text"] [:r-cell {:span "1-6"}])
+
+  (defn li-gen (gen/return ))
+
+  (spec/def ::li-test
+    (spec/with-gen
+      :respatialized.document/li
+      #(gen/fmap (fn [coll] (into [:li] coll))
+                 (gen/vector gen/string-alphanumeric 1 10))
+      ))
 
   )
