@@ -5,6 +5,7 @@
    [clojure.zip :as zip]
    [clojure.data.finger-tree :as ftree :refer [counted-double-list ft-split-at ft-concat]]
    [clojure.spec.alpha :as spec]
+   [clojure.spec.gen.alpha :as gen]
    ))
 
 ; example before
@@ -332,12 +333,16 @@
 ;; no, says Alex Miller
 ;; just enumerate that map as a spec, it's really not that hard
 
+(spec/def ::inline-text
+  (spec/and string?
+            #(< (count %) 15000)))
+
 (spec/def ::attr-map
   (spec/map-of #{:href :id :title :src :alt :lang
                  :span}
                string?))
 
-(spec/def ::p
+(def p-pattern
   (spec/cat
    :type #{:p}
    :attr-map (spec/? ::attr-map)
@@ -355,43 +360,59 @@
                :li ::li
                :header ::header)))))
 
-(spec/def ::a
+(spec/def ::p
+  (spec/with-gen (spec/and vector? p-pattern)
+    #(gen/fmap vec (spec/gen p-pattern))))
+
+(def a-pattern
   (spec/cat
    :type #{:a}
    :attr-map (spec/? ::attr-map)
    :contents
    (spec/*
-     (spec/or :text string?
-              :subform
-              (spec/or
-               :em ::em
-               :span ::span)))))
+    (spec/or :text string?
+             :subform
+             (spec/or
+              :em ::em
+              :span ::span)))))
 
-(spec/def ::em
+(spec/def ::a
+  (spec/with-gen (spec/and vector? a-pattern)
+    #(gen/fmap vec (spec/gen a-pattern))))
+
+(def em-pattern
   (spec/cat
    :type #{:em}
    :attr-map (spec/? ::attr-map)
    :contents
-    (spec/*
-     (spec/or :text string?
-              :subform
-              (spec/or
-               :code ::code
-               :a ::a
-               :span ::span)))))
+   (spec/*
+    (spec/or :text string?
+             :subform
+             (spec/or
+              :code ::code
+              :a ::a
+              :span ::span)))))
 
-(spec/def ::pre
+(spec/def ::em
+  (spec/with-gen (spec/and vector? em-pattern)
+    #(gen/fmap vec (spec/gen em-pattern))))
+
+(def pre-pattern
   (spec/cat
    :type #{:pre}
    :attr-map (spec/? ::attr-map)
    :contents
    (spec/* (spec/or :text string?
-                     :subform
-                     (spec/or :code ::code
-                              :a ::a
-                              :span ::span)))))
+                    :subform
+                    (spec/or :code ::code
+                             :a ::a
+                             :span ::span)))))
 
-(spec/def ::span
+(spec/def ::pre
+  (spec/with-gen (spec/and vector? pre-pattern)
+    #(gen/fmap vec (spec/gen pre-pattern))))
+
+(def span-pattern
   (spec/cat
    :type #{:span}
    :attr-map (spec/? ::attr-map)
@@ -400,45 +421,71 @@
                     :subform (spec/or :a ::a
                                       :em ::em)))))
 
-(spec/def ::code
+(spec/def ::span
+  (spec/with-gen (spec/and vector? span-pattern)
+    #(gen/fmap vec (spec/gen span-pattern))))
+
+(def code-pattern
   (spec/cat
    :type #{:code}
    :attr-map (spec/? ::attr-map)
    :contents
    (spec/* (spec/or :text string?
-                     :subform (spec/or :em ::em
-                                       :a ::a
-                                       :span ::span)))))
-(spec/def ::ol
+                    :subform (spec/or :em ::em
+                                      :a ::a
+                                      :span ::span)))))
+
+(spec/def ::code
+  (spec/with-gen (spec/and vector? code-pattern)
+    #(gen/fmap vec (spec/gen code-pattern))))
+
+(def ol-pattern
   (spec/cat :type #{:ol}
             :attr-map (spec/? ::attr-map)
             :items (spec/* ::li)))
 
-(spec/def ::ul
+(spec/def ::ol
+  (spec/with-gen (spec/and vector? ol-pattern)
+    #(gen/fmap vec (spec/gen ol-pattern))))
+
+(def ul-pattern
   (spec/cat :type #{:ul}
             :attr-map (spec/? ::attr-map)
             :items (spec/* ::li)))
 
-(spec/def ::li
+(spec/def ::ul
+  (spec/with-gen (spec/and vector? ul-pattern)
+    #(gen/fmap vec (spec/gen ul-pattern))))
+
+(def li-pattern
   (spec/cat
    :type #{:li}
    :attr-map (spec/? ::attr-map)
    :contents
    (spec/* (spec/or :text string?
-                     :subform (spec/or :code ::code
-                                       :em ::em
-                                       :span ::span
-                                       :a ::a)))))
-(spec/def ::header
+                    :subform (spec/or :code ::code
+                                      :em ::em
+                                      :span ::span
+                                      :a ::a)))))
+
+(spec/def ::li
+  (spec/with-gen (spec/and vector? li-pattern)
+    #(gen/fmap vec (spec/gen li-pattern))))
+
+(def header-pattern
   (spec/cat
    :type #{:h1 :h2 :h3 :h4 :h5 :h6}
    :attr-map (spec/? ::attr-map)
    :contents (spec/*
-               (spec/or :text string?
-                        :subform (spec/or :code ::code
-                                          :em ::em
-                                          :span ::span
-                                          :a ::a)))))
+              (spec/or :text string?
+                       :subform (spec/or :code ::code
+                                         :em ::em
+                                         :span ::span
+                                         :a ::a)))))
+
+(spec/def ::header
+  (spec/with-gen (spec/and vector? header-pattern)
+    #(gen/fmap vec (spec/gen header-pattern))))
 
 (spec/def ::in-form-elem
   (spec/or :header ::header
@@ -466,7 +513,7 @@
    :unary (spec/cat :form (spec/and vector? #(#{:r-grid} (first %))))
    :binary (spec/cat
             :form (spec/and vector? #(#{:r-grid} (first %)))
-            :row  ::grid-cell))
+            :row  (spec/spec ::grid-cell)))
   :ret ::grid)
 
 (comment
@@ -483,5 +530,6 @@
   (process-text [:r-grid "orphan text"])
  
   (process-text [:r-cell "cell text"])
- 
+
+
   )
