@@ -212,4 +212,9 @@
                  (gen/vector gen/string-alphanumeric 1 10))
       ))
 
+  (spec/def ::ul-test
+    (spec/cat :type #{:ul}
+            :attr-map (spec/? :respatialized.document/attr-map)
+            :items (spec/* ::li-test)))
+
   )
