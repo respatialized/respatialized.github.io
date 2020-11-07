@@ -2,7 +2,7 @@
   (:require [respatialized.document :refer :all]
             [respatialized.parse :refer [parse parse-eval]]
             [respatialized.build :refer [load-deps]]
-            [hiccup.core]
+            [hiccup.core :refer [html]]
             [clojure.zip :as zip]
             [clojure.spec.alpha :as spec]
             [clojure.test :as t]
@@ -195,10 +195,9 @@
   (st/instrument 'respatialized.document/process-text)
   (st/check 'respatialized.document/process-text)
 
-  ;; (prop/for-all [(sgen/generate )])
-
-
-  )
+  (prop/for-all
+   [g (spec/gen :respatialized.document/grid)]
+   (string? (html g))))
 
 (comment
   (process-text [:r-grid "orphan text"] [:r-cell {:span "1-6"}])
