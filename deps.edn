@@ -27,7 +27,7 @@
 
   ;; site building functions
   }
- :jvm-opts ["--illegal-access=deny"]
+ :jvm-opts ["--illegal-access=deny" "-Xms4G" "-Xmx8G"]
  :aliases {:test {:extra-paths ["test"]
                   :extra-deps  {lambdaisland/kaocha {:mvn/version "0.0-601"}}
                   :main-opts   ["-m" "kaocha.runner"]}
