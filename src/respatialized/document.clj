@@ -127,8 +127,6 @@
   )
 
 
-;; split the string, then group the orphans
-;;
 
 
 (comment
@@ -328,11 +326,6 @@
    :h6 #{:code :em :span :a}
    })
 
-;; can we use the matched :type from earlier in the spec/cat
-;; later on for additional pattern matching?
-;; no, says Alex Miller
-;; just enumerate that map as a spec, it's really not that hard
-
 (spec/def ::inline-text
   (spec/and string?
             #(< (count %) 15000)))
@@ -497,15 +490,23 @@
            :pre ::pre
            :code ::code))
 
-(spec/def ::grid-cell
+(def grid-cell-pattern
   (spec/cat :type #{:r-cell}
             :attr-map (spec/? ::attr-map)
             :contents (spec/* ::in-form-elem)))
 
-(spec/def ::grid
+(spec/def ::grid-cell
+  (spec/with-gen (spec/and vector? grid-cell-pattern)
+    #(gen/fmap vec (spec/gen grid-cell-pattern))))
+
+(def grid-pattern
   (spec/cat :type #{:r-grid}
             :attr-map (spec/? ::attr-map)
             :contents (spec/* ::grid-cell)))
+
+(spec/def ::grid
+ (spec/with-gen (spec/and vector? grid-pattern)
+   #(gen/fmap vec (spec/gen grid-pattern))))
 
 (spec/fdef process-text
   :args
@@ -529,7 +530,6 @@
 
   (process-text [:r-grid "orphan text"])
  
-  (process-text [:r-cell "cell text"])
 
 
   )

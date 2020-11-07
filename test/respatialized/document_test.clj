@@ -195,7 +195,7 @@
   (st/instrument 'respatialized.document/process-text)
   (st/check 'respatialized.document/process-text)
 
-  ;; (prop/for-all sgen/generate)
+  ;; (prop/for-all [(sgen/generate )])
 
 
   )
@@ -203,7 +203,7 @@
 (comment
   (process-text [:r-grid "orphan text"] [:r-cell {:span "1-6"}])
 
-  (defn li-gen (gen/return ))
+  ;; (defn li-gen (sgen/))
 
   (spec/def ::li-test
     (spec/with-gen
@@ -214,7 +214,8 @@
 
   (spec/def ::ul-test
     (spec/cat :type #{:ul}
-            :attr-map (spec/? :respatialized.document/attr-map)
-            :items (spec/* ::li-test)))
+              :attr-map (spec/? :respatialized.document/attr-map)
+              :items (spec/* ::li-test)))
+
 
   )
