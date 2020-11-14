@@ -196,18 +196,44 @@
    [g (spec/gen :respatialized.document/grid)]
    (string? (html g))))
 
-(binding [spec/*recursion-limit* 2]
+(binding [spec/*recursion-limit* 1]
     (st/instrument 'respatialized.document/process-text)
     (st/check 'respatialized.document/process-text)
 
-    (tc/quick-check 3 renders-correctly))
+    (tc/quick-check 5 renders-correctly))
 
-;; (t/deftest properties)
+(defn test-terminal-elem? [i]
+  (or (not (sequential? i))
+      (and (not-any? sequential? i)
+           (< (count i) 10))))
+
+(spec/def ::in-form-elem-test
+(spec/or
+     :header
+     (spec/with-gen
+       (spec/+
+        (spec/and
+         vector?
+         header-pattern
+         (spec/every test-terminal-elem?)))
+       #(gen/fmap
+         vec
+         (gen/vector
+          (spec/gen
+           (spec/and
+            header-pattern
+            (spec/every test-terminal-elem?))) 1 10)))))
+
+(spec/def ::kw-or-s-vec
+   (spec/with-gen
+     (spec/+ (spec/or :s string? :k keyword?))
+     #(gen/vector
+       (spec/gen (spec/or :s string? :k keyword?))
+       1 10)))
 
 (comment
   (process-text [:r-grid "orphan text"] [:r-cell {:span "1-6"}])
 
-  ;; (defn li-gen (sgen/))
 
   (spec/def ::li-test
     (spec/with-gen
@@ -221,5 +247,22 @@
               :attr-map (spec/? :respatialized.document/attr-map)
               :items (spec/* ::li-test)))
 
+
+  ;; this didn't work because such-that must create the example
+  ;; before checking it against the predicate, which blows up the stack
+  (gen/sample
+   (gen/such-that #(every? test-terminal-elem? %)
+                  (spec/gen :respatialized.document/in-form-elem)) 5)
+
+  (spec/def ::kw-or-s-vec
+    (spec/with-gen
+      (spec/+ (spec/or :s string? :k keyword?))
+      #(gen/vector
+        (spec/gen (spec/or :s string? :k keyword?))
+        1 10)))
+
+  (gen/sample
+   (spec/gen ::kw-or-s-vec)
+   20)
 
   )
