@@ -12,7 +12,7 @@
   venantius/glow {:mvn/version "0.1.6"}
 
   ;; data munging
-  meander/epsilon {:mvn/version "0.0.421"}
+  minimallist {:mvn/version "0.0.8"}
   org.clojure/data.finger-tree {:mvn/version "0.0.3"}
 
   ;; site content

@@ -6,6 +6,10 @@
    [clojure.data.finger-tree :as ftree :refer [counted-double-list ft-split-at ft-concat]]
    [clojure.spec.alpha :as spec]
    [clojure.spec.gen.alpha :as gen]
+   [minimallist.core :as m :refer [valid? describe]]
+   [minimallist.helper :as h]
+   ;; [minimallist.generator :as mg]
+   ;; [minimallist.minimap :as mm]
    ))
 
 ; example before
@@ -28,6 +32,7 @@
 (def in-form-elems #{:em :li :ol :ul :p :a :code :span
                      :blockquote :pre
                      :h1 :h2 :h3 :h4 :h5 :h6}) ; elements that should be considered part of the same form
+
 (defn in-form? [e] (and (vector? e)
                         (contains? in-form-elems (first e))))
 (defn not-in-form? [e] (and (vector? e)
@@ -326,6 +331,104 @@
    :h6 #{:code :em :span :a}
    })
 
+(comment
+  ;; example code from minimallist
+  (def hiccup-model
+    (h/let ['hiccup (h/alt [:node (h/in-vector (h/cat [:name (h/fn keyword?)]
+                                                      [:props (h/? (h/map-of [(h/fn keyword?) (h/fn any?)]))]
+                                                      [:children (h/* (h/not-inlined (h/ref 'hiccup)))]))]
+                           [:primitive (h/alt [:nil (h/fn nil?)]
+                                              [:boolean (h/fn boolean?)]
+                                              [:number (h/fn number?)]
+                                              [:text (h/fn string?)])])]
+      (h/ref 'hiccup))))
+
+
+(def url
+  (h/alt
+   [:external
+    (h/fn #(re-matches #"^https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]" %))]
+   [:internal
+    (h/fn #(re-matches #"^/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]" %))]))
+
+(def attr-map
+  (h/with-optional-entries (h/map)
+   [:class (h/fn string?)]
+   [:title (h/fn string?)]
+   [:href url]
+   [:id (h/fn string?)]
+   [:alt (h/fn string?)]
+   [:lang (h/enum #{"en"})]
+   [:src url]))
+
+(def image
+  (h/in-vector
+   (h/cat [:tag (h/val :img)]
+          [:attributes
+           (h/with-optional-entries
+             (h/with-entries attr-map [:src url])
+             [:width (h/fn int?)]
+             [:height (h/fn int?)])])))
+
+(def primitive
+  (h/alt [:nil (h/fn nil?)]
+         [:boolean (h/fn boolean?)]
+         [:number (h/fn number?)]
+         [:text (h/fn string?)]
+         [:image image]
+         [:br (h/val [:br])]
+         [:hr (h/val [:hr])]))
+
+(defn quote-kw [kw] `~(symbol kw))
+(defn elem-ref [e] [e (h/ref (quote-kw e))])
+
+(defn get-child-model [elem]
+  (h/in-vector
+   (h/cat
+    [:tag (h/val elem)]
+    [:attributes (h/? attr-map)]
+    [:contents (h/* (h/not-inlined
+                     (apply h/alt
+                            primitive
+                            (map elem-ref
+                                 (get doc-tree elem)))))])))
+
+(def raster-span
+  (h/alt [:cols (h/fn pos-int?)]
+         [:range (h/fn #(re-matches #"^\d\-\d$" %))]
+         [:offset (h/fn #(re-matches #"^\d\+\d$" %))]
+         [:offset-row (h/fn #(re-matches #"^\d\.\.$" %))]
+         [:row (h/val "row")]))
+
+(def grid
+  (h/let ['em (get-child-model :em)
+          'a (get-child-model :a)
+          'pre (get-child-model :pre)
+          'code (get-child-model :code)
+          'ol (get-child-model :ol)
+          'ul (get-child-model :ul)
+          'li (get-child-model :li)
+          'h1 (get-child-model :h1)
+          'h2 (get-child-model :h1)
+          'h3 (get-child-model :h3)
+          'h4 (get-child-model :h4)
+          'h5 (get-child-model :h5)
+          'h6 (get-child-model :h6)
+          'p (get-child-model :p)
+          'grid-cell
+          (h/in-vector
+           (h/cat
+            [:tag (h/val :r-cell)]
+            [:attributes (h/with-entries attr-map [:span raster-span])]
+            [:contents
+             (h/* (h/not-inlined (apply h/alt (map elem-ref in-form-elems))))]))
+          'grid
+          (h/in-vector
+           (h/cat [:tag (h/val :r-grid)]
+                  [:attributes (h/with-entries attr-map [:columns (h/fn pos-int?)])]
+                  [:contents (h/* (h/not-inlined (h/ref 'grid-cell)))]))]
+    (h/ref 'grid)))
+
 (spec/def ::inline-text
   (spec/and string?
             #(< (count %) 15000)))
@@ -341,17 +444,17 @@
    :attr-map (spec/? ::attr-map)
    :contents
    (spec/*
-     (spec/or :text string?
-              :subform
-              (spec/or
-               :pre ::pre
-               :em ::em
-               :a ::a
-               :code ::code
-               :ol ::ol
-               :ul ::ul
-               :li ::li
-               :header ::header)))))
+    (spec/or :text string?
+             :subform
+             (spec/or
+              :pre ::pre
+              :em ::em
+              :a ::a
+              :code ::code
+              :ol ::ol
+              :ul ::ul
+              :li ::li
+              :header ::header)))))
 
 (spec/def ::p
   (spec/with-gen (spec/and vector? p-pattern)
@@ -529,7 +632,7 @@
   (spec/conform ::grid [:r-grid [:r-cell {:span "row"} [:p "text"]]])
 
   (process-text [:r-grid "orphan text"])
- 
+
 
 
   )

@@ -11,9 +11,10 @@
             [clojure.test.check.generators :as gen]
             [clojure.spec.gen.alpha :as sgen]
             [clojure.test.check.properties :as prop]
+            [minimallist.core :refer [valid?]]
             ))
 
-(load-deps)
+;; (load-deps)
 
 (def sample-multi-form-input
   "first paragraph\n\nsecond paragraph with <%=[:em \"emphasis\"]%> text")
@@ -190,6 +191,20 @@
       (detect-paragraphs sample-code-form #"\n\n")))
 
     ))
+
+(t/deftest models
+  (t/testing "model primitives"
+    (t/is (valid? attr-map {:class "a"
+                            :href "http://google.com"}))
+    (t/is (valid? attr-map {:title "some page"
+                            :href "/relative-page.html"}))
+
+    (t/is (valid? respatialized.document/image
+                  [:img {:src "/pic.jpg" :width 500}])))
+
+  (t/testing "structural forms"
+    (t/is (valid? grid [:r-grid {:columns 8}]))
+    (t/is (valid? grid [:r-grid {:columns 8} [:r-cell {:span "row"} [:p "some text"]]]))))
 
 (def renders-correctly
   (prop/for-all
