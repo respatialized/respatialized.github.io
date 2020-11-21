@@ -8,11 +8,13 @@
             [clojure.test :as t]
             [clojure.spec.test.alpha :as st]
             [clojure.test.check :as tc]
+            [clojure.test.check.clojure-test :refer [defspec]]
             [clojure.test.check.generators :as gen]
             [clojure.spec.gen.alpha :as sgen]
             [clojure.test.check.properties :as prop]
             [minimallist.core :refer [valid?]]
-            ))
+            [minimallist.generator :as mg]
+            [minimallist.helper :as h]))
 
 ;; (load-deps)
 
@@ -192,6 +194,30 @@
 
     ))
 
+(defn finalize-elem-model
+  "Return a constrained version of the given element's model such that it has no child elements"
+  [elem]
+  (h/in-vector
+   (h/cat
+    [:tag (h/val elem)]
+    [:attributes (h/? attr-map)]
+    [:contents (h/repeat 1 10 (h/not-inlined primitive))])))
+
+(defn one-level-deep
+  "Return a version of the given elements that can have a single level of nesting."
+  [elem]
+  (h/in-vector
+   (h/cat
+    [:tag (h/val elem)]
+    [:attributes (h/? attr-map)]
+    [:contents
+     (h/repeat 1 15
+               (h/not-inlined
+                (apply h/alt
+                       primitive
+                       (map finalize-elem-model
+                            (get doc-tree elem)))))])))
+
 (t/deftest models
   (t/testing "model primitives"
     (t/is (valid? attr-map {:class "a"
@@ -206,16 +232,51 @@
     (t/is (valid? grid [:r-grid {:columns 8}]))
     (t/is (valid? grid [:r-grid {:columns 8} [:r-cell {:span "row"} [:p "some text"]]]))))
 
-(def renders-correctly
+
+
+(def simple-grid-model
+  "A version of the grid without mutually recursive child refs, for testing by induction."
+  (h/in-vector
+     (h/cat
+      [:tag (h/val :r-grid)]
+      [:attributes
+       (h/with-entries attr-map
+         [:columns (->constrained-model #(< 0 % 33) gen/nat)])]
+      [:contents
+       (h/repeat 1 25
+        (h/not-inlined
+         (h/in-vector
+          (h/cat
+           [:tag (h/val :r-cell)]
+           [:attributes (h/with-entries attr-map [:span raster-span])]
+           [:contents
+            (h/repeat
+             1 25
+             (h/not-inlined
+              (apply h/alt
+                     (map one-level-deep (keys doc-tree)))))]))))])))
+
+(comment
+  (valid? simple-grid-model [:r-grid {:columns 8} [:r-cell {:span "row"} [:p "some text"]]])
+
+  (valid? simple-grid-model [:r-grid {:columns 8} [:r-cell [:p "some text"]]])
+  (valid? simple-grid-model [:r-grid {:columns 8} [:r-cell]])
+  (gen/sample (mg/gen attr-map) 15)
+  (gen/sample (mg/gen simple-grid-model) 65)
+
+  )
+
+
+(defspec renders-correctly
+  120
   (prop/for-all
-   [g (spec/gen :respatialized.document/grid)]
+   [g (mg/gen simple-grid-model)]
    (string? (html g))))
 
-(binding [spec/*recursion-limit* 1]
+(t/deftest specs
+  (binding [spec/*recursion-limit* 1]
     (st/instrument 'respatialized.document/process-text)
-    (st/check 'respatialized.document/process-text)
-
-    (tc/quick-check 5 renders-correctly))
+    (st/check 'respatialized.document/process-text)))
 
 (defn test-terminal-elem? [i]
   (or (not (sequential? i))

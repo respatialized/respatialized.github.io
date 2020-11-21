@@ -5,10 +5,12 @@
    [clojure.zip :as zip]
    [clojure.data.finger-tree :as ftree :refer [counted-double-list ft-split-at ft-concat]]
    [clojure.spec.alpha :as spec]
-   [clojure.spec.gen.alpha :as gen]
+   [clojure.spec.gen.alpha :as sgen]
+   [clojure.test.check.generators :as gen]
+   [com.gfredericks.test.chuck.generators :as gen']
    [minimallist.core :as m :refer [valid? describe]]
    [minimallist.helper :as h]
-   ;; [minimallist.generator :as mg]
+   [minimallist.generator :as mg]
    ;; [minimallist.minimap :as mm]
    ))
 
@@ -317,19 +319,19 @@
 (def doc-tree
   {:p #{:ul :em :h5 :h4 :ol :h6 :code :h2 :h1 :h3 :a}
    :pre #{:em :span :a}
-   :em #{:code :a :span}
+   :em #{:code :span :a}
    :a #{:em :span}
    :code #{:em :a :span}
    :ol #{:li}
    :ul #{:li}
-   :li #{:code :em :a :span}
+   :li #{:code :em :span :a}
    :h1 #{:code :em :span :a}
    :h2 #{:code :em :span :a}
    :h3 #{:code :em :span :a}
    :h4 #{:code :em :span :a}
    :h5 #{:code :em :span :a}
    :h6 #{:code :em :span :a}
-   })
+   :span #{}})
 
 (comment
   ;; example code from minimallist
@@ -343,23 +345,30 @@
                                               [:text (h/fn string?)])])]
       (h/ref 'hiccup))))
 
+(def external-link-pattern #"https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
+
+(def internal-link-pattern #"/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
+
+(defn regex->model [re]
+  (-> (h/fn #(re-matches re %))
+      (h/with-test-check-gen
+        (gen'/string-from-regex re))))
 
 (def url
   (h/alt
-   [:external
-    (h/fn #(re-matches #"^https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]" %))]
-   [:internal
-    (h/fn #(re-matches #"^/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]" %))]))
+   [:external (regex->model external-link-pattern)]
+   [:internal (regex->model internal-link-pattern)]))
 
 (def attr-map
   (h/with-optional-entries (h/map)
-   [:class (h/fn string?)]
-   [:title (h/fn string?)]
-   [:href url]
-   [:id (h/fn string?)]
-   [:alt (h/fn string?)]
-   [:lang (h/enum #{"en"})]
-   [:src url]))
+    [:class (-> (h/fn string?) (h/with-test-check-gen gen/string-ascii))]
+    [:title (-> (h/fn string?) (h/with-test-check-gen gen/string-ascii))]
+    [:href url]
+    [:src url]
+    [:id (-> (h/fn string?) (h/with-test-check-gen gen/string-ascii))]
+    [:alt (-> (h/fn string?) (h/with-test-check-gen gen/string-ascii))]
+    [:lang (h/enum #{"en"})]
+    ))
 
 (def image
   (h/in-vector
@@ -367,17 +376,27 @@
           [:attributes
            (h/with-optional-entries
              (h/with-entries attr-map [:src url])
-             [:width (h/fn int?)]
-             [:height (h/fn int?)])])))
+             [:width
+              (-> (h/fn pos-int?)
+                  (h/with-condition (h/fn #(< 0 % 8192)))
+                  (h/with-test-check-gen
+                    (gen/such-that #(< 0 % 8192) gen/nat)))]
+             [:height (-> (h/fn pos-int?)
+                          (h/with-condition (h/fn #(< 0 % 8192)))
+                          (h/with-test-check-gen
+                            (gen/such-that #(< 0 % 8192) gen/nat)))])])))
 
 (def primitive
-  (h/alt [:nil (h/fn nil?)]
-         [:boolean (h/fn boolean?)]
-         [:number (h/fn number?)]
-         [:text (h/fn string?)]
-         [:image image]
-         [:br (h/val [:br])]
-         [:hr (h/val [:hr])]))
+  (h/alt
+   ;; [:nil (h/val nil)]
+   [:boolean (-> (h/fn boolean?) (h/with-test-check-gen gen/boolean))]
+   [:number (-> (h/fn number?) (h/with-test-check-gen
+                                 (gen/one-of [gen/small-integer
+                                              gen/double])))]
+   [:text (-> (h/fn string?) (h/with-test-check-gen gen/string))]
+   [:image image]
+   [:br (h/val [:br])]
+   [:hr (h/val [:hr])]))
 
 (defn quote-kw [kw] `~(symbol kw))
 (defn elem-ref [e] [e (h/ref (quote-kw e))])
@@ -387,6 +406,7 @@
    (h/cat
     [:tag (h/val elem)]
     [:attributes (h/? attr-map)]
+    ;; [:contents (h/* (h/not-inlined primitive))]
     [:contents (h/* (h/not-inlined
                      (apply h/alt
                             primitive
@@ -394,11 +414,24 @@
                                  (get doc-tree elem)))))])))
 
 (def raster-span
-  (h/alt [:cols (h/fn pos-int?)]
-         [:range (h/fn #(re-matches #"^\d\-\d$" %))]
-         [:offset (h/fn #(re-matches #"^\d\+\d$" %))]
-         [:offset-row (h/fn #(re-matches #"^\d\.\.$" %))]
+  (h/alt [:cols (->  (h/fn pos-int?)
+                     (h/with-condition (h/fn #(< 0 % 33)))
+                     (h/with-test-check-gen
+                       (gen/such-that #(< 0 % 33) gen/nat)))]
+         [:range (regex->model #"\d\-\d")]
+         [:offset (regex->model #"\d\+\d")]
+         [:offset-row (regex->model #"\d\.\.")]
          [:row (h/val "row")]))
+
+(defn ->constrained-model
+  ([pred generator max-tries-or-opts]
+   (-> (h/fn pred)
+       (h/with-test-check-gen
+         (gen/such-that pred generator max-tries-or-opts))))
+  ([pred generator]
+   (-> (h/fn pred)
+       (h/with-test-check-gen
+         (gen/such-that pred generator)))))
 
 (def grid
   (h/let ['em (get-child-model :em)
@@ -421,11 +454,15 @@
             [:tag (h/val :r-cell)]
             [:attributes (h/with-entries attr-map [:span raster-span])]
             [:contents
-             (h/* (h/not-inlined (apply h/alt (map elem-ref in-form-elems))))]))
+             (h/* (h/not-inlined
+                   (apply h/alt [:grid (h/ref 'grid)]
+                          (map elem-ref in-form-elems))))]))
           'grid
           (h/in-vector
            (h/cat [:tag (h/val :r-grid)]
-                  [:attributes (h/with-entries attr-map [:columns (h/fn pos-int?)])]
+                  [:attributes
+                   (h/with-entries attr-map
+                     [:columns (->constrained-model #(< 0 % 33) gen/nat)])]
                   [:contents (h/* (h/not-inlined (h/ref 'grid-cell)))]))]
     (h/ref 'grid)))
 
@@ -458,7 +495,7 @@
 
 (spec/def ::p
   (spec/with-gen (spec/and vector? p-pattern)
-    #(gen/fmap vec (spec/gen p-pattern))))
+    #(sgen/fmap vec (spec/gen p-pattern))))
 
 (def a-pattern
   (spec/cat
@@ -474,7 +511,7 @@
 
 (spec/def ::a
   (spec/with-gen (spec/and vector? a-pattern)
-    #(gen/fmap vec (spec/gen a-pattern))))
+    #(sgen/fmap vec (spec/gen a-pattern))))
 
 (def em-pattern
   (spec/cat
@@ -491,7 +528,7 @@
 
 (spec/def ::em
   (spec/with-gen (spec/and vector? em-pattern)
-    #(gen/fmap vec (spec/gen em-pattern))))
+    #(sgen/fmap vec (spec/gen em-pattern))))
 
 (def pre-pattern
   (spec/cat
@@ -506,7 +543,7 @@
 
 (spec/def ::pre
   (spec/with-gen (spec/and vector? pre-pattern)
-    #(gen/fmap vec (spec/gen pre-pattern))))
+    #(sgen/fmap vec (spec/gen pre-pattern))))
 
 (def span-pattern
   (spec/cat
@@ -519,7 +556,7 @@
 
 (spec/def ::span
   (spec/with-gen (spec/and vector? span-pattern)
-    #(gen/fmap vec (spec/gen span-pattern))))
+    #(sgen/fmap vec (spec/gen span-pattern))))
 
 (def code-pattern
   (spec/cat
@@ -533,7 +570,7 @@
 
 (spec/def ::code
   (spec/with-gen (spec/and vector? code-pattern)
-    #(gen/fmap vec (spec/gen code-pattern))))
+    #(sgen/fmap vec (spec/gen code-pattern))))
 
 (def ol-pattern
   (spec/cat :type #{:ol}
@@ -542,7 +579,7 @@
 
 (spec/def ::ol
   (spec/with-gen (spec/and vector? ol-pattern)
-    #(gen/fmap vec (spec/gen ol-pattern))))
+    #(sgen/fmap vec (spec/gen ol-pattern))))
 
 (def ul-pattern
   (spec/cat :type #{:ul}
@@ -551,7 +588,7 @@
 
 (spec/def ::ul
   (spec/with-gen (spec/and vector? ul-pattern)
-    #(gen/fmap vec (spec/gen ul-pattern))))
+    #(sgen/fmap vec (spec/gen ul-pattern))))
 
 (def li-pattern
   (spec/cat
@@ -566,7 +603,7 @@
 
 (spec/def ::li
   (spec/with-gen (spec/and vector? li-pattern)
-    #(gen/fmap vec (spec/gen li-pattern))))
+    #(sgen/fmap vec (spec/gen li-pattern))))
 
 (def header-pattern
   (spec/cat
@@ -581,7 +618,7 @@
 
 (spec/def ::header
   (spec/with-gen (spec/and vector? header-pattern)
-    #(gen/fmap vec (spec/gen header-pattern))))
+    #(sgen/fmap vec (spec/gen header-pattern))))
 
 (spec/def ::in-form-elem
   (spec/or :header ::header
@@ -600,7 +637,7 @@
 
 (spec/def ::grid-cell
   (spec/with-gen (spec/and vector? grid-cell-pattern)
-    #(gen/fmap vec (spec/gen grid-cell-pattern))))
+    #(sgen/fmap vec (spec/gen grid-cell-pattern))))
 
 (def grid-pattern
   (spec/cat :type #{:r-grid}
@@ -609,7 +646,7 @@
 
 (spec/def ::grid
  (spec/with-gen (spec/and vector? grid-pattern)
-   #(gen/fmap vec (spec/gen grid-pattern))))
+   #(sgen/fmap vec (spec/gen grid-pattern))))
 
 (spec/fdef process-text
   :args
