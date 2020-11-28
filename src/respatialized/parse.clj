@@ -35,25 +35,22 @@
 
 (defn parse
   ([src start-seq]
-  (into
-   start-seq
-   (loop [src src form []]
+   (loop [src src form start-seq]
     (let [[_ before expr after] (re-matches parser-regex src)]
       (if expr
         (recur
          after
          (conj-non-nil form before (yield-expr expr)))
-        (conj-non-nil form after))))))
+        (conj-non-nil form after)))))
   ([src] (parse src [:div])))
 
 (defn parse-eval
   ([src start-seq]
-   (into start-seq
-         (loop [src src form []]
+   (loop [src src form start-seq]
            (let [[_ before expr after] (re-matches parser-regex src)]
              (if expr
                (recur
                 after
                 (conj-non-nil form before (eval-expr expr)))
-               (conj-non-nil form after))))))
+               (conj-non-nil form after)))))
   ([src] (parse-eval src [:div])))
