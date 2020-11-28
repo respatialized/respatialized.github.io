@@ -14,6 +14,24 @@
    ;; [minimallist.minimap :as mm]
    ))
 
+(def doc-tree
+  {:p #{:ul :em :h5 :h4 :ol :h6 :code :h2 :h1 :h3 :a :blockquote}
+   :pre #{:em :span :a}
+   :em #{:code :span :a}
+   :a #{:em :span}
+   :code #{:em :a :span}
+   :blockquote #{}
+   :ol #{:li}
+   :ul #{:li}
+   :li #{:code :em :span :a :blockquote}
+   :h1 #{:code :em :span :a}
+   :h2 #{:code :em :span :a}
+   :h3 #{:code :em :span :a}
+   :h4 #{:code :em :span :a}
+   :h5 #{:code :em :span :a}
+   :h6 #{:code :em :span :a}
+   :span #{}})
+
 ; example before
 (def sample-form '("first paragraph\n\nsecond paragraph"
                    [:r-grid [:r-cell "first cell line\n\nsecond cell line"]
@@ -172,8 +190,8 @@
    (fn [])))
 
 (defn para? [i] (and (vector? i) (= :p (first i))))
-(def inline-elems #{:em :ol :ul :code :span :a :li})
-(defn inline? [i] (and (vector? i) (contains? inline-elems (first i))))
+(defn in-para? [i] (and (vector? i)
+                        (contains? (:p doc-tree) (first i))))
 
 (defn detect-paragraphs
   "For each string in the element split it by the given regex, and insert the result into the original element. Leaves sub-elements as is and inserts them into the preceding paragraph."
@@ -195,7 +213,7 @@
                                 (conj (first (ft-split-at final (- (count final) 1)))
                                       (conj current-elem hh)))
                          :else (recur (concat rest t) (conj final [:p hh]))))
-                     (or (string? h) (inline? h))
+                     (or (string? h) (in-para? h))
                      (if (para? current-elem)
                        (recur t
                               (conj (first (ft-split-at final (- (count final) 1)))
@@ -323,22 +341,7 @@
        (h/with-test-check-gen
          (gen/such-that pred generator)))))
 
-(def doc-tree
-  {:p #{:ul :em :h5 :h4 :ol :h6 :code :h2 :h1 :h3 :a}
-   :pre #{:em :span :a}
-   :em #{:code :span :a}
-   :a #{:em :span}
-   :code #{:em :a :span}
-   :ol #{:li}
-   :ul #{:li}
-   :li #{:code :em :span :a}
-   :h1 #{:code :em :span :a}
-   :h2 #{:code :em :span :a}
-   :h3 #{:code :em :span :a}
-   :h4 #{:code :em :span :a}
-   :h5 #{:code :em :span :a}
-   :h6 #{:code :em :span :a}
-   :span #{}})
+
 
 (comment
   ;; example code from minimallist
@@ -346,7 +349,7 @@
     (h/let ['hiccup (h/alt [:node (h/in-vector (h/cat [:name (h/fn keyword?)]
                                                       [:props (h/? (h/map-of [(h/fn keyword?) (h/fn any?)]))]
                                                       [:children (h/* (h/not-inlined (h/ref 'hiccup)))]))]
-                           [:primitive (h/alt [:nil (h/fn nil?)]
+                           [:element (h/alt [:nil (h/fn nil?)]
                                               [:boolean (h/fn boolean?)]
                                               [:number (h/fn number?)]
                                               [:text (h/fn string?)])])]
@@ -387,7 +390,7 @@
    (h/cat [:tag (h/val :img)]
           [:attributes img-attrs])))
 
-(def primitive
+(def atomic-element
   (h/alt
    ;; [:nil (h/val nil)]
    [:boolean (-> (h/fn boolean?) (h/with-test-check-gen gen/boolean))]
@@ -395,6 +398,7 @@
                                  (gen/one-of [gen/small-integer
                                               gen/double])))]
    [:text (-> (h/fn string?) (h/with-test-check-gen gen/string))]
+   ;; [:blockquote ]
    [:image image]
    [:br (h/val [:br])]
    [:hr (h/val [:hr])]))
@@ -407,10 +411,9 @@
    (h/cat
     [:tag (h/val elem)]
     [:attributes (h/? attr-map)]
-    ;; [:contents (h/* (h/not-inlined primitive))]
     [:contents (h/* (h/not-inlined
                      (apply h/alt
-                            primitive
+                            atomic-element
                             (map elem-ref
                                  (get doc-tree elem)))))])))
 
@@ -428,9 +431,11 @@
           'a (get-child-model :a)
           'pre (get-child-model :pre)
           'code (get-child-model :code)
+          'span (get-child-model :span)
           'ol (get-child-model :ol)
           'ul (get-child-model :ul)
           'li (get-child-model :li)
+          'blockquote (get-child-model :blockquote)
           'h1 (get-child-model :h1)
           'h2 (get-child-model :h1)
           'h3 (get-child-model :h3)
@@ -442,7 +447,8 @@
           (h/in-vector
            (h/cat
             [:tag (h/val :r-cell)]
-            [:attributes (h/with-entries attr-map [:span raster-span])]
+            [:attributes
+             (h/? (h/with-entries attr-map [:span raster-span]))]
             [:contents
              (h/* (h/not-inlined
                    (apply h/alt [:grid (h/ref 'grid)]
@@ -452,7 +458,7 @@
            (h/cat [:tag (h/val :r-grid)]
                   [:attributes
                    (h/with-entries attr-map
-                     [:columns (->constrained-model #(< 0 % 33) gen/nat)])]
+                     [:columns (->constrained-model #(< 0 % 33) gen/nat 200)])]
                   [:contents (h/* (h/not-inlined (h/ref 'grid-cell)))]))]
     (h/ref 'grid)))
 

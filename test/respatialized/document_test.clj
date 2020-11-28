@@ -199,7 +199,7 @@
    (h/cat
     [:tag (h/val elem)]
     [:attributes (h/? attr-map)]
-    [:contents (h/repeat 1 10 (h/not-inlined primitive))])))
+    [:contents (h/repeat 1 10 (h/not-inlined atomic-element))])))
 
 (defn one-level-deep
   "Return a version of the given elements that can have a single level of nesting."
@@ -212,12 +212,12 @@
      (h/repeat 1 15
                (h/not-inlined
                 (apply h/alt
-                       primitive
+                       atomic-element
                        (map finalize-elem-model
                             (get doc-tree elem)))))])))
 
 (t/deftest models
-  (t/testing "model primitives"
+  (t/testing "atomic elements"
     (t/is (valid? attr-map {:class "a"
                             :href "http://google.com"}))
     (t/is (valid? attr-map {:title "some page"
@@ -228,7 +228,9 @@
 
   (t/testing "structural forms"
     (t/is (valid? grid [:r-grid {:columns 8}]))
-    (t/is (valid? grid [:r-grid {:columns 8} [:r-cell {:span "row"} [:p {:id "i"} "some text"]]]))))
+    (t/is (valid? grid [:r-grid {:columns 8} [:r-cell {:span "row"} [:p {:id "i"} "some text"]]]))
+    (t/is (valid? grid [:r-grid {:columns 8} [:r-cell [:p {:id "i"} "some text"]]]))
+    (t/is (valid? grid [:r-grid {:columns 8} [:r-cell {:span "1-2"} [:p {:id "i"} "some text"]]]))))
 
 (def simple-grid-cell-model
   "A version of grid cells that has a limit on how deeply nested the forms can be."
@@ -256,10 +258,10 @@
      (h/repeat 1 25
                (h/not-inlined simple-grid-cell-model))])))
 
-(defspec primitive-forms 250
+(defspec atomic-forms 250
   (prop/for-all
-   [p (mg/gen primitive)]
-   (valid? primitive p)))
+   [p (mg/gen atomic-element)]
+   (valid? atomic-element p)))
 
 (defspec span-forms 250
   (prop/for-all
@@ -296,7 +298,7 @@
   )
 
 (defspec renders-correctly
-  50
+  250
   (prop/for-all
    [g (mg/gen simple-grid-model)]
    (string? (html g))))
