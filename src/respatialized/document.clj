@@ -10,12 +10,12 @@
    [com.gfredericks.test.chuck.generators :as gen']
    [minimallist.core :as m :refer [valid? describe]]
    [minimallist.helper :as h]
-   [minimallist.generator :as mg]
-   ;; [minimallist.minimap :as mm]
-   ))
+   [minimallist.generator :as mg]))
 
 (def doc-tree
-  {:p #{:ul :em :h5 :h4 :ol :h6 :code :h2 :h1 :h3 :a :blockquote}
+  {:r-cell #{:ul :em :h5 :h4 :ol :h6 :code :h2 :h1 :h3 :a :blockquote :pre :span :p :div}
+   :div #{:ul :em :h5 :h4 :ol :h6 :code :h2 :h1 :h3 :a :blockquote :pre :span :p}
+   :p #{:ul :em :h5 :h4 :ol :h6 :code :h2 :h1 :h3 :a :blockquote :span :p}
    :pre #{:em :span :a}
    :em #{:code :span :a}
    :a #{:em :span}
@@ -32,7 +32,226 @@
    :h6 #{:code :em :span :a}
    :span #{}})
 
+(defn ->constrained-model
+  ([pred generator max-tries-or-opts]
+   (-> (h/fn pred)
+       (h/with-test-check-gen
+         (gen/such-that pred generator max-tries-or-opts))))
+  ([pred generator]
+   (-> (h/fn pred)
+       (h/with-test-check-gen
+         (gen/such-that pred generator)))))
+
+(comment
+  ;; example code from minimallist
+  (def hiccup-model
+    (h/let ['hiccup (h/alt [:node (h/in-vector (h/cat [:name (h/fn keyword?)]
+                                                      [:props (h/? (h/map-of [(h/fn keyword?) (h/fn any?)]))]
+                                                      [:children (h/* (h/not-inlined (h/ref 'hiccup)))]))]
+                           [:element (h/alt [:nil (h/fn nil?)]
+                                            [:boolean (h/fn boolean?)]
+                                            [:number (h/fn number?)]
+                                            [:text (h/fn string?)])])]
+      (h/ref 'hiccup))))
+
+(def external-link-pattern #"https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
+(def internal-link-pattern #"/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
+
+(defn regex->model [re]
+  (-> (h/fn #(re-matches re %))
+      (h/with-test-check-gen
+        (gen'/string-from-regex re))))
+
+(def url
+  (h/alt
+   [:external (regex->model external-link-pattern)]
+   [:internal (regex->model internal-link-pattern)]))
+
+(def attr-map
+  (h/with-optional-entries (h/map)
+    [:class (-> (h/fn string?) (h/with-test-check-gen gen/string-ascii))]
+    [:title (-> (h/fn string?) (h/with-test-check-gen gen/string-ascii))]
+    [:href url]
+    [:src url]
+    [:id (-> (h/fn string?) (h/with-test-check-gen gen/string-ascii))]
+    [:alt (-> (h/fn string?) (h/with-test-check-gen gen/string-ascii))]
+    [:lang (h/enum #{"en"})]))
+
+(def img-attrs
+  (h/with-optional-entries
+    (h/with-entries attr-map [:src url])
+    [:width (->constrained-model #(< 0 % 8192) gen/nat)]
+    [:height (->constrained-model #(< 0 % 8192) gen/nat)]))
+
+(def image
+  (h/in-vector
+   (h/cat [:tag (h/val :img)]
+          [:attributes img-attrs])))
+
+(def atomic-element
+  (h/alt
+   [:boolean (-> (h/fn boolean?) (h/with-test-check-gen gen/boolean))]
+   [:number (-> (h/fn number?) (h/with-test-check-gen
+                                 (gen/one-of [gen/small-integer
+                                              gen/double])))]
+   [:text (-> (h/fn string?) (h/with-test-check-gen gen/string))]
+   [:image image]
+   [:br (h/val [:br])]
+   [:hr (h/val [:hr])]))
+
+(defn quote-kw [kw] `~(symbol kw))
+(defn elem-ref [e] [e (h/ref (quote-kw e))])
+
+(defn get-child-model [elem]
+  (h/in-vector
+   (h/cat
+    [:tag (h/val elem)]
+    [:attributes (h/? attr-map)]
+    [:contents (h/* (h/not-inlined
+                     (apply h/alt
+                            atomic-element
+                            (map elem-ref
+                                 (get doc-tree elem)))))])))
+
+(def raster-span
+  (h/alt
+   [:row (h/val "row")]
+   [:range (regex->model #"\d\-\d")]
+   [:offset (regex->model #"\d\+\d")]
+   [:offset-row (regex->model #"\d\.\.")]
+   [:cols (->constrained-model #(< 0 (Integer/parseInt %) 33)
+                               (gen/fmap str gen/nat) 200)]))
+
+(def p
+  (h/let ['em (get-child-model :em)
+          'a (get-child-model :a)
+          'code (get-child-model :code)
+          'span (get-child-model :span)
+          'ol (get-child-model :ol)
+          'ul (get-child-model :ul)
+          'li (get-child-model :li)
+          'blockquote (get-child-model :blockquote)
+          'h1 (get-child-model :h1)
+          'h2 (get-child-model :h1)
+          'h3 (get-child-model :h3)
+          'h4 (get-child-model :h4)
+          'h5 (get-child-model :h5)
+          'h6 (get-child-model :h6)
+          'p (get-child-model :p)]
+    (h/in-vector
+     (h/cat
+      [:tag (h/val :p)]
+      [:attributes (h/? attr-map)]
+      [:contents
+       (h/*
+        (h/not-inlined
+         (apply h/alt
+                [:atomic-element atomic-element]
+                (map elem-ref (:p doc-tree)))))]))))
+
+
+
+(def subform
+  (h/let ['em (get-child-model :em)
+          'a (get-child-model :a)
+          'pre (get-child-model :pre)
+          'code (get-child-model :code)
+          'span (get-child-model :span)
+          'ol (get-child-model :ol)
+          'ul (get-child-model :ul)
+          'li (get-child-model :li)
+          'blockquote (get-child-model :blockquote)
+          'h1 (get-child-model :h1)
+          'h2 (get-child-model :h1)
+          'h3 (get-child-model :h3)
+          'h4 (get-child-model :h4)
+          'h5 (get-child-model :h5)
+          'h6 (get-child-model :h6)
+          'p (get-child-model :p)
+          'div (get-child-model :div)]
+    (apply h/alt
+           (map elem-ref (:r-cell doc-tree)))))
+
+(def grid
+  (h/let ['em (get-child-model :em)
+          'a (get-child-model :a)
+          'pre (get-child-model :pre)
+          'code (get-child-model :code)
+          'span (get-child-model :span)
+          'ol (get-child-model :ol)
+          'ul (get-child-model :ul)
+          'li (get-child-model :li)
+          'blockquote (get-child-model :blockquote)
+          'h1 (get-child-model :h1)
+          'h2 (get-child-model :h1)
+          'h3 (get-child-model :h3)
+          'h4 (get-child-model :h4)
+          'h5 (get-child-model :h5)
+          'h6 (get-child-model :h6)
+          'p (get-child-model :p)
+          'div (get-child-model :div)
+          'grid-cell
+          (h/in-vector
+           (h/cat
+            [:tag (h/val :r-cell)]
+            [:attributes
+             (h/? (h/with-entries attr-map [:span raster-span]))]
+            [:contents
+             (h/* (h/not-inlined
+                   (apply h/alt
+                          [:grid (h/ref 'grid)]
+                          [:atomic-element atomic-element]
+                          (map elem-ref (:r-cell doc-tree)))))]))
+          'grid
+          (h/in-vector
+           (h/cat [:tag (h/val :r-grid)]
+                  [:attributes
+                   (h/with-entries attr-map
+                     [:columns (->constrained-model #(< 0 % 33) gen/nat 200)])]
+                  [:contents (h/* (h/not-inlined (h/ref 'grid-cell)))]))]
+    (h/ref 'grid)))
+
+(def grid-cell
+  (h/let ['em (get-child-model :em)
+          'a (get-child-model :a)
+          'pre (get-child-model :pre)
+          'code (get-child-model :code)
+          'span (get-child-model :span)
+          'ol (get-child-model :ol)
+          'ul (get-child-model :ul)
+          'li (get-child-model :li)
+          'blockquote (get-child-model :blockquote)
+          'h1 (get-child-model :h1)
+          'h2 (get-child-model :h1)
+          'h3 (get-child-model :h3)
+          'h4 (get-child-model :h4)
+          'h5 (get-child-model :h5)
+          'h6 (get-child-model :h6)
+          'p (get-child-model :p)
+          'div (get-child-model :div)
+          'grid-cell
+          (h/in-vector
+           (h/cat
+            [:tag (h/val :r-cell)]
+            [:attributes
+             (h/? (h/with-entries attr-map [:span raster-span]))]
+            [:contents
+             (h/* (h/not-inlined
+                   (apply h/alt
+                          [:grid (h/ref 'grid)]
+                          [:atomic-element atomic-element]
+                          (map elem-ref (:r-cell doc-tree)))))]))
+          'grid
+          (h/in-vector
+           (h/cat [:tag (h/val :r-grid)]
+                  [:attributes
+                   (h/with-entries attr-map
+                     [:columns (->constrained-model #(< 0 % 33) gen/nat 200)])]
+                  [:contents (h/* (h/not-inlined (h/ref 'grid-cell)))]))]
+    (h/ref 'grid-cell)))
+
 ; example before
+
 (def sample-form '("first paragraph\n\nsecond paragraph"
                    [:r-grid [:r-cell "first cell line\n\nsecond cell line"]
                     [:r-cell "another cell"]]
@@ -49,53 +268,64 @@
 
 (def full-row [:r-cell {:span "row"}])
 
-(def in-form-elems #{:em :li :ol :ul :p :a :code :span
-                     :blockquote :pre
-                     :h1 :h2 :h3 :h4 :h5 :h6}) ; elements that should be considered part of the same form
-
 (defn in-form? [e] (and (vector? e)
-                        (contains? in-form-elems (first e))))
+                        (contains? (:r-cell doc-tree) (first e))))
+;; in-form is just the subform model
 (defn not-in-form? [e] (and (vector? e)
-                            (not (contains? in-form-elems (first e)))))
+                            (not (contains? (:r-cell doc-tree) (first e)))))
 
+;; orphan? is just h/alt on subform or atomic elements
 (defn orphan? [e] (or (string? e) (in-form? e)))
+(def orphan (h/alt [:atomic atomic-element]
+                   [:subform subform]))
 
+;; already-tokenized is just the paragraph model
 (defn already-tokenized? [e]
-  (and (vector? e) (= (first e) :p)))
+  (or
+   (map? e)
+   (and (vector? e) (= (first e) :p))))
+
+(def tokenized
+  (h/alt [:attr-map attr-map]
+         [:r-cell grid-cell]
+         [:p p]))
 
 (defn group-orphans
-  ([encloser tokenized? s]
+  ([encloser tokenized? items]
    (let [grouper
          (fn [s]
-           (apply vector
-                  (map
-                   (fn [i]
-                     (cond
-                       (orphan? (first i))
-                       (into encloser (apply vector i))
-                       (tokenized? (first i)) (first i)
-                       :else
-                       i))
-                   (partition-by #(cond
-                                    (orphan? %) :orphan
-                                    (tokenized? %) :tokenized) s))))]
-     (if (keyword? (first s)) (into [(first s)] (grouper (rest s)))
-         (grouper s))))
-  ([encloser tokenized?] (fn [s] (group-orphans encloser tokenized? s))))
+           (mapv
+            (fn [i] (cond
+                      (valid? orphan (first i))
+                      (into encloser (apply vector i))
+                      (tokenized? (first i)) (first i)
+                      :else
+                      i))
+            (partition-by #(cond
+                             (valid? orphan %) :orphan
+                             (tokenized? %) :tokenized) s)))]
+     (if (keyword? (first items))
+       (apply vector (first items) (grouper (rest items)))
+       (grouper items))))
+  ([encloser tokenized?] (fn [items] (group-orphans encloser tokenized? items))))
 
 (comment
+
+  (valid? tokenized [:r-cell [:em "non-orphan text"]])
+
+
   (group-orphans [:p]
-                 already-tokenized?
+                 #(valid? tokenized %)
                  ["orphan text"
                   [:em "with emphasis added"]])
 
   (group-orphans [:p]
-                 already-tokenized?
+                 #(valid? tokenized %)
                  [:r-grid "orphan text"
                   [:em "with emphasis added"]])
 
   (group-orphans [:r-cell {:span "row"}]
-                 #(and (vector? %) (contains? #{:p :r-cell} (first %)))
+                 #(valid? tokenized %)
                  [:r-grid "orphan text"
                   [:em "with emphasis added"]
                   [:r-cell "non-orphan text"]]))
@@ -112,14 +342,18 @@
              :r-grid)]
        (cond
          (zip/end? loc) loc             ; are we at the end?
-         (r-cell? (zip/node loc))       ; has this node been processed?
+         (valid? grid-cell (zip/node loc))       ; has this node been processed?
          (recur (zip/next loc))         ; if yes, continue
          (= parent-type :r-cell)        ; are we not in a context with orphans?
          (recur (zip/next loc))         ; then continue
          (and (zip/branch? loc)
-              (some orphan? (zip/children loc))) ; are there orphans in the child node?
-         (recur (zip/edit loc (group-orphans elem
-                                             (fn [i] (and (vector? i) (= (first i) :r-cell))))))
+              (some
+               #(valid? orphan %)
+               (zip/children loc))) ; are there orphans in the child node?
+         (recur (zip/edit
+                 loc
+                 (group-orphans elem
+                                #(valid? tokenized %))))
          :else (recur (zip/next loc))))))
   ([location] (get-orphans location full-row)))
 
@@ -164,7 +398,6 @@
 
 ;; group the orphans, then split the string
 
-
 (defn line-break? [i]
   (and (string? i) (some? (re-find #"\n\n" i))))
 
@@ -190,8 +423,29 @@
    (fn [])))
 
 (defn para? [i] (and (vector? i) (= :p (first i))))
+
+
 (defn in-para? [i] (and (vector? i)
                         (contains? (:p doc-tree) (first i))))
+
+(def subparagraph
+  (h/let ['em (get-child-model :em)
+          'a (get-child-model :a)
+          'code (get-child-model :code)
+          'span (get-child-model :span)
+          'ol (get-child-model :ol)
+          'ul (get-child-model :ul)
+          'li (get-child-model :li)
+          'blockquote (get-child-model :blockquote)
+          'h1 (get-child-model :h1)
+          'h2 (get-child-model :h1)
+          'h3 (get-child-model :h3)
+          'h4 (get-child-model :h4)
+          'h5 (get-child-model :h5)
+          'h6 (get-child-model :h6)]
+    (apply h/alt
+       [:atomic-element atomic-element]
+       (map elem-ref (disj (:p doc-tree) :p)))))
 
 (defn detect-paragraphs
   "For each string in the element split it by the given regex, and insert the result into the original element. Leaves sub-elements as is and inserts them into the preceding paragraph."
@@ -208,13 +462,13 @@
                            rest (map (fn [i] [:p i]) tt)]
                        (cond
                          (empty? hh) (recur (concat rest t) final)
-                         (para? current-elem)
+                         (valid? p current-elem)
                          (recur (concat rest t)
                                 (conj (first (ft-split-at final (- (count final) 1)))
                                       (conj current-elem hh)))
                          :else (recur (concat rest t) (conj final [:p hh]))))
-                     (or (string? h) (in-para? h))
-                     (if (para? current-elem)
+                     (valid? subparagraph h)
+                     (if (valid? p current-elem)
                        (recur t
                               (conj (first (ft-split-at final (- (count final) 1)))
                                     (conj current-elem h)))
@@ -227,7 +481,9 @@
 
 (comment
   (detect-paragraphs [:r-cell "some\n\ntext" [:em "with emphasis"]]
-                     #"\n\n"))
+                     #"\n\n")
+
+  )
 
 (defn split-strings
   "Split any strings in the sequence by the regex and insert them into the sequence. Ignore any non-strings."
@@ -246,14 +502,19 @@
 (defn para-tokenized? [e]
   (or (map? e) (keyword? e) (para? e)))
 
+(def enclosed
+  (h/alt [:attr attr-map]
+         [:form-name (h/fn keyword?)]
+         [:p p]))
+
 (defn tokenize-paragraphs [loc]
   (cond
     (zip/end? loc) loc                  ; are we at the end?
-    (para? (zip/node loc))                         ; has this node been processed?
+    (valid? p (zip/node loc))           ; has this node been processed?
     (recur (zip/next loc))              ; if yes, continue
     (and (zip/branch? loc)
          (some string? (zip/children loc)) ; are there strings in the child node?
-         (not (every? para-tokenized? (zip/children loc))))
+         (not (every? #(valid? enclosed %) (zip/children loc))))
     (recur (zip/edit loc (detect-paragraphs #"\n\n")))
     :else (recur (zip/next loc))))
 
@@ -303,164 +564,6 @@
       form-zipper
       tokenize-paragraphs
       zip/node))
-
-;; SPEC SPEC SPEC SPEC
-
-;; a valid document is a collection of grid cells
-;; what's the tree shape?
-;; [:body [:head ...] [:article [:r-grid [:r-cell ...]]] [:footer ...]]
-;; pretty simple, really
-
-;; a grid cell is a collection of elements that are in-form but not inline
-;; (e.g. paragraphs, headers)
-;;
-;; why does this matter?
-;; because the solution shouldn't be ad-hoc if the goal is to assign a semantics
-;; to document structure.
-
-(comment
-  (spec/exercise (spec/cat :type in-form-elems
-                           :attr-map (spec/? map?)
-                           :contents (spec/* some?))))
-
-;; exercising the spec reveals the need to constrain the values more
-;; it also indicates that there's a hierarchy within the in-form-elems
-;; e.g. a paragraph can contain emphasis but emphasis can't contain a paragraph
-;; list items should only be within a list
-
-;; part of this ordering comes from the inherent semantics of HTML
-;; part of it is my own choice to impose order
-
-(defn ->constrained-model
-  ([pred generator max-tries-or-opts]
-   (-> (h/fn pred)
-       (h/with-test-check-gen
-         (gen/such-that pred generator max-tries-or-opts))))
-  ([pred generator]
-   (-> (h/fn pred)
-       (h/with-test-check-gen
-         (gen/such-that pred generator)))))
-
-
-
-(comment
-  ;; example code from minimallist
-  (def hiccup-model
-    (h/let ['hiccup (h/alt [:node (h/in-vector (h/cat [:name (h/fn keyword?)]
-                                                      [:props (h/? (h/map-of [(h/fn keyword?) (h/fn any?)]))]
-                                                      [:children (h/* (h/not-inlined (h/ref 'hiccup)))]))]
-                           [:element (h/alt [:nil (h/fn nil?)]
-                                              [:boolean (h/fn boolean?)]
-                                              [:number (h/fn number?)]
-                                              [:text (h/fn string?)])])]
-      (h/ref 'hiccup))))
-
-(def external-link-pattern #"https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
-
-(def internal-link-pattern #"/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
-
-(defn regex->model [re]
-  (-> (h/fn #(re-matches re %))
-      (h/with-test-check-gen
-        (gen'/string-from-regex re))))
-
-(def url
-  (h/alt
-   [:external (regex->model external-link-pattern)]
-   [:internal (regex->model internal-link-pattern)]))
-
-(def attr-map
-  (h/with-optional-entries (h/map)
-    [:class (-> (h/fn string?) (h/with-test-check-gen gen/string-ascii))]
-    [:title (-> (h/fn string?) (h/with-test-check-gen gen/string-ascii))]
-    [:href url]
-    [:src url]
-    [:id (-> (h/fn string?) (h/with-test-check-gen gen/string-ascii))]
-    [:alt (-> (h/fn string?) (h/with-test-check-gen gen/string-ascii))]
-    [:lang (h/enum #{"en"})]))
-
-(def img-attrs
-  (h/with-optional-entries
-    (h/with-entries attr-map [:src url])
-    [:width (->constrained-model #(< 0 % 8192) gen/nat)]
-    [:height (->constrained-model #(< 0 % 8192) gen/nat)]))
-
-(def image
-  (h/in-vector
-   (h/cat [:tag (h/val :img)]
-          [:attributes img-attrs])))
-
-(def atomic-element
-  (h/alt
-   ;; [:nil (h/val nil)]
-   [:boolean (-> (h/fn boolean?) (h/with-test-check-gen gen/boolean))]
-   [:number (-> (h/fn number?) (h/with-test-check-gen
-                                 (gen/one-of [gen/small-integer
-                                              gen/double])))]
-   [:text (-> (h/fn string?) (h/with-test-check-gen gen/string))]
-   ;; [:blockquote ]
-   [:image image]
-   [:br (h/val [:br])]
-   [:hr (h/val [:hr])]))
-
-(defn quote-kw [kw] `~(symbol kw))
-(defn elem-ref [e] [e (h/ref (quote-kw e))])
-
-(defn get-child-model [elem]
-  (h/in-vector
-   (h/cat
-    [:tag (h/val elem)]
-    [:attributes (h/? attr-map)]
-    [:contents (h/* (h/not-inlined
-                     (apply h/alt
-                            atomic-element
-                            (map elem-ref
-                                 (get doc-tree elem)))))])))
-
-(def raster-span
-  (h/alt
-   [:row (h/val "row")]
-   [:range (regex->model #"\d\-\d")]
-   [:offset (regex->model #"\d\+\d")]
-   [:offset-row (regex->model #"\d\.\.")]
-   [:cols (->constrained-model #(< 0 (Integer/parseInt %) 33)
-                               (gen/fmap str gen/nat) 200)]))
-
-(def grid
-  (h/let ['em (get-child-model :em)
-          'a (get-child-model :a)
-          'pre (get-child-model :pre)
-          'code (get-child-model :code)
-          'span (get-child-model :span)
-          'ol (get-child-model :ol)
-          'ul (get-child-model :ul)
-          'li (get-child-model :li)
-          'blockquote (get-child-model :blockquote)
-          'h1 (get-child-model :h1)
-          'h2 (get-child-model :h1)
-          'h3 (get-child-model :h3)
-          'h4 (get-child-model :h4)
-          'h5 (get-child-model :h5)
-          'h6 (get-child-model :h6)
-          'p (get-child-model :p)
-          'grid-cell
-          (h/in-vector
-           (h/cat
-            [:tag (h/val :r-cell)]
-            [:attributes
-             (h/? (h/with-entries attr-map [:span raster-span]))]
-            [:contents
-             (h/* (h/not-inlined
-                   (apply h/alt [:grid (h/ref 'grid)]
-                          (map elem-ref in-form-elems))))]))
-          'grid
-          (h/in-vector
-           (h/cat [:tag (h/val :r-grid)]
-                  [:attributes
-                   (h/with-entries attr-map
-                     [:columns (->constrained-model #(< 0 % 33) gen/nat 200)])]
-                  [:contents (h/* (h/not-inlined (h/ref 'grid-cell)))]))]
-    (h/ref 'grid)))
 
 (spec/def ::inline-text
   (spec/and string?
@@ -664,4 +767,4 @@
 
   (spec/conform ::grid [:r-grid [:r-cell {:span "row"} [:p "text"]]])
 
-  (process-text [:r-grid "orphan text"]))
+  (process-text [:r-grid {:columns 8} "orphan text"]))

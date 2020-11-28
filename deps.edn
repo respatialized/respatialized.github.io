@@ -12,8 +12,8 @@
   venantius/glow {:mvn/version "0.1.6"}
 
   ;; data munging
-  minimallist {:git/url "https://github.com/respatialized/minimallist"
-               :sha "8f390c800461e8593d804f7ed904672581ba475f"}
+  minimallist {:git/url "https://github.com/green-coder/minimallist"
+               :sha "a99c3be052ca12789dee05fe47301f3eadc67f6b"}
   com.gfredericks/test.chuck {:mvn/version "0.2.10"}
   org.clojure/data.finger-tree {:mvn/version "0.0.3"}
 

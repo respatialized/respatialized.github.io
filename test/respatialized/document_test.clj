@@ -61,9 +61,14 @@
            [:r-grid [:p "orphan text"
                      [:em "with emphasis added"]]]
            (group-orphans [:p]
-                          already-tokenized?
+                          #(valid? tokenized %)
                           [:r-grid "orphan text"
                            [:em "with emphasis added"]])))
+
+    (t/is (= [:r-cell {:span "row"} [:p "text"]]
+             (group-orphans [:p]
+                            #(valid? tokenized %)
+                            [:r-cell {:span "row"} "text"])))
 
     (t/is
      (=
@@ -71,7 +76,7 @@
                 [:em "with emphasis added"]]
        [:r-cell "non-orphan text"]]
       (group-orphans [:p]
-                     #(and (vector? %) (contains? #{:p :r-cell} (first %)))
+                     #(valid? tokenized %)
                      [:r-grid "orphan text"
                       [:em "with emphasis added"]
                       [:r-cell "non-orphan text"]])))
@@ -190,7 +195,18 @@
         ", a database directly inspired by Git's decentralized and immutable data model, but designed from the ground up to have a better query model and more flexible schema. Unfortunately, it seems to be unmaintained and not ready for prime time. Additionally, for the use case I'm describing, it's unclear how to effectively distribute the configuration data stored in a "
         [:code {:class "ws-normal navy"} "noms"]
         " DB alongside the code that is affected by that configuration in a way that reliably links the two."]]
-      (detect-paragraphs sample-code-form #"\n\n")))))
+      (detect-paragraphs sample-code-form #"\n\n"))))
+
+  (t/testing "post-processing"
+    (t/is
+     (=
+      [:r-grid {:columns 8} [:r-cell {:span "row"} [:p "orphan text"]]]
+      (process-text [:r-grid {:columns 8} "orphan text"])))
+
+    (t/is
+     (=
+      [:r-grid [:r-cell {:span "1-6"} [:p "orphan text"]]]
+      (process-text [:r-grid "orphan text"] [:r-cell {:span "1-6"}])))))
 
 (defn finalize-elem-model
   "Return a constrained version of the given element's model such that it has no child elements"
@@ -230,7 +246,22 @@
     (t/is (valid? grid [:r-grid {:columns 8}]))
     (t/is (valid? grid [:r-grid {:columns 8} [:r-cell {:span "row"} [:p {:id "i"} "some text"]]]))
     (t/is (valid? grid [:r-grid {:columns 8} [:r-cell [:p {:id "i"} "some text"]]]))
-    (t/is (valid? grid [:r-grid {:columns 8} [:r-cell {:span "1-2"} [:p {:id "i"} "some text"]]]))))
+    (t/is (valid? grid [:r-grid {:columns 8} [:r-cell {:span "1-2"} [:p {:id "i"} "some text"]]])))
+
+  (t/testing "parsed structural forms"
+    (t/is
+     (valid? grid
+             (-> sample-multi-form-input
+                 (parse-eval [:r-grid {:columns 8}])
+                 process-text)))))
+
+(comment
+  (-> sample-multi-form-input
+      (parse-eval [:r-grid {:columns 8}])
+      ;; process-text
+      )
+
+  )
 
 (def simple-grid-cell-model
   "A version of grid cells that has a limit on how deeply nested the forms can be."
@@ -297,6 +328,7 @@
 
   )
 
+
 (defspec renders-correctly
   250
   (prop/for-all
@@ -305,7 +337,7 @@
 
 
 (t/deftest specs
-  (binding [spec/*recursion-limit* 1]
+  (binding [spec/*recursion-limit* 10]
     (st/instrument 'respatialized.document/process-text)
     (st/check 'respatialized.document/process-text)))
 
@@ -339,7 +371,7 @@
       1 10)))
 
 (comment
-  (process-text [:r-grid "orphan text"] [:r-cell {:span "1-6"}])
+
 
   (spec/def ::li-test
     (spec/with-gen
