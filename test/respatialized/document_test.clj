@@ -12,7 +12,7 @@
             [clojure.test.check.generators :as gen]
             [clojure.spec.gen.alpha :as sgen]
             [clojure.test.check.properties :as prop]
-            [minimallist.core :refer [valid?]]
+            [minimallist.core :refer [valid? explain]]
             [minimallist.generator :as mg]
             [minimallist.helper :as h]))
 
@@ -190,9 +190,7 @@
         ", a database directly inspired by Git's decentralized and immutable data model, but designed from the ground up to have a better query model and more flexible schema. Unfortunately, it seems to be unmaintained and not ready for prime time. Additionally, for the use case I'm describing, it's unclear how to effectively distribute the configuration data stored in a "
         [:code {:class "ws-normal navy"} "noms"]
         " DB alongside the code that is affected by that configuration in a way that reliably links the two."]]
-      (detect-paragraphs sample-code-form #"\n\n")))
-
-    ))
+      (detect-paragraphs sample-code-form #"\n\n")))))
 
 (defn finalize-elem-model
   "Return a constrained version of the given element's model such that it has no child elements"
@@ -230,48 +228,79 @@
 
   (t/testing "structural forms"
     (t/is (valid? grid [:r-grid {:columns 8}]))
-    (t/is (valid? grid [:r-grid {:columns 8} [:r-cell {:span "row"} [:p "some text"]]]))))
+    (t/is (valid? grid [:r-grid {:columns 8} [:r-cell {:span "row"} [:p {:id "i"} "some text"]]]))))
 
-
+(def simple-grid-cell-model
+  "A version of grid cells that has a limit on how deeply nested the forms can be."
+  (h/in-vector
+   (h/cat
+    [:tag (h/val :r-cell)]
+    [:attributes (h/? (h/with-optional-entries attr-map [:span raster-span]))]
+    [:contents
+     (h/repeat
+      1 25
+      (h/not-inlined
+       (apply h/alt
+              (map
+               (fn [e] [e (one-level-deep e)]) (keys doc-tree)))))])))
 
 (def simple-grid-model
   "A version of the grid without mutually recursive child refs, for testing by induction."
   (h/in-vector
-     (h/cat
-      [:tag (h/val :r-grid)]
-      [:attributes
-       (h/with-entries attr-map
-         [:columns (->constrained-model #(< 0 % 33) gen/nat)])]
-      [:contents
-       (h/repeat 1 25
-        (h/not-inlined
-         (h/in-vector
-          (h/cat
-           [:tag (h/val :r-cell)]
-           [:attributes (h/with-entries attr-map [:span raster-span])]
-           [:contents
-            (h/repeat
-             1 25
-             (h/not-inlined
-              (apply h/alt
-                     (map one-level-deep (keys doc-tree)))))]))))])))
+   (h/cat
+    [:tag (h/val :r-grid)]
+    [:attributes
+     (h/with-entries attr-map
+       [:columns (->constrained-model #(< 0 % 33) gen/small-integer 250)])]
+    [:contents
+     (h/repeat 1 25
+               (h/not-inlined simple-grid-cell-model))])))
+
+(defspec primitive-forms 250
+  (prop/for-all
+   [p (mg/gen primitive)]
+   (valid? primitive p)))
+
+(defspec span-forms 250
+  (prop/for-all
+   [s (mg/gen raster-span)]
+   (valid? raster-span s)))
+
+(defspec grid-cell-forms 250
+  (prop/for-all
+   [c (mg/gen simple-grid-cell-model)]
+   (valid? simple-grid-cell-model c)))
+
+(defspec grid-forms 250
+  (prop/for-all
+   [g (mg/gen simple-grid-model)]
+   (valid? simple-grid-model g)))
+
 
 (comment
+
+  (gen/sample (mg/gen raster-span) 20)
+
   (valid? simple-grid-model [:r-grid {:columns 8} [:r-cell {:span "row"} [:p "some text"]]])
 
   (valid? simple-grid-model [:r-grid {:columns 8} [:r-cell [:p "some text"]]])
+  (valid? simple-grid-model [:r-grid {:columns 8} [:r-cell [:p "some text"]]])
+
   (valid? simple-grid-model [:r-grid {:columns 8} [:r-cell]])
   (gen/sample (mg/gen attr-map) 15)
-  (gen/sample (mg/gen simple-grid-model) 65)
+
+  (gen/sample (mg/gen simple-grid-model) 25)
+
+  (valid? simple-grid-model [:r-grid {:columns 1} [:r-cell {:span "5+4"} [:h6 1.0]]])
 
   )
 
-
 (defspec renders-correctly
-  120
+  50
   (prop/for-all
    [g (mg/gen simple-grid-model)]
    (string? (html g))))
+
 
 (t/deftest specs
   (binding [spec/*recursion-limit* 1]
@@ -284,39 +313,37 @@
            (< (count i) 10))))
 
 (spec/def ::in-form-elem-test
-(spec/or
-     :header
-     (spec/with-gen
-       (spec/+
-        (spec/and
-         vector?
-         header-pattern
-         (spec/every test-terminal-elem?)))
-       #(gen/fmap
-         vec
-         (gen/vector
-          (spec/gen
-           (spec/and
-            header-pattern
-            (spec/every test-terminal-elem?))) 1 10)))))
+  (spec/or
+   :header
+   (spec/with-gen
+     (spec/+
+      (spec/and
+       vector?
+       header-pattern
+       (spec/every test-terminal-elem?)))
+     #(gen/fmap
+       vec
+       (gen/vector
+        (spec/gen
+         (spec/and
+          header-pattern
+          (spec/every test-terminal-elem?))) 1 10)))))
 
 (spec/def ::kw-or-s-vec
-   (spec/with-gen
-     (spec/+ (spec/or :s string? :k keyword?))
-     #(gen/vector
-       (spec/gen (spec/or :s string? :k keyword?))
-       1 10)))
+  (spec/with-gen
+    (spec/+ (spec/or :s string? :k keyword?))
+    #(gen/vector
+      (spec/gen (spec/or :s string? :k keyword?))
+      1 10)))
 
 (comment
   (process-text [:r-grid "orphan text"] [:r-cell {:span "1-6"}])
-
 
   (spec/def ::li-test
     (spec/with-gen
       :respatialized.document/li
       #(gen/fmap (fn [coll] (into [:li] coll))
-                 (gen/vector gen/string-alphanumeric 1 10))
-      ))
+                 (gen/vector gen/string-alphanumeric 1 10))))
 
   (spec/def ::ul-test
     (spec/cat :type #{:ul}
@@ -326,6 +353,8 @@
 
   ;; this didn't work because such-that must create the example
   ;; before checking it against the predicate, which blows up the stack
+
+
   (gen/sample
    (gen/such-that #(every? test-terminal-elem? %)
                   (spec/gen :respatialized.document/in-form-elem)) 5)
@@ -339,6 +368,4 @@
 
   (gen/sample
    (spec/gen ::kw-or-s-vec)
-   20)
-
-  )
+   20))

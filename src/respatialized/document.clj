@@ -133,9 +133,6 @@
   ;; when actually we just want to partition the orphans
   )
 
-
-
-
 (comment
   (map #(if (string? %) (clojure.string/split % #"\n\n") %) [:a "b\n\nc" :d "e" "f"])
   ;; nope, needs to put all the split ones into the enclosing sequence
@@ -316,6 +313,16 @@
 ;; part of this ordering comes from the inherent semantics of HTML
 ;; part of it is my own choice to impose order
 
+(defn ->constrained-model
+  ([pred generator max-tries-or-opts]
+   (-> (h/fn pred)
+       (h/with-test-check-gen
+         (gen/such-that pred generator max-tries-or-opts))))
+  ([pred generator]
+   (-> (h/fn pred)
+       (h/with-test-check-gen
+         (gen/such-that pred generator)))))
+
 (def doc-tree
   {:p #{:ul :em :h5 :h4 :ol :h6 :code :h2 :h1 :h3 :a}
    :pre #{:em :span :a}
@@ -367,24 +374,18 @@
     [:src url]
     [:id (-> (h/fn string?) (h/with-test-check-gen gen/string-ascii))]
     [:alt (-> (h/fn string?) (h/with-test-check-gen gen/string-ascii))]
-    [:lang (h/enum #{"en"})]
-    ))
+    [:lang (h/enum #{"en"})]))
+
+(def img-attrs
+  (h/with-optional-entries
+    (h/with-entries attr-map [:src url])
+    [:width (->constrained-model #(< 0 % 8192) gen/nat)]
+    [:height (->constrained-model #(< 0 % 8192) gen/nat)]))
 
 (def image
   (h/in-vector
    (h/cat [:tag (h/val :img)]
-          [:attributes
-           (h/with-optional-entries
-             (h/with-entries attr-map [:src url])
-             [:width
-              (-> (h/fn pos-int?)
-                  (h/with-condition (h/fn #(< 0 % 8192)))
-                  (h/with-test-check-gen
-                    (gen/such-that #(< 0 % 8192) gen/nat)))]
-             [:height (-> (h/fn pos-int?)
-                          (h/with-condition (h/fn #(< 0 % 8192)))
-                          (h/with-test-check-gen
-                            (gen/such-that #(< 0 % 8192) gen/nat)))])])))
+          [:attributes img-attrs])))
 
 (def primitive
   (h/alt
@@ -414,24 +415,13 @@
                                  (get doc-tree elem)))))])))
 
 (def raster-span
-  (h/alt [:cols (->  (h/fn pos-int?)
-                     (h/with-condition (h/fn #(< 0 % 33)))
-                     (h/with-test-check-gen
-                       (gen/such-that #(< 0 % 33) gen/nat)))]
-         [:range (regex->model #"\d\-\d")]
-         [:offset (regex->model #"\d\+\d")]
-         [:offset-row (regex->model #"\d\.\.")]
-         [:row (h/val "row")]))
-
-(defn ->constrained-model
-  ([pred generator max-tries-or-opts]
-   (-> (h/fn pred)
-       (h/with-test-check-gen
-         (gen/such-that pred generator max-tries-or-opts))))
-  ([pred generator]
-   (-> (h/fn pred)
-       (h/with-test-check-gen
-         (gen/such-that pred generator)))))
+  (h/alt
+   [:row (h/val "row")]
+   [:range (regex->model #"\d\-\d")]
+   [:offset (regex->model #"\d\+\d")]
+   [:offset-row (regex->model #"\d\.\.")]
+   [:cols (->constrained-model #(< 0 (Integer/parseInt %) 33)
+                               (gen/fmap str gen/nat) 200)]))
 
 (def grid
   (h/let ['em (get-child-model :em)
@@ -645,8 +635,8 @@
             :contents (spec/* ::grid-cell)))
 
 (spec/def ::grid
- (spec/with-gen (spec/and vector? grid-pattern)
-   #(sgen/fmap vec (spec/gen grid-pattern))))
+  (spec/with-gen (spec/and vector? grid-pattern)
+    #(sgen/fmap vec (spec/gen grid-pattern))))
 
 (spec/fdef process-text
   :args
@@ -668,8 +658,4 @@
 
   (spec/conform ::grid [:r-grid [:r-cell {:span "row"} [:p "text"]]])
 
-  (process-text [:r-grid "orphan text"])
-
-
-
-  )
+  (process-text [:r-grid "orphan text"]))
