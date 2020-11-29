@@ -258,7 +258,8 @@
 (comment
   (-> sample-multi-form-input
       (parse-eval [:r-grid {:columns 8}])
-      ;; process-text
+      process-text
+
       )
 
   )
@@ -330,76 +331,17 @@
 
 
 (defspec renders-correctly
-  250
+  750
   (prop/for-all
-   [g (mg/gen simple-grid-model)]
-   (string? (html g))))
+   [g (mg/gen grid)]
+   (and (valid? grid g) (string? (html g)))))
 
 
-(t/deftest specs
-  (binding [spec/*recursion-limit* 10]
-    (st/instrument 'respatialized.document/process-text)
-    (st/check 'respatialized.document/process-text)))
+
+
 
 (defn test-terminal-elem? [i]
   (or (not (sequential? i))
       (and (not-any? sequential? i)
            (< (count i) 10))))
 
-(spec/def ::in-form-elem-test
-  (spec/or
-   :header
-   (spec/with-gen
-     (spec/+
-      (spec/and
-       vector?
-       header-pattern
-       (spec/every test-terminal-elem?)))
-     #(gen/fmap
-       vec
-       (gen/vector
-        (spec/gen
-         (spec/and
-          header-pattern
-          (spec/every test-terminal-elem?))) 1 10)))))
-
-(spec/def ::kw-or-s-vec
-  (spec/with-gen
-    (spec/+ (spec/or :s string? :k keyword?))
-    #(gen/vector
-      (spec/gen (spec/or :s string? :k keyword?))
-      1 10)))
-
-(comment
-
-
-  (spec/def ::li-test
-    (spec/with-gen
-      :respatialized.document/li
-      #(gen/fmap (fn [coll] (into [:li] coll))
-                 (gen/vector gen/string-alphanumeric 1 10))))
-
-  (spec/def ::ul-test
-    (spec/cat :type #{:ul}
-              :attr-map (spec/? :respatialized.document/attr-map)
-              :items (spec/* ::li-test)))
-
-
-  ;; this didn't work because such-that must create the example
-  ;; before checking it against the predicate, which blows up the stack
-
-
-  (gen/sample
-   (gen/such-that #(every? test-terminal-elem? %)
-                  (spec/gen :respatialized.document/in-form-elem)) 5)
-
-  (spec/def ::kw-or-s-vec
-    (spec/with-gen
-      (spec/+ (spec/or :s string? :k keyword?))
-      #(gen/vector
-        (spec/gen (spec/or :s string? :k keyword?))
-        1 10)))
-
-  (gen/sample
-   (spec/gen ::kw-or-s-vec)
-   20))
