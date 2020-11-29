@@ -4,13 +4,11 @@
             [respatialized.build :refer [load-deps]]
             [hiccup.core :refer [html]]
             [clojure.zip :as zip]
-            [clojure.spec.alpha :as spec]
             [clojure.test :as t]
-            [clojure.spec.test.alpha :as st]
             [clojure.test.check :as tc]
             [clojure.test.check.clojure-test :refer [defspec]]
             [clojure.test.check.generators :as gen]
-            [clojure.spec.gen.alpha :as sgen]
+            [talltale.core :as tt]
             [clojure.test.check.properties :as prop]
             [minimallist.core :refer [valid? explain]]
             [minimallist.generator :as mg]
@@ -159,21 +157,6 @@
                form-zipper
                tokenize-paragraphs
                zip/node)))
-
-    ;; (t/is (= [:div
-    ;;           '([:div
-    ;;              {:class "f3"}
-    ;;              [:a
-    ;;               {:href "https://github.com/attic-labs/noms"}
-    ;;               "Noms: The Versioned, Forkable, Syncable Database"]])
-    ;;           [:r-cell
-    ;;            {:span "row"}
-    ;;            [:p "Linked in the comments on Truyers' post was "
-    ;;             [:code {:class "ws-normal navy"} "noms"]
-    ;;             ", a database directly inspired by Git's decentralized and immutable data model, but designed from the ground up to have a better query model and more flexible schema. Unfortunately, it seems to be unmaintained and not ready for prime time. Additionally, for the use case I'm describing, it's unclear how to effectively distribute the configuration data stored in a "
-    ;;             [:code {:class "ws-normal navy"} "noms"]
-    ;;             " DB alongside the code that is affected by that configuration in a way that reliably links the two."]]]
-    ;;          (-> sample-text parse-eval process-text)))
 
     (t/is
      (=
@@ -337,7 +320,13 @@
    (and (valid? grid g) (string? (html g)))))
 
 
-
+(defspec parse-rewrite-render
+  100
+  (prop/for-all
+   [lorem (tt/lorem-ipsum-gen)]
+    (valid? grid  (-> lorem
+                      (parse-eval [:r-grid {:columns 8}])
+                      process-text))))
 
 
 (defn test-terminal-elem? [i]

@@ -15,6 +15,7 @@
   minimallist {:git/url "https://github.com/green-coder/minimallist"
                :sha "a99c3be052ca12789dee05fe47301f3eadc67f6b"}
   com.gfredericks/test.chuck {:mvn/version "0.2.10"}
+  talltale {:mvn/version "0.4.3"}
   org.clojure/data.finger-tree {:mvn/version "0.0.3"}
 
   ;; site content
@@ -31,7 +32,7 @@
   }
  :jvm-opts ["--illegal-access=deny" "-Xms4G" "-Xmx8G"]
  :aliases {:test {:extra-paths ["test"]
-                  :extra-deps  {lambdaisland/kaocha {:mvn/version "0.0-601"}}
+                  :extra-deps  {lambdaisland/kaocha {:mvn/version "1.0.732"}}
                   :main-opts   ["-m" "kaocha.runner"]}
            :serve {:extra-deps {nasus {:mvn/version "0.1.7"}}
                    :main-opts ["-m" "http.server" "--dir" "public"]}}}
