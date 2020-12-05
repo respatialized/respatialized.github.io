@@ -1,6 +1,6 @@
 (ns respatialized.parse-test
   (:require  [clojure.test :as t]
-             [respatialized.render :refer [em]]
+             [respatialized.render :refer [em link code blockquote]]
              [respatialized.parse :refer :all]))
 
 (defn ns-refer [f]
@@ -38,6 +38,23 @@
     (t/is (= (parse-eval "<%=(em 3)%>")
              [:div [:em 3]])
           "Namespace scoping should be preserved")
+
+    (t/is (= (parse-eval "<%=(link \"here\" \"text\")%>")
+             [:div [:a {:href "here"} "text"]])
+          "Links should parse + eval to vector forms")
+
+    (t/is (= (parse-eval "an inline <%=(link \"here\" \"link\")%>, followed by some <%=(em \"emphasis\").%>")
+             [:div
+              "an inline "
+              [:a {:href "here"} "link"]
+              ", followed by some "
+              [:em "emphasis"]])
+          "All elements should end up in vector forms")
+    (t/is (vector? (parse-eval "<%=(blockquote \"a quote\" \"by someone\")%>")))
+    (t/is (vector? (parse-eval "<%=(blockquote \"a quote\" \"by someone\"%>") ))
+
+    (t/is (= (parse-eval "<%=[:em\"text\"]%>, with a comma following")
+             [:div [:em "text"] ", with a comma following"]))
 
     (t/is (= (hiccup.core/html (parse-eval "<%=[:em\"text\"]%>, with a comma following"))
              "<div><em>text</em>, with a comma following</div>"))))

@@ -1,7 +1,7 @@
 (ns respatialized.document-test
   (:require [respatialized.document :refer :all]
             [respatialized.parse :refer [parse parse-eval]]
-            [respatialized.build :refer [load-deps]]
+            [respatialized.build :refer [load-deps get-template-files]]
             [hiccup.core :refer [html]]
             [clojure.zip :as zip]
             [clojure.test :as t]
@@ -10,11 +10,12 @@
             [clojure.test.check.generators :as gen]
             [talltale.core :as tt]
             [clojure.test.check.properties :as prop]
-            [minimallist.core :refer [valid? explain]]
+            [com.gfredericks.test.chuck.properties :as prop']
+            [minimallist.core :refer [valid?]]
             [minimallist.generator :as mg]
             [minimallist.helper :as h]))
 
-;; (load-deps)
+(load-deps)
 
 (def sample-multi-form-input
   "first paragraph\n\nsecond paragraph with <%=[:em \"emphasis\"]%> text")
@@ -222,10 +223,19 @@
     (t/is (valid? attr-map {:title "some page"
                             :href "/relative-page.html"}))
 
-    (t/is (valid? respatialized.document/image
-                  [:img {:src "/pic.jpg" :width 500}])))
+    (t/is (valid? respatialized.document/img
+                  [:img {:src "/pic.jpg" :width 500}]))
+
+    (t/is
+     (and (valid? raster-span 3)
+          (valid? raster-span "3")
+          (valid? raster-span "3-4")
+          (valid? raster-span "3+4")
+          (valid? raster-span "4..")
+          (valid? raster-span "row"))))
 
   (t/testing "structural forms"
+    (t/is (valid? grid-cell [:r-cell {:span 3}]))
     (t/is (valid? grid [:r-grid {:columns 8}]))
     (t/is (valid? grid [:r-grid {:columns 8} [:r-cell {:span "row"} [:p {:id "i"} "some text"]]]))
     (t/is (valid? grid [:r-grid {:columns 8} [:r-cell [:p {:id "i"} "some text"]]]))
@@ -319,18 +329,52 @@
    [g (mg/gen grid)]
    (and (valid? grid g) (string? (html g)))))
 
+(def sentences (-> "./resources/building-with-earth-excerpt.txt"
+                   slurp
+                   (clojure.string/split #"\.")))
 
 (defspec parse-rewrite-render
-  100
-  (prop/for-all
-   [lorem (tt/lorem-ipsum-gen)]
-    (valid? grid  (-> lorem
-                      (parse-eval [:r-grid {:columns 8}])
-                      process-text))))
+  300
+  (prop'/for-all
+   [t (gen/elements sentences)
+    basic-render-str (gen/fmap #(str "<%=(" % " \"" t "\")%>")
+                               (gen/elements #{"ul" "ol" "em"}))]
+   (do (load-deps)
+       (and (valid? grid  (-> t
+                              (parse-eval [:r-grid {:columns 8}])
+                              process-text))
+            (valid? grid (-> basic-render-str
+                             (parse-eval [:r-grid {:columns 8}])
+                             process-text))))))
 
 
-(defn test-terminal-elem? [i]
-  (or (not (sequential? i))
-      (and (not-any? sequential? i)
-           (< (count i) 10))))
 
+(t/deftest existing-docs
+  (t/testing "parsing and rendering existing pages"
+    (let [pages (get-template-files "./content" ".ct")
+          parsed-pages
+          (doall (map (fn [p] (-> p
+                                  (do (println "rendering" p) p)
+                                  slurp
+                                  (parse-eval [:r-grid {:columns 8}])
+                                  process-text))
+                      pages))]
+      (t/is (every? #(valid? grid %) parsed-pages)))))
+
+(comment
+  (def pages (get-template-files "./content" ".ct"))
+
+  (def page-contents
+    (into {}
+          (map (fn [p]
+                 [p (-> p
+                        slurp
+                        (parse-eval [:r-grid {:columns 8}])
+                        process-text)])
+               pages)))
+
+  (map (fn [[p c]] [p (valid? grid c)]) page-contents)
+
+  (def filter-bubble-2 (-> "./content/reifying-filter-bubble-2.html.ct" slurp parse-eval))
+
+  )

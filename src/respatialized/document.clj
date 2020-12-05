@@ -56,7 +56,7 @@
 (def internal-link-pattern #"/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
 
 (defn regex->model [re]
-  (-> (h/fn #(re-matches re %))
+  (-> (h/fn #(and (string? %) re-matches re %))
       (h/with-test-check-gen
         (gen'/string-from-regex re))))
 
@@ -81,7 +81,7 @@
     [:width (->constrained-model #(< 0 % 8192) gen/nat)]
     [:height (->constrained-model #(< 0 % 8192) gen/nat)]))
 
-(def image
+(def img
   (h/in-vector
    (h/cat [:tag (h/val :img)]
           [:attributes img-attrs])))
@@ -93,7 +93,7 @@
                                  (gen/one-of [gen/small-integer
                                               gen/double])))]
    [:text (-> (h/fn string?) (h/with-test-check-gen gen/string))]
-   [:image image]
+   [:image img]
    [:br (h/val [:br])]
    [:hr (h/val [:hr])]))
 
@@ -117,8 +117,11 @@
    [:range (regex->model #"\d\-\d")]
    [:offset (regex->model #"\d\+\d")]
    [:offset-row (regex->model #"\d\.\.")]
-   [:cols (->constrained-model #(< 0 (Integer/parseInt %) 33)
-                               (gen/fmap str gen/nat) 200)]))
+   [:cols
+    (h/alt
+     [:int (->constrained-model #(< 0 % 33) gen/nat 200)]
+     [:int-str (->constrained-model #(< 0 (Integer/parseInt %) 33)
+                                    (gen/fmap str gen/nat) 200)])]))
 
 (def p
   (h/let ['em (get-child-model :em)

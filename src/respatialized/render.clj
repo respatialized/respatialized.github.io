@@ -69,9 +69,6 @@
                 :content-class styles/blockquote-content
                 :author-class styles/blockquote-author})))
 
-(defn img ([dir alt] [:p [:img {:src dir :alt alt}]])
-  ([dir] [:p [:img {:src dir}]]))
-
 (defn ul [& items]
    (into [:ul] (map (fn [i] [:li i]) items)))
 (defn ol [& items]
