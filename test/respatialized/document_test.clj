@@ -251,7 +251,14 @@
      (valid? grid
              (-> sample-multi-form-input
                  (parse-eval [:r-grid {:columns 8}])
-                 process-text)))))
+                 process-text)))
+    (t/is
+     (valid? grid (process-text
+                   [:r-grid {:columns 8}
+                    [:blockquote
+                     [:p "some quote"]
+                     [:span [:em "from an author"]]]
+                    "\n\nmore text..."])))))
 
 (comment
   (-> sample-multi-form-input
@@ -358,13 +365,15 @@
   (t/testing "parsing and rendering existing pages"
     (let [pages (get-template-files "./content" ".ct")
           parsed-pages
-          (doall (map (fn [p] (-> p
-                                  (do (println "rendering" p) p)
-                                  slurp
-                                  (parse-eval [:r-grid {:columns 8}])
-                                  process-text))
-                      pages))]
-      (t/is (every? #(valid? grid %) parsed-pages)))))
+          (into {}
+                (map (fn [p] [p (-> p
+                                    slurp
+                                    (parse-eval [:r-grid {:columns 8}])
+                                    process-text)])
+                     pages))]
+      (doseq [[page contents] parsed-pages]
+        (t/is (valid? grid contents)
+              (str "page " page " did not conform to grid spec"))))))
 
 (comment
   (def pages (get-template-files "./content" ".ct"))
@@ -378,16 +387,13 @@
                         process-text)])
                pages)))
 
-  (into {} (map (fn [[p c]] [p {:valid? (valid? grid c)
-                                :size (count c)}]) page-contents))
+  (def post-meta (into {} (map (fn [[p c]] [p {:valid? (valid? grid c)
+                                               :size (count c)}]) page-contents)))
 
-  (def filter-bubble-2-before (-> "./content/reifying-filter-bubble-2.html.ct" slurp (parse-eval [:r-grid {:columns 8}])))
 
-  (def filter-bubble-2-after (process-text filter-bubble-2-before))
 
-  (def filter-bubble (-> "./content/information-cocoon.html.ct" slurp (parse-eval [:r-grid {:columns 5}]) process-text))
+  (def ai-and-labor (-> "./content/ai-and-labor.html.ct" slurp (parse-eval [:r-grid {:columns 5}]) process-text))
 
-  (process-text
-   [:r-grid {:columns 8} [:blockquote [:p "some quote"] [:span [:em "from an author"]]] "\n\nNeedless to say..."])
+
 
   )

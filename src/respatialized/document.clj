@@ -11,24 +11,26 @@
    [minimallist.generator :as mg]))
 
 (def doc-tree
-  {:r-cell #{:ul :em :h5 :h4 :ol :h6 :code :h2 :h1 :h3 :a :blockquote :pre :span :p :div}
-   :div #{:ul :em :h5 :h4 :ol :h6 :code :h2 :h1 :h3 :a :blockquote :pre :span :p}
-   :p #{:ul :em :h5 :h4 :ol :h6 :code :h2 :h1 :h3 :a :blockquote :span :p}
-   :pre #{:em :span :a}
-   :em #{:code :span :a}
-   :a #{:em :span}
-   :code #{:em :a :span}
-   :blockquote #{:p :span :em :code :a}
+  {:r-cell #{:ul :em :h5 :h4 :ol :h6 :code :h2 :h1 :h3 :a :blockquote :pre :span :p :div :script}
+   :div #{:ul :em :h5 :h4 :ol :h6 :code :h2 :h1 :h3 :a :blockquote :pre :span :p :strong :script}
+   :p #{:ul :em :h5 :h4 :ol :h6 :code :h2 :h1 :h3 :a :blockquote :span :p :strong}
+   :pre #{:em :span :a :strong}
+   :em #{:code :span :a :strong}
+   :strong #{:code :span :a :em}
+   :a #{:em :span :strong}
+   :code #{:em :a :span :strong}
+   :blockquote #{:p :span :em :code :a :strong}
    :ol #{:li}
    :ul #{:li}
-   :li #{:code :em :span :a :blockquote}
-   :h1 #{:code :em :span :a}
-   :h2 #{:code :em :span :a}
-   :h3 #{:code :em :span :a}
-   :h4 #{:code :em :span :a}
-   :h5 #{:code :em :span :a}
-   :h6 #{:code :em :span :a}
-   :span #{:em}})
+   :li #{:code :em :span :a :blockquote :strong}
+   :h1 #{:code :em :span :a :strong}
+   :h2 #{:code :em :span :a :strong}
+   :h3 #{:code :em :span :a :strong}
+   :h4 #{:code :em :span :a :strong}
+   :h5 #{:code :em :span :a :strong}
+   :h6 #{:code :em :span :a :strong}
+   :span #{:em :strong}
+   :script #{}})
 
 (defn ->constrained-model
   ([pred generator max-tries-or-opts]
@@ -125,6 +127,7 @@
 
 (def p
   (h/let ['em (get-child-model :em)
+          'strong (get-child-model :strong)
           'a (get-child-model :a)
           'code (get-child-model :code)
           'span (get-child-model :span)
@@ -154,9 +157,11 @@
 
 (def subform
   (h/let ['em (get-child-model :em)
+          'strong (get-child-model :strong)
           'a (get-child-model :a)
           'pre (get-child-model :pre)
           'code (get-child-model :code)
+          'script (get-child-model :script)
           'span (get-child-model :span)
           'ol (get-child-model :ol)
           'ul (get-child-model :ul)
@@ -175,9 +180,11 @@
 
 (def grid
   (h/let ['em (get-child-model :em)
+          'strong (get-child-model :strong)
           'a (get-child-model :a)
           'pre (get-child-model :pre)
           'code (get-child-model :code)
+          'script (get-child-model :script)
           'span (get-child-model :span)
           'ol (get-child-model :ol)
           'ul (get-child-model :ul)
@@ -214,9 +221,11 @@
 
 (def grid-cell
   (h/let ['em (get-child-model :em)
+          'strong (get-child-model :strong)
           'a (get-child-model :a)
           'pre (get-child-model :pre)
           'code (get-child-model :code)
+          'script (get-child-model :script)
           'span (get-child-model :span)
           'ol (get-child-model :ol)
           'ul (get-child-model :ul)
@@ -431,6 +440,7 @@
 
 (def subparagraph
   (h/let ['em (get-child-model :em)
+          'strong (get-child-model :strong)
           'a (get-child-model :a)
           'p (get-child-model :p)
           'code (get-child-model :code)
