@@ -18,7 +18,7 @@
    :em #{:code :span :a}
    :a #{:em :span}
    :code #{:em :a :span}
-   :blockquote #{}
+   :blockquote #{:p :span :em :code :a}
    :ol #{:li}
    :ul #{:li}
    :li #{:code :em :span :a :blockquote}
@@ -28,7 +28,7 @@
    :h4 #{:code :em :span :a}
    :h5 #{:code :em :span :a}
    :h6 #{:code :em :span :a}
-   :span #{}})
+   :span #{:em}})
 
 (defn ->constrained-model
   ([pred generator max-tries-or-opts]
@@ -432,12 +432,13 @@
 (def subparagraph
   (h/let ['em (get-child-model :em)
           'a (get-child-model :a)
+          'p (get-child-model :p)
           'code (get-child-model :code)
           'span (get-child-model :span)
+          'blockquote (get-child-model :blockquote)
           'ol (get-child-model :ol)
           'ul (get-child-model :ul)
           'li (get-child-model :li)
-          'blockquote (get-child-model :blockquote)
           'h1 (get-child-model :h1)
           'h2 (get-child-model :h1)
           'h3 (get-child-model :h3)
@@ -446,7 +447,7 @@
           'h6 (get-child-model :h6)]
     (apply h/alt
        [:atomic-element atomic-element]
-       (map elem-ref (disj (:p doc-tree) :p)))))
+       (map elem-ref (disj  (:p doc-tree) :p)))))
 
 (defn detect-paragraphs
   "For each string in the element split it by the given regex, and insert the result into the original element. Leaves sub-elements as is and inserts them into the preceding paragraph."

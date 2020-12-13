@@ -15,7 +15,7 @@
             [minimallist.generator :as mg]
             [minimallist.helper :as h]))
 
-(load-deps)
+ ;; (load-deps)
 
 (def sample-multi-form-input
   "first paragraph\n\nsecond paragraph with <%=[:em \"emphasis\"]%> text")
@@ -182,6 +182,11 @@
       (detect-paragraphs sample-code-form #"\n\n"))))
 
   (t/testing "post-processing"
+    (t/is
+     (=
+      [:r-grid {:columns 8} [:r-cell {:span "row"} [:p "orphan text"]]]
+      (process-text [:r-grid {:columns 8} "orphan text"])))
+
     (t/is
      (=
       [:r-grid {:columns 8} [:r-cell {:span "row"} [:p "orphan text"]]]
@@ -373,8 +378,16 @@
                         process-text)])
                pages)))
 
-  (map (fn [[p c]] [p (valid? grid c)]) page-contents)
+  (into {} (map (fn [[p c]] [p {:valid? (valid? grid c)
+                                :size (count c)}]) page-contents))
 
-  (def filter-bubble-2 (-> "./content/reifying-filter-bubble-2.html.ct" slurp parse-eval))
+  (def filter-bubble-2-before (-> "./content/reifying-filter-bubble-2.html.ct" slurp (parse-eval [:r-grid {:columns 8}])))
+
+  (def filter-bubble-2-after (process-text filter-bubble-2-before))
+
+  (def filter-bubble (-> "./content/information-cocoon.html.ct" slurp (parse-eval [:r-grid {:columns 5}]) process-text))
+
+  (process-text
+   [:r-grid {:columns 8} [:blockquote [:p "some quote"] [:span [:em "from an author"]]] "\n\nNeedless to say..."])
 
   )

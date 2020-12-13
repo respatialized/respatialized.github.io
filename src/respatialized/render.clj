@@ -22,7 +22,7 @@
     ])
 
 (defn header
-  ([title level class]  [:r-cell {:span "row" :class class} [level title]])
+  ([title level class]  [level {:class class} title])
   ([title level] (header title level styles/header-default))
   ([title] (header title :h1)))
 
