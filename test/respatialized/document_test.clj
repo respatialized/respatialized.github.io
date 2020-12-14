@@ -258,7 +258,14 @@
                     [:blockquote
                      [:p "some quote"]
                      [:span [:em "from an author"]]]
-                    "\n\nmore text..."])))))
+                    "\n\nmore text..."])))
+
+    (t/is (= (-> "<%=[:r-cell {:span 3} \"text\"]%> <%=[:r-cell {:span 3} \"text\"]%>"
+                 (parse-eval [:r-grid {:columns 8}])
+                 process-text)
+             [:r-grid {:columns 8}
+              [:r-cell {:span 3} "text"]
+              [:r-cell {:span 3} "text"]]))))
 
 (comment
   (-> sample-multi-form-input
