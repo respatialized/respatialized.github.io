@@ -388,15 +388,4 @@
                pages)))
 
   (def post-meta (into {} (map (fn [[p c]] [p {:valid? (valid? grid c)
-                                               :size (count c)}]) post-contents)))
-
-
-
-  (def against-metadata-before (-> "./content/against-metadata.html.ct" slurp (parse-eval [:r-grid {:columns 8}])))
-  (def against-metadata-after (process-text (page-contents "./content/against-metadata.html.ct")))
-  (def ai-and-labor (process-text (page-contents "./content/ai-and-labor.html.ct")))
-
-
-
-
-  )
+                                               :size (count c)}]) post-contents))))

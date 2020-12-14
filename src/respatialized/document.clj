@@ -29,7 +29,7 @@
    :h4 #{:code :em :span :a :strong}
    :h5 #{:code :em :span :a :strong}
    :h6 #{:code :em :span :a :strong}
-   :span #{:em :strong}
+   :span #{:em :strong :a}
    :script #{}})
 
 (defn ->constrained-model

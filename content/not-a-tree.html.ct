@@ -24,6 +24,7 @@ Also, sometimes I want to contextually distinguish textual elements using CSS an
 The <%=(in-code "#lang pollen")%> directive provides a beautiful way of letting prose be prose while still letting you access the full power of a programming lanugage whenever you need it via the lozenge ◊ special character. 
 
 What I'm looking for, basically:
+
 <%= (code
 "I'd like the ability to embed ◊(link hiccup \"https://github.com/weavejester/hiccup\")/clojure data structures into my textual input. They can either be data (see below) or functions called at render time that evaluate into data (see above).
 
@@ -49,7 +50,7 @@ Within the Clojure world and beyond, there are a few tools that suggest directio
 This is what I'm using to write and compile the blog itself right now. However, I don't like that most of the decisions about how to parse markdown into HTML are decided by the fiats of <%=(in-code "flexmark-java")%> I would much prefer to be able to manipulate the content in the form of  <%=(in-code "hiccup")%>  data structures as I see fit <%=(em "before")%> passing it to <%=(in-code "hiccup.core/html5")%> for rendering. <%=(link "https://github.com/hashobject/perun/issues/30" "This was discussed") %> in the <%=(in-code "perun")%> repo, but was set aside when the use case of hyphenation didn' t actually require it.
 
 However, there are many other reasons you'd be interested in representing your writing as data.
-<%= (blockquote (em "if the book is a program, the source for that book should look more like your brain, and less like HTML (or XML or LaTeX or ...)?") (link "https://docs.racket-lang.org/pollen/second-tutorial.html" "Matthew Butterick")) %>
+<%= (blockquote "if the book is a program, the source for that book should look more like your brain, and less like HTML (or XML or LaTeX or ...)?" (link "https://docs.racket-lang.org/pollen/second-tutorial.html" "Matthew Butterick"))%>
 
 Personally, I'm interested in using the most powerful tools I have. For example, you could parse the writing into discrete chunks represented as <%=(in-code "hiccup")%> data structures, record them as facts in a <%=(link "https://github.com/tonsky/datascript" (in-code "datascript"))%> DB, and query them like any other source of data. This would be even more powerful if you ran it against not just the current state of your writing, but its revision history.
 
