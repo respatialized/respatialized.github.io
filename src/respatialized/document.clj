@@ -11,15 +11,15 @@
    [minimallist.generator :as mg]))
 
 (def doc-tree
-  {:r-cell #{:ul :em :h5 :h4 :ol :h6 :code :h2 :h1 :h3 :a :blockquote :pre :span :p :div :script}
+  {:r-cell #{:ul :em :h5 :h4 :ol :h6 :code :h2 :h1 :h3 :a :blockquote :pre :span :p :div :script :strong}
    :div #{:ul :em :h5 :h4 :ol :h6 :code :h2 :h1 :h3 :a :blockquote :pre :span :p :strong :script}
    :p #{:ul :em :h5 :h4 :ol :h6 :code :h2 :h1 :h3 :a :blockquote :span :p :strong}
-   :pre #{:em :span :a :strong}
+   :pre #{:em :span :a :strong :code}
    :em #{:code :span :a :strong}
    :strong #{:code :span :a :em}
-   :a #{:em :span :strong}
+   :a #{:em :span :strong :code}
    :code #{:em :a :span :strong}
-   :blockquote #{:p :span :em :code :a :strong}
+   :blockquote #{:p :span :em :code :a :strong :ol :ul}
    :ol #{:li}
    :ul #{:li}
    :li #{:code :em :span :a :blockquote :strong}

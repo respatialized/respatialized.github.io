@@ -378,7 +378,7 @@
 (comment
   (def pages (get-template-files "./content" ".ct"))
 
-  (def page-contents
+  (def post-contents
     (into {}
           (map (fn [p]
                  [p (-> p
@@ -388,11 +388,14 @@
                pages)))
 
   (def post-meta (into {} (map (fn [[p c]] [p {:valid? (valid? grid c)
-                                               :size (count c)}]) page-contents)))
+                                               :size (count c)}]) post-contents)))
 
 
 
-  (def ai-and-labor (-> "./content/ai-and-labor.html.ct" slurp (parse-eval [:r-grid {:columns 5}]) process-text))
+  (def against-metadata-before (-> "./content/against-metadata.html.ct" slurp (parse-eval [:r-grid {:columns 8}])))
+  (def against-metadata-after (process-text (page-contents "./content/against-metadata.html.ct")))
+  (def ai-and-labor (process-text (page-contents "./content/ai-and-labor.html.ct")))
+
 
 
 
