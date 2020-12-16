@@ -469,11 +469,14 @@
                  (let [h (first s) t (rest s)
                        current-elem (last final)]
                    (cond
-                     (and (string? h) (some? (re-find re h)))
+                     (and (string? h) (re-matches #"\s+" h))
+                     (recur t final)  ; skip whitespace
+                     (and (string? h)
+                          (some? (re-find re h)))
                      (let [[hh & tt] (str/split h re)
                            rest (map (fn [i] [:p i]) tt)]
                        (cond
-                         (empty? hh) (recur (concat rest t) final)
+                         (or (empty? hh) (re-matches #"\s+" hh)) (recur (concat rest t) final)
                          (valid? p current-elem)
                          (recur (concat rest t)
                                 (conj (first (ft-split-at final (- (count final) 1)))

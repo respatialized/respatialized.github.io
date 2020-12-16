@@ -95,6 +95,9 @@
            (detect-paragraphs [:r-cell "some\n\ntext" [:em "with emphasis"]]
                               #"\n\n")))
 
+    (t/is (= [:div] (detect-paragraphs [:div " "] #"\n\n"))
+          "Whitespace-only text should not be tokenized into paragraphs")
+
     (t/is
      (=
       [:r-cell
@@ -373,11 +376,13 @@
     (let [pages (get-template-files "./content" ".ct")
           parsed-pages
           (into {}
-                (map (fn [p] [p (-> p
-                                    slurp
-                                    (parse-eval [:r-grid {:columns 8}])
-                                    process-text)])
-                     pages))]
+                (map
+                 (fn [p]
+                   [p (-> p
+                          slurp
+                          (parse-eval [:r-grid {:columns 8}])
+                          process-text)])
+                 pages))]
       (doseq [[page contents] parsed-pages]
         (t/is (valid? grid contents)
               (str "page " page " did not conform to grid spec"))))))
