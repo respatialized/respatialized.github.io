@@ -98,6 +98,14 @@
     (t/is (= [:div] (detect-paragraphs [:div " "] #"\n\n"))
           "Whitespace-only text should not be tokenized into paragraphs")
 
+    (t/is (and (= [:r-grid [:r-cell {:span "row"}]]
+                  (process-text [:r-grid " " "\n\n"]))
+               (= [:r-grid [:r-cell {:span "row"}]]
+                  (process-text [:r-grid  "  \n\n"]))
+               (= [:r-grid [:r-cell {:span "row"}] [:r-cell {:span "row"}]]
+                  (process-text [:r-grid " " "\n\n" "\n\n"])))
+          "Whitespace forms should be ignored, but not newlines.")
+
     (t/is
      (=
       [:r-cell
