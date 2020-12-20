@@ -10,8 +10,131 @@
    [minimallist.helper :as h]
    [minimallist.generator :as mg]))
 
+(def block-level-tags
+  "MDN list of block-level HTML element tags"
+  #{:address :article :aside :blockquote
+    :details :dialog :dd :div :dl :dt
+    :fieldset :figcaption :figure :footer
+    :form :h1 :h2 :h3 :h4 :h5 :h6 :header
+    :hr :li :main :nav :ol :p :pre :section
+    :table :ul})
+
+(def inline-tags
+  "MDN list of inline HTML element tags"
+  #{:a :abbr :b :bdi :bdo :br :button
+    :canvas :cite :code :data :datalist
+    :del :dfn :em :embed :i :iframe :img
+    :input :ins :kbd :label :mark :meter
+    :noscript :object :output :picture
+    :progress :q :ruby :s :samp :script
+    :select :slot :small :span :strong
+    :sub :sup :svg :template :time :u
+    :tt :var :video :wbr})
+
+(def metadata-tags
+  "MDN list of metadata content element tags"
+  #{:base :link :meta :noscript :script
+    :style :title})
+
+(def flow-tags
+  "MDN list of flow content element tags"
+  #{:a :abbr :aside :audio :b :bdo :bdi
+    :blockquote :br :button :canvas :cite
+    :code :data :datalist :del :details :dfn
+    :div :dl :em :embed :fieldset :figure
+    :footer :form :h1 :h2 :h3 :h4 :h5 :h6
+    :header :hr :i :iframe :img :input :ins
+    :kbd :label :main :map :mark :math :menu
+    :meter :nav :noscript :object :ol :output
+    :p :picture :pre :progress :q :ruby :s
+    :samp :script :section :select :small
+    :span :strong :sub :sup :svg :table
+    :template :textarea :time :ul :var :video
+    :wbr})
+
+(def sectioning-tags
+  "MDN list of sectioning content element tags"
+  #{:article :aside :nav :section})
+
+(def heading-tags
+  "MDN list of heading content element tags"
+  #{:h1 :h2 :h3 :h4 :h5 :h6})
+
+(def phrasing-tags
+  "MDN list of phrasing content element tags"
+  #{:abbr :audio :b :bdo :br :button :canvas :cite
+    :kbd :label :mark :math :meter :noscript
+    :object :output :picture :progress :q :ruby
+    :samp :script :select :small :span :strong :sub
+    :sup :svg :textarea :time :var :video :wbr})
+
+(def phrasing-subtags
+  "MDN list of tags that are phrasing content when they contain only phrasing content."
+  #{:a :del :ins :map})
+
+(def embedded-tags
+  "MDN list of embedded content element tags"
+  #{:audio :canvas :embed :iframe :img :math
+    :object :picture :svg :video})
+
+(def interactive-tags
+  "MDN list of interactive content element tags"
+  #{:a :button :details :embed :iframe :label
+    :select :textarea})
+
+;; "content is palpable when it's neither empty or hidden;
+;; it is content that is rendered and is substantive.
+;; Elements whose model is flow content or phrasing content
+;; should have at least one node which is palpable."
+
+(def transparent-tags
+  "MDN list of transparent content tags"
+  #{:ins :del :object})
+
+(def external-link-pattern #"https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
+(def internal-link-pattern #"/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
+
+(defn regex->model [re]
+  (-> (h/fn #(and (string? %) re-matches re %))
+      (h/with-test-check-gen
+        (gen'/string-from-regex re))))
+
+(def url
+  (h/alt
+   [:external (regex->model external-link-pattern)]
+   [:internal (regex->model internal-link-pattern)]))
+
+(def global-attributes
+  "MDN list of global HTML attributes as minimallist spec"
+  (h/with-optional-entries
+    (h/map)
+    [:class (h/fn string?)]
+    [:contenteditable (h/enum #{"true" "false" ""})]
+    [:dir (h/enum #{"ltr" "rtl" "auto"})]
+    [:hidden (h/fn boolean?)]
+    [:id (h/fn string?)]
+    [:itemid (h/fn string?)]
+    [:itemprop (h/fn string?)]
+    [:itemref (h/fn string?)]
+    [:itemscope (h/fn boolean?)]
+    [:itemtype (regex->model external-link-pattern)]
+    [:lang (h/val "en")]
+    [:tabindex (h/fn int?)]
+    [:title (h/fn string?)]))
+
+(def )
+
+(def q
+  (h/in-vector
+   (h/cat [:tag (h/val :q)]
+          [:attributes
+           (h/with-optional-entries
+             global-attributes
+             [:cite url])])))
+
 (def doc-tree
-  {:r-cell #{:ul :em :h5 :h4 :ol :h6 :code :h2 :h1 :h3 :a :blockquote :pre :span :p :div :script :strong}
+  {:article #{:section :hr}
+   :section #{:ul :em :h5 :h4 :ol :h6 :code :h2 :h1 :h3 :a :blockquote :pre :span :p :div :script :strong}
    :div #{:ul :em :h5 :h4 :ol :h6 :code :h2 :h1 :h3 :a :blockquote :pre :span :p :strong :script}
    :p #{:ul :em :h5 :h4 :ol :h6 :code :h2 :h1 :h3 :a :blockquote :span :p :strong}
    :pre #{:em :span :a :strong :code}
@@ -30,7 +153,8 @@
    :h5 #{:code :em :span :a :strong}
    :h6 #{:code :em :span :a :strong}
    :span #{:em :strong :a}
-   :script #{}})
+   :script #{}
+   :hr #{}})
 
 (defn ->constrained-model
   ([pred generator max-tries-or-opts]
@@ -54,18 +178,6 @@
                                             [:text (h/fn string?)])])]
       (h/ref 'hiccup))))
 
-(def external-link-pattern #"https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
-(def internal-link-pattern #"/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
-
-(defn regex->model [re]
-  (-> (h/fn #(and (string? %) re-matches re %))
-      (h/with-test-check-gen
-        (gen'/string-from-regex re))))
-
-(def url
-  (h/alt
-   [:external (regex->model external-link-pattern)]
-   [:internal (regex->model internal-link-pattern)]))
 
 (def attr-map
   (h/with-optional-entries (h/map)
@@ -102,28 +214,40 @@
 (defn quote-kw [kw] `~(symbol kw))
 (defn elem-ref [e] [e (h/ref (quote-kw e))])
 
-(defn get-child-model [elem]
-  (h/in-vector
-   (h/cat
-    [:tag (h/val elem)]
-    [:attributes (h/? attr-map)]
-    [:contents (h/* (h/not-inlined
-                     (apply h/alt
-                            atomic-element
-                            (map elem-ref
-                                 (get doc-tree elem)))))])))
+(defn has-required?
+  "Checks to see if at least one entry in the given map model has required keys"
+  [model]
+  (and
+   (= :map (:type model))
+   (some #(nil? (get % :optional)) (:entries model))))
 
-(def raster-span
-  (h/alt
-   [:row (h/val "row")]
-   [:range (regex->model #"\d\-\d")]
-   [:offset (regex->model #"\d\+\d")]
-   [:offset-row (regex->model #"\d\.\.")]
-   [:cols
-    (h/alt
-     [:int (->constrained-model #(< 0 % 33) gen/nat 200)]
-     [:int-str (->constrained-model #(< 0 (Integer/parseInt %) 33)
-                                    (gen/fmap str gen/nat) 200)])]))
+(defn ->child-model
+  "Helper function to be used in constructing recursive models"
+  ([elem] (get-child-model elem (get doc-tree elem) global-attributes))
+  ([elem attrs] (get-child-model elem (get doc-tree elem) attrs))
+  ([elem sub-elems attrs]
+   (h/in-vector
+    (h/cat
+     [:tag (h/val elem)]
+     [:attributes
+      (if (has-required? attrs) attrs (h/? attrs))]
+     [:contents
+      (h/* (h/not-inlined (apply h/alt
+                                 atomic-element
+                                 (map elem-ref
+                                      sub-elems))))]))))
+
+;; (def raster-span
+;;   (h/alt
+;;    [:row (h/val "row")]
+;;    [:range (regex->model #"\d\-\d")]
+;;    [:offset (regex->model #"\d\+\d")]
+;;    [:offset-row (regex->model #"\d\.\.")]
+;;    [:cols
+;;     (h/alt
+;;      [:int (->constrained-model #(< 0 % 33) gen/nat 200)]
+;;      [:int-str (->constrained-model #(< 0 (Integer/parseInt %) 33)
+;;                                     (gen/fmap str gen/nat) 200)])]))
 
 (def p
   (h/let ['em (get-child-model :em)
@@ -176,7 +300,7 @@
           'p (get-child-model :p)
           'div (get-child-model :div)]
     (apply h/alt
-           (map elem-ref (:r-cell doc-tree)))))
+           (map elem-ref (:section doc-tree)))))
 
 (def grid
   (h/let ['em (get-child-model :em)
@@ -201,7 +325,7 @@
           'grid-cell
           (h/in-vector
            (h/cat
-            [:tag (h/val :r-cell)]
+            [:tag (h/val :section)]
             [:attributes
              (h/? (h/with-entries attr-map [:span raster-span]))]
             [:contents
@@ -209,7 +333,7 @@
                    (apply h/alt
                           [:grid (h/ref 'grid)]
                           [:atomic-element atomic-element]
-                          (map elem-ref (:r-cell doc-tree)))))]))
+                          (map elem-ref (:section doc-tree)))))]))
           'grid
           (h/in-vector
            (h/cat [:tag (h/val :r-grid)]
@@ -242,7 +366,7 @@
           'grid-cell
           (h/in-vector
            (h/cat
-            [:tag (h/val :r-cell)]
+            [:tag (h/val :section)]
             [:attributes
              (h/? (h/with-entries attr-map [:span raster-span]))]
             [:contents
@@ -250,7 +374,7 @@
                    (apply h/alt
                           [:grid (h/ref 'grid)]
                           [:atomic-element atomic-element]
-                          (map elem-ref (:r-cell doc-tree)))))]))
+                          (map elem-ref (:section doc-tree)))))]))
           'grid
           (h/in-vector
            (h/cat [:tag (h/val :r-grid)]
@@ -263,26 +387,26 @@
 ; example before
 
 (def sample-form '("first paragraph\n\nsecond paragraph"
-                   [:r-grid [:r-cell "first cell line\n\nsecond cell line"]
-                    [:r-cell "another cell"]]
+                   [:r-grid [:section "first cell line\n\nsecond cell line"]
+                    [:section "another cell"]]
                    "third paragraph"))
 
 ; example after
 (def sample-parsed-form
-  '([:r-cell {:span "row"} "first paragraph"]
-    [:r-cell {:span "row"} "second paragraph"]
+  '([:section {:span "row"} "first paragraph"]
+    [:section {:span "row"} "second paragraph"]
     [:r-grid
-     [:r-cell [:p "first cell line"] [:p "second cell line"]]
-     [:r-cell "another cell"]]
-    [:r-cell {:span "row"} "third paragraph"]))
+     [:section [:p "first cell line"] [:p "second cell line"]]
+     [:section "another cell"]]
+    [:section {:span "row"} "third paragraph"]))
 
-(def full-row [:r-cell {:span "row"}])
+(def full-row [:section {:span "row"}])
 
 (defn in-form? [e] (and (vector? e)
-                        (contains? (:r-cell doc-tree) (first e))))
+                        (contains? (:section doc-tree) (first e))))
 ;; in-form is just the subform model
 (defn not-in-form? [e] (and (vector? e)
-                            (not (contains? (:r-cell doc-tree) (first e)))))
+                            (not (contains? (:section doc-tree) (first e)))))
 
 ;; orphan? is just h/alt on subform or atomic elements
 (defn orphan? [e] (or (string? e) (in-form? e)))
@@ -297,7 +421,7 @@
 
 (def tokenized
   (h/alt [:attr-map attr-map]
-         [:r-cell grid-cell]
+         [:section grid-cell]
          [:p p]))
 
 (defn group-orphans
@@ -321,7 +445,7 @@
 
 (comment
 
-  (valid? tokenized [:r-cell [:em "non-orphan text"]])
+  (valid? tokenized [:section [:em "non-orphan text"]])
 
 
   (group-orphans [:p]
@@ -334,14 +458,14 @@
                  [:r-grid "orphan text"
                   [:em "with emphasis added"]])
 
-  (group-orphans [:r-cell {:span "row"}]
+  (group-orphans [:section {:span "row"}]
                  #(valid? tokenized %)
                  [:r-grid "orphan text"
                   [:em "with emphasis added"]
-                  [:r-cell "non-orphan text"]]))
+                  [:section "non-orphan text"]]))
 
-(defn r-cell? [i]
-  (and (vector? i) (= :r-cell (first i))))
+(defn section? [i]
+  (and (vector? i) (= :section (first i))))
 
 (defn get-orphans
   ([location elem]
@@ -354,7 +478,7 @@
          (zip/end? loc) loc             ; are we at the end?
          (valid? grid-cell (zip/node loc))       ; has this node been processed?
          (recur (zip/next loc))         ; if yes, continue
-         (= parent-type :r-cell)        ; are we not in a context with orphans?
+         (= parent-type :section)        ; are we not in a context with orphans?
          (recur (zip/next loc))         ; then continue
          (and (zip/branch? loc)
               (some
@@ -413,7 +537,7 @@
 
 (comment
   (def sample-cdl
-    (ftree/counted-double-list :r-cell
+    (ftree/counted-double-list :section
                                "some text" "more text\n\nwith linebreak"
                                [:em "and emphasis"]
                                "another \n\n linebreak"))
@@ -495,7 +619,7 @@
   ([] (detect-paragraphs #"\n\n")))
 
 (comment
-  (detect-paragraphs [:r-cell "some\n\ntext" [:em "with emphasis"]]
+  (detect-paragraphs [:section "some\n\ntext" [:em "with emphasis"]]
                      #"\n\n")
 
   )
@@ -580,3 +704,52 @@
       tokenize-paragraphs
       zip/node))
 
+
+
+
+
+(def section?
+  #(and (vector? %) (= :section (first %))))
+
+(def sectionize-contents
+  (comp
+   (partition-by section?)
+   (partition-all 2)
+   (map (fn [chunk]
+          (if (section? (first (first chunk)))
+              (let [[[s] content] chunk]
+                (apply conj s content))
+              (let [[content] chunk]
+                (apply conj [:section] content)))))))
+
+(comment
+  (def unsectioned
+    [:article
+     [:p "Some text"]
+     [:p "Some more text"]])
+
+  (into [:article] sectionize (rest unsectioned))
+
+  (def sectioned
+    [:article
+     [:section]
+     [:p "text"]
+     [:q "a quote"]
+     [:section]
+     [:p "more text"]])
+  (into [:article] sectionize  (rest sectioned))
+
+  (def partially-sectioned
+    [:article
+     [:p "text"]
+     [:q "a quote"]
+     [:section]
+     [:p "more text"]])
+
+  (into [:article] sectionize (rest partially-sectioned))
+
+  (def actual-doc (-> "./content/information-cocoon.html.ct" slurp (respatialized.parse/parse-eval [:article])))
+
+  (into [:article] sectionize (rest actual-doc))
+
+  )

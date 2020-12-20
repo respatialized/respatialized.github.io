@@ -192,6 +192,43 @@
         " DB alongside the code that is affected by that configuration in a way that reliably links the two."]]
       (detect-paragraphs sample-code-form #"\n\n"))))
 
+  (t/testing "Sectionizer"
+    (t/is (=
+           [:article
+            [:section
+             [:p "Some text"]
+             [:p "Some more text"]]]
+           (into [:article]
+                 sectionize-contents
+                 [[:p "Some text"]
+                  [:p "Some more text"]])))
+    (t/is (= [:article
+              [:section
+               [:p "text"]
+               [:q "a quote"]]
+              [:section
+               [:p "more text"]]]
+             (into [:article]
+                   sectionize-contents
+                   [[:section]
+                    [:p "text"]
+                    [:q "a quote"]
+                    [:section]
+                    [:p "more text"]])))
+
+    (t/is (= [:article
+              [:section
+               [:p "text"]
+               [:q "a quote"]]
+              [:section
+               [:p "more text"]]]
+           (into [:article]
+                 sectionize-contents
+                 [[:p "text"]
+                  [:q "a quote"]
+                  [:section]
+                  [:p "more text"]]))))
+
   (t/testing "post-processing"
     (t/is
      (=
