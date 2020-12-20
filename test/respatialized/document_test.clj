@@ -222,12 +222,55 @@
                [:q "a quote"]]
               [:section
                [:p "more text"]]]
-           (into [:article]
-                 sectionize-contents
-                 [[:p "text"]
-                  [:q "a quote"]
-                  [:section]
-                  [:p "more text"]]))))
+             (into [:article]
+                   sectionize-contents
+                   [[:p "text"]
+                    [:q "a quote"]
+                    [:section]
+                    [:p "more text"]])))
+
+    (t/is (= [:article
+              [:section
+               [:p "text"]
+               [:q "a quote"]]
+              [:section
+               [:div {:class "subsection"}
+                [:h3 "Subsection 1"]
+                [:p "subsection 1 text"]]
+               [:div {:class "subsection"}
+                [:h3 "Subsection 2"]
+                [:p "subsection 2 text"]]]]
+             (into [:article]
+                   sectionize-contents
+                   [[:p "text"]
+                    [:q "a quote"]
+                    [:section]
+                    :next
+                    [:div {:class "subsection"}]
+                    [:h3 "Subsection 1"]
+                    [:p "subsection 1 text"]
+                    :next
+                    [:div {:class "subsection"}]
+                    [:h3 "Subsection 2"]
+                    [:p "subsection 2 text"]]))))
+
+  (t/testing "Next Processing"
+    (t/is
+     (=
+      [:div [:p "test" [:a "something"]] [:div "something else"]]
+      (process-nexts [:div :next [:p] "test" [:a "something"] :next [:div] "something else"])))
+    (t/is
+     (=
+      [:div [:p "test" [:a "something"]] [:div "something else"]]
+      (process-nexts [:div [:p "test" [:a "something"]] [:div "something else"]])))
+    (t/is
+     (=
+      [:div [:p "test"]]
+      (process-nexts [:div [:p "test"]])))
+    (t/is
+     (=
+      [:div]
+      (process-nexts [:div]))))
 
   (t/testing "post-processing"
     (t/is

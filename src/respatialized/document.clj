@@ -122,7 +122,7 @@
     [:tabindex (h/fn int?)]
     [:title (h/fn string?)]))
 
-(def )
+;; (def )
 
 (def q
   (h/in-vector
@@ -223,8 +223,8 @@
 
 (defn ->child-model
   "Helper function to be used in constructing recursive models"
-  ([elem] (get-child-model elem (get doc-tree elem) global-attributes))
-  ([elem attrs] (get-child-model elem (get doc-tree elem) attrs))
+  ([elem] (->child-model elem (get doc-tree elem) global-attributes))
+  ([elem attrs] (->child-model elem (get doc-tree elem) attrs))
   ([elem sub-elems attrs]
    (h/in-vector
     (h/cat
@@ -237,35 +237,35 @@
                                  (map elem-ref
                                       sub-elems))))]))))
 
-;; (def raster-span
-;;   (h/alt
-;;    [:row (h/val "row")]
-;;    [:range (regex->model #"\d\-\d")]
-;;    [:offset (regex->model #"\d\+\d")]
-;;    [:offset-row (regex->model #"\d\.\.")]
-;;    [:cols
-;;     (h/alt
-;;      [:int (->constrained-model #(< 0 % 33) gen/nat 200)]
-;;      [:int-str (->constrained-model #(< 0 (Integer/parseInt %) 33)
-;;                                     (gen/fmap str gen/nat) 200)])]))
+(def raster-span
+  (h/alt
+   [:row (h/val "row")]
+   [:range (regex->model #"\d\-\d")]
+   [:offset (regex->model #"\d\+\d")]
+   [:offset-row (regex->model #"\d\.\.")]
+   [:cols
+    (h/alt
+     [:int (->constrained-model #(< 0 % 33) gen/nat 200)]
+     [:int-str (->constrained-model #(< 0 (Integer/parseInt %) 33)
+                                    (gen/fmap str gen/nat) 200)])]))
 
 (def p
-  (h/let ['em (get-child-model :em)
-          'strong (get-child-model :strong)
-          'a (get-child-model :a)
-          'code (get-child-model :code)
-          'span (get-child-model :span)
-          'ol (get-child-model :ol)
-          'ul (get-child-model :ul)
-          'li (get-child-model :li)
-          'blockquote (get-child-model :blockquote)
-          'h1 (get-child-model :h1)
-          'h2 (get-child-model :h1)
-          'h3 (get-child-model :h3)
-          'h4 (get-child-model :h4)
-          'h5 (get-child-model :h5)
-          'h6 (get-child-model :h6)
-          'p (get-child-model :p)]
+  (h/let ['em (->child-model :em)
+          'strong (->child-model :strong)
+          'a (->child-model :a)
+          'code (->child-model :code)
+          'span (->child-model :span)
+          'ol (->child-model :ol)
+          'ul (->child-model :ul)
+          'li (->child-model :li)
+          'blockquote (->child-model :blockquote)
+          'h1 (->child-model :h1)
+          'h2 (->child-model :h1)
+          'h3 (->child-model :h3)
+          'h4 (->child-model :h4)
+          'h5 (->child-model :h5)
+          'h6 (->child-model :h6)
+          'p (->child-model :p)]
     (h/in-vector
      (h/cat
       [:tag (h/val :p)]
@@ -280,48 +280,48 @@
 
 
 (def subform
-  (h/let ['em (get-child-model :em)
-          'strong (get-child-model :strong)
-          'a (get-child-model :a)
-          'pre (get-child-model :pre)
-          'code (get-child-model :code)
-          'script (get-child-model :script)
-          'span (get-child-model :span)
-          'ol (get-child-model :ol)
-          'ul (get-child-model :ul)
-          'li (get-child-model :li)
-          'blockquote (get-child-model :blockquote)
-          'h1 (get-child-model :h1)
-          'h2 (get-child-model :h1)
-          'h3 (get-child-model :h3)
-          'h4 (get-child-model :h4)
-          'h5 (get-child-model :h5)
-          'h6 (get-child-model :h6)
-          'p (get-child-model :p)
-          'div (get-child-model :div)]
+  (h/let ['em (->child-model :em)
+          'strong (->child-model :strong)
+          'a (->child-model :a)
+          'pre (->child-model :pre)
+          'code (->child-model :code)
+          'script (->child-model :script)
+          'span (->child-model :span)
+          'ol (->child-model :ol)
+          'ul (->child-model :ul)
+          'li (->child-model :li)
+          'blockquote (->child-model :blockquote)
+          'h1 (->child-model :h1)
+          'h2 (->child-model :h1)
+          'h3 (->child-model :h3)
+          'h4 (->child-model :h4)
+          'h5 (->child-model :h5)
+          'h6 (->child-model :h6)
+          'p (->child-model :p)
+          'div (->child-model :div)]
     (apply h/alt
            (map elem-ref (:section doc-tree)))))
 
 (def grid
-  (h/let ['em (get-child-model :em)
-          'strong (get-child-model :strong)
-          'a (get-child-model :a)
-          'pre (get-child-model :pre)
-          'code (get-child-model :code)
-          'script (get-child-model :script)
-          'span (get-child-model :span)
-          'ol (get-child-model :ol)
-          'ul (get-child-model :ul)
-          'li (get-child-model :li)
-          'blockquote (get-child-model :blockquote)
-          'h1 (get-child-model :h1)
-          'h2 (get-child-model :h1)
-          'h3 (get-child-model :h3)
-          'h4 (get-child-model :h4)
-          'h5 (get-child-model :h5)
-          'h6 (get-child-model :h6)
-          'p (get-child-model :p)
-          'div (get-child-model :div)
+  (h/let ['em (->child-model :em)
+          'strong (->child-model :strong)
+          'a (->child-model :a)
+          'pre (->child-model :pre)
+          'code (->child-model :code)
+          'script (->child-model :script)
+          'span (->child-model :span)
+          'ol (->child-model :ol)
+          'ul (->child-model :ul)
+          'li (->child-model :li)
+          'blockquote (->child-model :blockquote)
+          'h1 (->child-model :h1)
+          'h2 (->child-model :h1)
+          'h3 (->child-model :h3)
+          'h4 (->child-model :h4)
+          'h5 (->child-model :h5)
+          'h6 (->child-model :h6)
+          'p (->child-model :p)
+          'div (->child-model :div)
           'grid-cell
           (h/in-vector
            (h/cat
@@ -344,25 +344,25 @@
     (h/ref 'grid)))
 
 (def grid-cell
-  (h/let ['em (get-child-model :em)
-          'strong (get-child-model :strong)
-          'a (get-child-model :a)
-          'pre (get-child-model :pre)
-          'code (get-child-model :code)
-          'script (get-child-model :script)
-          'span (get-child-model :span)
-          'ol (get-child-model :ol)
-          'ul (get-child-model :ul)
-          'li (get-child-model :li)
-          'blockquote (get-child-model :blockquote)
-          'h1 (get-child-model :h1)
-          'h2 (get-child-model :h1)
-          'h3 (get-child-model :h3)
-          'h4 (get-child-model :h4)
-          'h5 (get-child-model :h5)
-          'h6 (get-child-model :h6)
-          'p (get-child-model :p)
-          'div (get-child-model :div)
+  (h/let ['em (->child-model :em)
+          'strong (->child-model :strong)
+          'a (->child-model :a)
+          'pre (->child-model :pre)
+          'code (->child-model :code)
+          'script (->child-model :script)
+          'span (->child-model :span)
+          'ol (->child-model :ol)
+          'ul (->child-model :ul)
+          'li (->child-model :li)
+          'blockquote (->child-model :blockquote)
+          'h1 (->child-model :h1)
+          'h2 (->child-model :h1)
+          'h3 (->child-model :h3)
+          'h4 (->child-model :h4)
+          'h5 (->child-model :h5)
+          'h6 (->child-model :h6)
+          'p (->child-model :p)
+          'div (->child-model :div)
           'grid-cell
           (h/in-vector
            (h/cat
@@ -563,22 +563,22 @@
                         (contains? (:p doc-tree) (first i))))
 
 (def subparagraph
-  (h/let ['em (get-child-model :em)
-          'strong (get-child-model :strong)
-          'a (get-child-model :a)
-          'p (get-child-model :p)
-          'code (get-child-model :code)
-          'span (get-child-model :span)
-          'blockquote (get-child-model :blockquote)
-          'ol (get-child-model :ol)
-          'ul (get-child-model :ul)
-          'li (get-child-model :li)
-          'h1 (get-child-model :h1)
-          'h2 (get-child-model :h1)
-          'h3 (get-child-model :h3)
-          'h4 (get-child-model :h4)
-          'h5 (get-child-model :h5)
-          'h6 (get-child-model :h6)]
+  (h/let ['em (->child-model :em)
+          'strong (->child-model :strong)
+          'a (->child-model :a)
+          'p (->child-model :p)
+          'code (->child-model :code)
+          'span (->child-model :span)
+          'blockquote (->child-model :blockquote)
+          'ol (->child-model :ol)
+          'ul (->child-model :ul)
+          'li (->child-model :li)
+          'h1 (->child-model :h1)
+          'h2 (->child-model :h1)
+          'h3 (->child-model :h3)
+          'h4 (->child-model :h4)
+          'h5 (->child-model :h5)
+          'h6 (->child-model :h6)]
     (apply h/alt
        [:atomic-element atomic-element]
        (map elem-ref (disj  (:p doc-tree) :p)))))
@@ -708,19 +708,65 @@
 
 
 
-(def section?
-  #(and (vector? %) (= :section (first %))))
+(defn section? [elem]
+  (and (vector? elem) (= :section (first elem))))
+
+(defn next? [elem]
+  (= :next (first elem)))
+
+;; seems like this may be a problem if I want to nest further
+;; but the actual structure implied by the format I've chosen
+;; is pretty flat - at most three levels deep:
+;; [:article [:section #_ :next [:div "text"]]]
+
+
+(defn process-nexts [nexts]
+  (loop [[h n & rest] nexts
+         res []]
+    (if (empty? rest) ; base case
+      (condp = [(nil? h) (nil? n)]
+        [true true] res
+        [false true] (conj res h)
+        [false false] (conj res h n))
+      (cond
+        (= :next n)
+        (recur (apply conj [:next] rest)
+               (conj res h))
+        (= :next h)
+        (recur
+         (drop-while #(not= % :next) rest)
+         (conj res (apply conj n (take-while #(not= % :next) rest))))
+        :else
+        (recur
+         (drop-while #(not= % :next) rest)
+         (apply conj res h n (take-while #(not= % :next) rest)))))))
+
+;; (def process-contents
+;;   (comp
+;;    (partition-by next?))
+;;   (cond
+;;     (next? (first contents))
+;;     (let [[_ into-elem & rest] contents]
+;;       (apply conj into-elem rest))
+;;     :else contents))
+
+(defn front-matter? [_] false)
+
+(defn process-chunk [chunk]
+  (cond
+    (front-matter? chunk) chunk         ; front matter gets left as-is
+    (section? (first (first chunk)))
+    (let [[[s] content] chunk]
+      (apply conj s (process-nexts content)))
+    :else
+    (let [[content] chunk]
+      (apply conj [:section] (process-nexts content)))))
 
 (def sectionize-contents
   (comp
    (partition-by section?)
    (partition-all 2)
-   (map (fn [chunk]
-          (if (section? (first (first chunk)))
-              (let [[[s] content] chunk]
-                (apply conj s content))
-              (let [[content] chunk]
-                (apply conj [:section] content)))))))
+   (map process-chunk)))
 
 (comment
   (def unsectioned
