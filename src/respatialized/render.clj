@@ -54,15 +54,17 @@
 (defn in-code ([text] (in-code text styles/in-code))
   ([text class]  [:code {:class class} text]))
 
+(defn aside [& contents] (into [:aside] contents))
+
 (defn blockquote
   ([content author
     {:keys [:outer-class
             :content-class
             :author-class]}]
 
-    [:blockquote {:class outer-class}
-     [:p {:class content-class} content]
-     [:span {:class author-class} author]])
+   [:blockquote {:class outer-class}
+    [:p {:class content-class} content]
+    [:span {:class author-class} author]])
   ([content author]
    (blockquote content author
                {:outer-class styles/blockquote-outer

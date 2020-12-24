@@ -2,8 +2,10 @@
   "Namespace for document processing."
   (:require
    [clojure.string :as str]
+   [clojure.set :as set]
    [clojure.zip :as zip]
-   [clojure.data.finger-tree :as ftree :refer [counted-double-list ft-split-at ft-concat]]
+   [clojure.data.finger-tree :as ftree :refer
+    [counted-double-list ft-split-at ft-concat]]
    [clojure.test.check.generators :as gen]
    [com.gfredericks.test.chuck.generators :as gen']
    [minimallist.core :as m :refer [valid? describe]]
@@ -13,43 +15,43 @@
 (def block-level-tags
   "MDN list of block-level HTML element tags"
   #{:address :article :aside :blockquote
-    :details :dialog :dd :div :dl :dt
+    #_:details :dialog :dd :div :dl :dt
     :fieldset :figcaption :figure :footer
     :form :h1 :h2 :h3 :h4 :h5 :h6 :header
     :hr :li :main :nav :ol :p :pre :section
-    :table :ul})
+    #_:table :ul})
 
 (def inline-tags
   "MDN list of inline HTML element tags"
-  #{:a :abbr :b :bdi :bdo :br :button
-    :canvas :cite :code :data :datalist
-    :del :dfn :em :embed :i :iframe :img
-    :input :ins :kbd :label :mark :meter
-    :noscript :object :output :picture
-    :progress :q :ruby :s :samp :script
-    :select :slot :small :span :strong
-    :sub :sup :svg :template :time :u
-    :tt :var :video :wbr})
+  #{:a :abbr :b :bdi :bdo :br #_:button
+    :canvas :cite :code :data #_:datalist
+    :del :dfn :em #_:embed :i #_:iframe :img
+    #_:input :ins :kbd #_:label :mark #_:meter
+    #_:noscript #_:object #_:output #_:picture
+    #_:progress :q #_:ruby :s :samp :script
+    #_:select #_:slot :small :span :strong
+    :sub :sup #_:svg #_:template :time :u
+    :tt :var #_:video :wbr})
 
 (def metadata-tags
   "MDN list of metadata content element tags"
-  #{:base :link :meta :noscript :script
+  #{:base :link :meta #_:noscript :script
     :style :title})
 
 (def flow-tags
   "MDN list of flow content element tags"
-  #{:a :abbr :aside :audio :b :bdo :bdi
-    :blockquote :br :button :canvas :cite
-    :code :data :datalist :del :details :dfn
-    :div :dl :em :embed :fieldset :figure
-    :footer :form :h1 :h2 :h3 :h4 :h5 :h6
-    :header :hr :i :iframe :img :input :ins
-    :kbd :label :main :map :mark :math :menu
-    :meter :nav :noscript :object :ol :output
-    :p :picture :pre :progress :q :ruby :s
-    :samp :script :section :select :small
-    :span :strong :sub :sup :svg :table
-    :template :textarea :time :ul :var :video
+  #{:a :abbr :aside #_:audio :b :bdo :bdi
+    :blockquote :br #_:button #_:canvas :cite
+    :code :data #_:datalist :del #_:details :dfn
+    :div :dl :em #_:embed #_:fieldset :figure
+    :footer #_:form :h1 :h2 :h3 :h4 :h5 :h6
+    :header :hr :i #_:iframe :img #_:input :ins
+    :kbd #_:label :main #_:map :mark #_:math #_:menu
+    #_:meter :nav #_:noscript #_:object :ol #_:output
+    :p #_:picture :pre #_:progress :q #_:ruby :s
+    :samp :script :section #_:select :small
+    :span :strong :sub :sup #_:svg #_:table
+    #_:template #_:textarea :time :ul :var #_:video
     :wbr})
 
 (def sectioning-tags
@@ -62,11 +64,12 @@
 
 (def phrasing-tags
   "MDN list of phrasing content element tags"
-  #{:abbr :audio :b :bdo :br :button :canvas :cite
-    :kbd :label :mark :math :meter :noscript
-    :object :output :picture :progress :q :ruby
-    :samp :script :select :small :span :strong :sub
-    :sup :svg :textarea :time :var :video :wbr})
+  #{:abbr #_:audio :b :bdi :bdo :br #_:button #_:canvas :cite
+    :code :data #_:datalist :dfn :em #_:embed :i #_:iframe :img
+    #_:input :kbd #_:label :mark #_:math #_:meter #_:noscript
+    #_:object #_:output #_:picture #_:progress :q #_:ruby :samp
+    :script #_:select :small :span :strong :sub :sup #_:svg
+    #_:textarea :time :var #_:video :wbr})
 
 (def phrasing-subtags
   "MDN list of tags that are phrasing content when they contain only phrasing content."
@@ -74,13 +77,13 @@
 
 (def embedded-tags
   "MDN list of embedded content element tags"
-  #{:audio :canvas :embed :iframe :img :math
-    :object :picture :svg :video})
+  #{:audio :canvas #_:embed :iframe :img #_:math
+    :object #_:picture :svg :video})
 
 (def interactive-tags
   "MDN list of interactive content element tags"
-  #{:a :button :details :embed :iframe :label
-    :select :textarea})
+  #{:a #_:button #_:details #_:embed #_:iframe #_:label
+    #_:select #_:textarea})
 
 ;; "content is palpable when it's neither empty or hidden;
 ;; it is content that is rendered and is substantive.
@@ -178,7 +181,6 @@
                                             [:text (h/fn string?)])])]
       (h/ref 'hiccup))))
 
-
 (def attr-map
   (h/with-optional-entries (h/map)
     [:class (-> (h/fn string?) (h/with-test-check-gen gen/string-ascii))]
@@ -206,10 +208,7 @@
    [:number (-> (h/fn number?) (h/with-test-check-gen
                                  (gen/one-of [gen/small-integer
                                               gen/double])))]
-   [:text (-> (h/fn string?) (h/with-test-check-gen gen/string))]
-   [:image img]
-   [:br (h/val [:br])]
-   [:hr (h/val [:hr])]))
+   [:text (-> (h/fn string?) (h/with-test-check-gen gen/string))]))
 
 (defn quote-kw [kw] `~(symbol kw))
 (defn elem-ref [e] [e (h/ref (quote-kw e))])
@@ -249,6 +248,312 @@
      [:int-str (->constrained-model #(< 0 (Integer/parseInt %) 33)
                                     (gen/fmap str gen/nat) 200)])]))
 
+(defn ->hiccup-model
+  ([elem-tag attrs contents]
+   (h/in-vector
+    (h/cat
+     [:tag (h/val elem-tag)]
+     [:attributes (if (has-required? attrs) attrs (h/? attrs))]
+     [:contents
+      (h/*
+       (h/not-inlined
+        (apply h/alt
+               [:atomic-element atomic-element]
+               contents)))])))
+  ([elem-tag contents] (->hiccup-model elem-tag global-attributes contents)))
+
+(comment
+
+ ; ruby isn't supported yet
+  (let
+   [ruby (h/in-vector
+          (h/cat
+           [:tag (h/val :ruby)]
+           [:attributes (h/? global-attributes)]
+           [:contents
+            (h/+ (h/not-inlined
+                  (h/cat
+                   [:character (h/fn string?)]
+                   [:pronunciation (h/in-vector
+                                    (h/cat [:tag (h/val :rt)]
+                                           [:text (h/fn string?)]))])))]))])
+
+  (def ruby [:ruby "漢" [:rt "kan"] "字" [:rt "ji"]])
+
+  (def datetime-str
+    (h/alt
+     [:year (->constrained-model #())])))
+
+(def elements
+  (h/let
+      ;; inline text elements first
+      ['a (->hiccup-model :a
+                          (-> global-attributes
+                              (h/with-entries
+                                [:href
+                                 (h/alt
+                                  [:link url]
+                                  [:fragment (h/fn string?)])])
+                              (h/with-optional-entries
+                                [:download (h/fn string?)]
+                                [:rel (h/fn string?)]
+                                [:target (h/enum #{"_self" "_blank" "_parent" "_top"})]))
+                          (map elem-ref  (set/union (set/difference flow-tags interactive-tags)
+                                                    phrasing-tags)))
+       'abbr (->hiccup-model :abbr (map elem-ref phrasing-tags))
+       'b (->hiccup-model :b (map elem-ref phrasing-tags))
+       'bdi (->hiccup-model :bdi (map elem-ref phrasing-tags))
+       'bdo (->hiccup-model :bdo
+                            (h/with-entries global-attributes
+                              [:dir (h/enum #{"ltr" "rtl"})])
+                            (map elem-ref phrasing-tags))
+       'br (h/val [:br])
+       'cite (->hiccup-model :cite (map elem-ref phrasing-tags))
+       'code (->hiccup-model :code (map elem-ref phrasing-tags))
+       'data (->hiccup-model :data
+                             (h/with-entries global-attributes
+                               [:value (h/fn string?)])
+                             (map elem-ref phrasing-tags))
+       'del (->hiccup-model :del [])
+       'ins (->hiccup-model :ins [])
+       'dfn (->hiccup-model :dfn
+                            (map elem-ref (disj phrasing-tags :dfn)))
+       'em (->hiccup-model :em (map elem-ref phrasing-tags))
+       'i (->hiccup-model :i (map elem-ref phrasing-tags))
+       'kbd (->hiccup-model :kbd (map elem-ref phrasing-tags))
+       'mark (->hiccup-model :mark (map elem-ref phrasing-tags))
+       'q (->hiccup-model :q
+                          (h/with-optional-entries global-attributes
+                            [:cite url])
+                          (map elem-ref phrasing-tags))
+       's (->hiccup-model :s (map elem-ref phrasing-tags))
+       'samp (->hiccup-model :samp (map elem-ref phrasing-tags))
+       'img (h/in-vector (h/cat
+                          [:tag (h/val :img)]
+                          [:attributes (-> global-attributes
+                                           (h/with-entries [:src url])
+                                           (h/with-optional-entries
+                                             [:alt (h/fn string?)]
+                                             [:sizes (h/fn string?)]
+                                             [:width (->constrained-model #(< 0 % 8192) gen/small-integer)]
+                                             [:height (->constrained-model #(< 0 % 8192) gen/small-integer)]
+                                             [:loading (h/enum #{"eager" "lazy"})]
+                                             [:decoding (h/enum #{"sync" "async" "auto"})]
+                                             [:crossorigin (h/enum #{"anonymous" "use-credentials"})]))]))
+       'small (->hiccup-model :small (map elem-ref phrasing-tags))
+       'span (->hiccup-model :span (map elem-ref phrasing-tags))
+       'strong (->hiccup-model :strong (map elem-ref phrasing-tags))
+       'sub (->hiccup-model :sub (map elem-ref phrasing-tags))
+       'sup (->hiccup-model :sup (map elem-ref phrasing-tags))
+       'time (->hiccup-model :time
+                             (h/with-entries
+                               global-attributes
+                               [:datetime (h/fn string?)])
+                             (map elem-ref phrasing-tags))
+       'u (->hiccup-model :u (map elem-ref phrasing-tags))
+       'var (->hiccup-model :var (map elem-ref phrasing-tags))
+       'wbr (h/val [:wbr])
+       ;; then other text
+       'blockquote (->hiccup-model :blockquote
+                                   (h/with-optional-entries
+                                     global-attributes
+                                     [:cite (h/fn string?)])
+                                   (map elem-ref flow-tags))
+       'dl (h/in-vector
+            (h/cat
+             [:tag (h/val :dl)]
+             [:attributes (h/? global-attributes)]
+             [:contents
+              (h/*
+               (h/cat [:term
+                       (h/not-inlined
+                        (->hiccup-model
+                         :dt
+                         (map elem-ref (set/difference flow-tags sectioning-tags))))]
+                      [:details
+                       (h/not-inlined (->hiccup-model
+                                       :dd
+                                       (map elem-ref flow-tags)))]))]))
+       'div (->child-model :div (map elem-ref flow-tags))
+       'figure
+       (h/in-vector
+        (h/cat
+         [:tag (h/val :figure)]
+         [:attributes (h/? global-attributes)]
+         [:contents
+          (h/alt
+           [:caption-first
+            (h/cat
+             [:figcaption
+              (-> :figcaption
+                  (->hiccup-model (map elem-ref flow-tags))
+                  h/not-inlined)]
+             [:rest (h/*
+                     (h/not-inlined
+                      (apply h/alt
+                             atomic-element
+                             (map elem-ref flow-tags))))])]
+           [:caption-last
+            (h/cat
+             [:rest (h/*
+                     (h/not-inlined
+                      (apply h/alt
+                             atomic-element
+                             (map elem-ref flow-tags))))]
+             [:figcaption
+              (-> :figcaption
+                  (->hiccup-model (map elem-ref flow-tags))
+                  h/not-inlined)])]
+           [:no-caption
+            (h/*
+             (h/not-inlined
+              (apply h/alt
+                     atomic-element
+                     (map elem-ref flow-tags))))])]))
+       'hr (h/in-vector (h/cat [:tag (h/val :hr)] [:attributes (h/? global-attributes)]))
+       'ol (->hiccup-model
+            :ol (h/with-optional-entries global-attributes
+                  [:reversed (h/fn boolean?)]
+                  [:start (->constrained-model pos-int? gen/small-integer)]
+                  [:type (h/enum #{"a" "A" "i" "I" "1"})])
+            (conj (map elem-ref #{:script #_:template})
+                  [:li
+                   (->hiccup-model
+                    :li
+                    (h/with-optional-entries global-attributes
+                      [:value (->constrained-model pos-int? gen/small-integer)])
+                    (map elem-ref flow-tags))]))
+       'ul (->hiccup-model :ul
+                           (conj (map elem-ref #{:script #_:template})
+                                 [:li (->hiccup-model :li (map elem-ref flow-tags))]))
+       'p (->hiccup-model :p global-attributes (map elem-ref phrasing-tags))
+       'pre (->hiccup-model :pre global-attributes (map elem-ref phrasing-tags))
+       ;; sectioning
+       'address (->hiccup-model
+                 :address
+                 (map elem-ref (set/difference flow-tags
+                                               sectioning-tags
+                                               #{:h1 :h2 :h3 :h4 :h5 :h6
+                                                 :header :footer})))
+       'article (->hiccup-model :article (map elem-ref flow-tags))
+       'aside (->hiccup-model :aside (map elem-ref flow-tags))
+       'footer (->hiccup-model :footer (map elem-ref (set/difference
+                                                      flow-tags
+                                                      #{:header :footer})))
+       'header (->hiccup-model :header (map elem-ref (set/difference
+                                                      flow-tags
+                                                      #{:header :footer})))
+       'h1 (->hiccup-model :h1 (map elem-ref phrasing-tags))
+       'h2 (->hiccup-model :h2 (map elem-ref phrasing-tags))
+       'h3 (->hiccup-model :h3 (map elem-ref phrasing-tags))
+       'h4 (->hiccup-model :h4 (map elem-ref phrasing-tags))
+       'h5 (->hiccup-model :h5 (map elem-ref phrasing-tags))
+       'h6 (->hiccup-model :h6 (map elem-ref phrasing-tags))
+       'main (->hiccup-model :main (map elem-ref flow-tags))
+       'nav (->hiccup-model :nav (map elem-ref flow-tags))
+       'section (->hiccup-model :section (map elem-ref flow-tags))
+       ;; then other stuff
+       'script (h/in-vector
+                (h/cat [:tag (h/val :script)]
+                       [:attributes
+                        (h/with-optional-entries
+                          global-attributes
+                          [:async (h/val true)]
+                          [:crossorigin (h/fn string?)]
+                          [:defer (h/val true)]
+                          [:integrity (h/fn string?)]
+                          [:nomodule (h/val true)]
+                          [:referrerpolicy (h/enum #{"no-referrer"
+                                                     "no-referrer-when-downgrade"
+                                                     "origin"
+                                                     "origin-when-cross-origin"
+                                                     "same-origin"
+                                                     "strict-origin"
+                                                     "strict-origin-when-cross-origin"
+                                                     ""})]
+                          [:src url]
+                          [:type (h/fn string?)])]
+                       [:content (h/? (h/fn string?))]))
+       #_ #_
+       'table (h/in-vector
+               (h/cat
+                [:caption (h/? (->hiccup-model
+                                :caption
+                                (map elem-ref flow-tags)))]))]
+
+      (h/alt
+       [:a (h/ref 'a)]
+       [:abbr (h/ref 'abbr)]
+       [:article (h/ref 'article)]
+       [:aside (h/ref 'aside)]
+       #_[:audio (h/ref 'audio)]
+       [:b (h/ref 'b)]
+       [:bdo (h/ref 'bdo)]
+       [:bdi (h/ref 'bdi)]
+       [:blockquote (h/ref 'blockquote)]
+       [:br (h/ref 'br)]
+       #_[:button (h/ref 'button)]
+       #_[:canvas (h/ref 'canvas)]
+       [:cite (h/ref 'cite)]
+       [:code (h/ref 'code)]
+       [:data (h/ref 'data)]
+       #_[:datalist (h/ref 'datalist)]
+       [:del (h/ref 'del)]
+       #_[:details (h/ref 'details)]
+       [:dfn (h/ref 'dfn)]
+       [:div (h/ref 'div)]
+       [:dl (h/ref 'dl)]
+       [:em (h/ref 'em)]
+       #_[:embed (h/ref 'embed)]
+       #_[:fieldset (h/ref 'fieldset)]
+       [:figure (h/ref 'figure)]
+       [:footer (h/ref 'footer)]
+       #_[:form (h/ref 'form)]
+       [:h1 (h/ref 'h1)] [:h2 (h/ref 'h2)] [:h3 (h/ref 'h3)]
+       [:h4 (h/ref 'h4)] [:h5 (h/ref 'h5)] [:h6 (h/ref 'h6)]
+       [:header (h/ref 'header)]
+       [:hr (h/ref 'hr)]
+       [:i (h/ref 'i)]
+       #_[:iframe (h/ref 'iframe)]
+       [:img (h/ref 'img)]
+       #_[:input (h/ref 'input)]
+       [:ins (h/ref 'ins)]
+       [:kbd (h/ref 'kbd)]
+       #_[:label (h/ref 'label)]
+       [:main (h/ref 'main)]
+       #_[:map (h/ref 'map)]
+       #_[:mark (h/ref 'mark)]
+       #_[:math (h/ref 'math)]
+       #_[:menu (h/ref 'menu)]
+       #_[:meter (h/ref 'meter)]
+       [:nav (h/ref 'nav)]
+       #_[:noscript (h/ref 'noscript)]
+       #_[:object (h/ref 'object)]
+       [:ol (h/ref 'ol)]
+       #_[:output (h/ref 'output)]
+       [:p (h/ref 'p)]
+       #_[:picture (h/ref 'picture)]
+       [:pre (h/ref 'pre)]
+       #_[:progress (h/ref 'progress)]
+       [:q (h/ref 'q)]
+       [:s (h/ref 's)]
+       [:samp (h/ref 'samp)]
+       [:script (h/ref 'script)]
+       [:section (h/ref 'section)]
+       #_[:select (h/ref 'select)]
+       [:span (h/ref 'span)]
+       [:strong (h/ref 'strong)]
+       [:sub (h/ref 'sub)]
+       [:sup (h/ref 'sup)]
+       #_[:svg (h/ref 'svg)]
+       #_[:table (h/ref 'table)]
+       #_[:template (h/ref 'template)]
+       #_[:textarea (h/ref 'textarea)]
+       [:time (h/ref 'time)]
+       [:ul (h/ref 'ul)]
+       [:var (h/ref 'var)]
+       [:wbr (h/ref 'wbr)])))
+
 (def p
   (h/let ['em (->child-model :em)
           'strong (->child-model :strong)
@@ -276,8 +581,6 @@
          (apply h/alt
                 [:atomic-element atomic-element]
                 (map elem-ref (:p doc-tree)))))]))))
-
-
 
 (def subform
   (h/let ['em (->child-model :em)
@@ -447,7 +750,6 @@
 
   (valid? tokenized [:section [:em "non-orphan text"]])
 
-
   (group-orphans [:p]
                  #(valid? tokenized %)
                  ["orphan text"
@@ -558,7 +860,6 @@
 
 (defn para? [i] (and (vector? i) (= :p (first i))))
 
-
 (defn in-para? [i] (and (vector? i)
                         (contains? (:p doc-tree) (first i))))
 
@@ -580,8 +881,8 @@
           'h5 (->child-model :h5)
           'h6 (->child-model :h6)]
     (apply h/alt
-       [:atomic-element atomic-element]
-       (map elem-ref (disj  (:p doc-tree) :p)))))
+           [:atomic-element atomic-element]
+           (map elem-ref (disj  (:p doc-tree) :p)))))
 
 (defn detect-paragraphs
   "For each string in the element split it by the given regex, and insert the result into the original element. Leaves sub-elements as is and inserts them into the preceding paragraph."
@@ -620,9 +921,7 @@
 
 (comment
   (detect-paragraphs [:section "some\n\ntext" [:em "with emphasis"]]
-                     #"\n\n")
-
-  )
+                     #"\n\n"))
 
 (defn split-strings
   "Split any strings in the sequence by the regex and insert them into the sequence. Ignore any non-strings."
@@ -704,10 +1003,6 @@
       tokenize-paragraphs
       zip/node))
 
-
-
-
-
 (defn section? [elem]
   (and (vector? elem) (= :section (first elem))))
 
@@ -718,7 +1013,6 @@
 ;; but the actual structure implied by the format I've chosen
 ;; is pretty flat - at most three levels deep:
 ;; [:article [:section #_ :next [:div "text"]]]
-
 
 (defn process-nexts [nexts]
   (loop [[h n & rest] nexts
@@ -757,10 +1051,13 @@
     (front-matter? chunk) chunk         ; front matter gets left as-is
     (section? (first (first chunk)))
     (let [[[s] content] chunk]
-      (apply conj s (process-nexts content)))
+      (apply conj s
+             (detect-paragraphs (process-nexts content) #"\n\n")))
     :else
     (let [[content] chunk]
-      (apply conj [:section] (process-nexts content)))))
+      (apply conj
+             [:section]
+             (detect-paragraphs (process-nexts content) #"\n\n")))))
 
 (def sectionize-contents
   (comp
@@ -796,6 +1093,12 @@
 
   (def actual-doc (-> "./content/information-cocoon.html.ct" slurp (respatialized.parse/parse-eval [:article])))
 
-  (into [:article] sectionize (rest actual-doc))
+  (respatialized.build/load-deps)
 
-  )
+  (def actual-doc-2 (-> "./content/reifying-filter-bubble-2.html.ct"
+                        slurp
+                        (respatialized.parse/parse-eval [:article])))
+
+  (into [:article] sectionize-contents (rest actual-doc))
+
+  (into [] sectionize-contents actual-doc-2))

@@ -8,7 +8,6 @@
             [clojure.test.check :as tc]
             [clojure.test.check.clojure-test :refer [defspec]]
             [clojure.test.check.generators :as gen]
-            [talltale.core :as tt]
             [clojure.test.check.properties :as prop]
             [com.gfredericks.test.chuck.properties :as prop']
             [minimallist.core :refer [valid?]]
@@ -56,82 +55,82 @@
 (t/deftest transforms
 
   (t/testing "zippers"
-    (t/is (=
-           [:r-grid [:p "orphan text"
-                     [:em "with emphasis added"]]]
-           (group-orphans [:p]
-                          #(valid? tokenized %)
-                          [:r-grid "orphan text"
-                           [:em "with emphasis added"]])))
+    ;; (t/is (=
+    ;;        [:r-grid [:p "orphan text"
+    ;;                  [:em "with emphasis added"]]]
+    ;;        (group-orphans [:p]
+    ;;                       #(valid? tokenized %)
+    ;;                       [:r-grid "orphan text"
+    ;;                        [:em "with emphasis added"]])))
 
-    (t/is (= [:r-cell {:span "row"} [:p "text"]]
-             (group-orphans [:p]
-                            #(valid? tokenized %)
-                            [:r-cell {:span "row"} "text"])))
+    ;; (t/is (= [:r-cell {:span "row"} [:p "text"]]
+    ;;          (group-orphans [:p]
+    ;;                         #(valid? tokenized %)
+    ;;                         [:r-cell {:span "row"} "text"])))
 
-    (t/is
-     (=
-      [:r-grid [:p "orphan text"
-                [:em "with emphasis added"]]
-       [:r-cell "non-orphan text"]]
-      (group-orphans [:p]
-                     #(valid? tokenized %)
-                     [:r-grid "orphan text"
-                      [:em "with emphasis added"]
-                      [:r-cell "non-orphan text"]])))
+    ;; (t/is
+    ;;  (=
+    ;;   [:r-grid [:p "orphan text"
+    ;;             [:em "with emphasis added"]]
+    ;;    [:r-cell "non-orphan text"]]
+    ;;   (group-orphans [:p]
+    ;;                  #(valid? tokenized %)
+    ;;                  [:r-grid "orphan text"
+    ;;                   [:em "with emphasis added"]
+    ;;                   [:r-cell "non-orphan text"]])))
 
-    (t/is (=
-           [:r-grid
-            [:r-cell {:span "row"} "orphan text"
-             [:em "with emphasis added"]]
-            [:r-cell "non-orphan text"]]
-           (-> orphan-zip get-orphans zip/node)))
+    ;; (t/is (=
+    ;;        [:r-grid
+    ;;         [:r-cell {:span "row"} "orphan text"
+    ;;          [:em "with emphasis added"]]
+    ;;         [:r-cell "non-orphan text"]]
+    ;;        (-> orphan-zip get-orphans zip/node)))
 
     (t/is (= [:a "b" "c" :d "e" "f"]
              (split-strings [:a "b\n\nc" :d "e" "f"] #"\n\n")))
 
     (t/is (=
-           [:r-cell [:p "some"] [:p "text" [:em "with emphasis"]]]
-           (detect-paragraphs [:r-cell "some\n\ntext" [:em "with emphasis"]]
+           [:div [:p "some"] [:p "text" [:em "with emphasis"]]]
+           (detect-paragraphs [:div "some\n\ntext" [:em "with emphasis"]]
                               #"\n\n")))
 
     (t/is (= [:div] (detect-paragraphs [:div " "] #"\n\n"))
           "Whitespace-only text should not be tokenized into paragraphs")
 
-    (t/is (and (= [:r-grid [:r-cell {:span "row"}]]
-                  (process-text [:r-grid " " "\n\n"]))
-               (= [:r-grid [:r-cell {:span "row"}]]
-                  (process-text [:r-grid  "  \n\n"]))
-               (= [:r-grid [:r-cell {:span "row"}] [:r-cell {:span "row"}]]
-                  (process-text [:r-grid " " "\n\n" "\n\n"])))
-          "Whitespace forms should be ignored, but not newlines.")
+    ;; (t/is (and (= [:r-grid [:r-cell {:span "row"}]]
+    ;;               (process-text [:r-grid " " "\n\n"]))
+    ;;            (= [:r-grid [:r-cell {:span "row"}]]
+    ;;               (process-text [:r-grid  "  \n\n"]))
+    ;;            (= [:r-grid [:r-cell {:span "row"}] [:r-cell {:span "row"}]]
+    ;;               (process-text [:r-grid " " "\n\n" "\n\n"])))
+    ;;       "Whitespace forms should be ignored, but not newlines.")
 
-    (t/is
-     (=
-      [:r-cell
-       {:span "row"}
-       [:p "orphan text" [:em "with emphasis added"] "and"]
-       [:p "linebreak"]]
-      (detect-paragraphs [:r-cell
-                          {:span "row"}
-                          "orphan text"
-                          [:em "with emphasis added"]
-                          "and\n\nlinebreak"] #"\n\n")))
+    ;; (t/is
+    ;;  (=
+    ;;   [:r-cell
+    ;;    {:span "row"}
+    ;;    [:p "orphan text" [:em "with emphasis added"] "and"]
+    ;;    [:p "linebreak"]]
+    ;;   (detect-paragraphs [:r-cell
+    ;;                       {:span "row"}
+    ;;                       "orphan text"
+    ;;                       [:em "with emphasis added"]
+    ;;                       "and\n\nlinebreak"] #"\n\n")))
 
-    (t/is (=
-           [:r-grid
-            [:r-cell {:span "row"}
-             [:p "orphan text"
-              [:em "with emphasis added"] "and"]
-             [:p "linebreak"]]
-            [:r-cell [:p "non-orphan text"]
-             [:p "with linebreak"]]]
-           (-> orphan-zip-2
-               get-orphans
-               zip/node
-               form-zipper
-               tokenize-paragraphs
-               zip/node)))
+    ;; (t/is (=
+    ;;        [:r-grid
+    ;;         [:r-cell {:span "row"}
+    ;;          [:p "orphan text"
+    ;;           [:em "with emphasis added"] "and"]
+    ;;          [:p "linebreak"]]
+    ;;         [:r-cell [:p "non-orphan text"]
+    ;;          [:p "with linebreak"]]]
+    ;;        (-> orphan-zip-2
+    ;;            get-orphans
+    ;;            zip/node
+    ;;            form-zipper
+    ;;            tokenize-paragraphs
+    ;;            zip/node)))
 
     (t/is (vector?
            (-> sample-front-matter
@@ -312,7 +311,45 @@
                        (map finalize-elem-model
                             (get doc-tree elem)))))])))
 
+
+(def example-forms
+  "Some forms used to test the validity of the HTML models"
+  {:a [:a {:href "http://www.archive.org"} "a link"]
+   :data [:data {:value "0311ab"} "A sample post"]
+   :dl [:dl {:id "definitions"}
+        [:dt ":dl - Definition List"]
+        [:dd "A HTML element with a list of definitions"]]
+   :figure [:figure [:figcaption "a picture"]
+            [:img {:src "/some-picture.png"}]]
+   :ul [:ul [:li "some text"] [:li "more text"]]
+   :bdo [:bdo {:dir "rtl"} "right to left text"]
+   :time [:time {:datetime "2020-12-31"}]
+   :img [:img {:src "/sample.jpg"}]
+   :script [:script {:src "/resources/klipse.js"} ""]
+   :wbr [:wbr]
+   :hr [:hr]
+   :br [:br]})
+
 (t/deftest models
+
+  (doseq [elem (-> elements :bindings keys)]
+    (t/testing (str "model for element: <" elem ">")
+      (t/is
+       (or (valid? (-> elements :bindings (get elem))
+                   [(keyword elem) "sample string"])
+           (valid? (-> elements :bindings (get elem))
+            (get example-forms (keyword elem)))))))
+
+  (t/testing "full structure"
+    (t/is
+     (every? #(valid? elements %)
+             (vals example-forms)))
+
+    (comment
+      (map (fn [[k v]] [k (valid? elements v)]) example-forms)
+
+      ))
+
   (t/testing "atomic elements"
     (t/is (valid? attr-map {:class "a"
                             :href "http://google.com"}))
@@ -487,5 +524,6 @@
                         process-text)])
                pages)))
 
-  (def post-meta (into {} (map (fn [[p c]] [p {:valid? (valid? grid c)
-                                               :size (count c)}]) post-contents))))
+  (def post-meta
+    (into {} (map (fn [[p c]] [p {:valid? (valid? grid c)
+                                  :size (count c)}]) post-contents))))

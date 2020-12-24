@@ -9,6 +9,7 @@ Both Dorsey and Wolfram made a similar argument: we need to decentralize the gov
 
 They seemed like decent enough arguments, as far as that goes. But as I was reading the testimony and the broader discussion it's a part of, I started to become more and more unsettled by it. I worry because of what's taken as a default in all of it, that the end result is just to reify the structure of the internet as it currently exists.
 
+<%=[:section]%>
 <%=(header "Media For The Masses" :h3)%>
 
 Wolfram, Dorsey, and even the people in Dorsey's mentions grumbling about the fact that ActivityPub already exists all share the same unquestioned assumption: that the future of the 'decentralized' internet is still a trough of undifferentiated content slurry shoved in front of users. That what people want is just a <%=[:em "feed"]%>, but perhaps with a little more market-friendly <%=(em "choice")%>. The bold vision from the originator of <%=(em "A New Kind Of Science")%> boils down to adding some premium channels to the cable package for the savvy consumer.
@@ -21,15 +22,12 @@ Wolfram doesn't see himself as a consumer. He sees himself as a creator, and giv
 
 <%=(blockquote "And, as someone who prides himself on turning the seemingly impossible into the possible, this didn’t sit well with me." (em "Wolfram, ibid"))%>
 
-<%= (html
-[:div {:class "flex"}
-[:div {:class "fl w-100 w-50-ns pr3"}
-"He has been quite successful selling some of the same software for " (link "https://reference.wolfram.com/language/tutorial/CitationManagement.html" "information management,") " " (link "https://www.wolfram.com/featureset/notebooks/" "interactive computing,") " and " (link "https://www.wolfram.com/system-modeler/" "simulation") " that he uses himself. The idea that these capabilities might be something that end users might like to have, the idea that people might want to use the web as an expressive and creative " (em "medium,") " doesn't enter into his picture in the slightest. The experts get software that can cope with and navigate complexity. Everyone else gets a feed. It's glaringly obvious that the architects of these solutions have no intention whatsoever of using the solutions they're talking about, preferring instead to use a creative and intellectual medium that doesn't constrain their mode of thinking. This, more than anything else, was what I found unsettling about the way users are being talked about in this debate."]
+He has been quite successful selling some of the same software for  <%= (link "https://reference.wolfram.com/language/tutorial/CitationManagement.html" "information management,") %> <%= (link "https://www.wolfram.com/featureset/notebooks/" "interactive computing,") %>  and <%= (link "https://www.wolfram.com/system-modeler/" "simulation") %>  that he uses himself. The idea that these capabilities might be something that end users might like to have, the idea that people might want to use the web as an expressive and creative  <%=(em "medium,")%> doesn't enter into his picture in the slightest. The experts get software that can cope with and navigate complexity. Everyone else gets a feed. It's glaringly obvious that the architects of these solutions have no intention whatsoever of using the solutions they're talking about, preferring instead to use a creative and intellectual medium that doesn't constrain their mode of thinking. This, more than anything else, was what I found unsettling about the way users are being talked about in this debate.
 
-[:div {:class "fl w-30-ns w-100 f5 pa2"}
- (em "If you say: \"ah, but activitypub or an open system makes possible exactly what you're describing - you just need to build it atop the protocol\" my only response is: get real. Defaults are incredibly powerful, and what it's easiest to do on a platform will overwhelmingly be what gets done. The medium is the message.")]])%>
+<%=(aside "If you say: 'ah, but activitypub or an open system makes possible exactly what you're describing - you just need to build it atop the protocol' my only response is: get real. Defaults are incredibly powerful, and what it's easiest to do on a platform will overwhelmingly be what gets done. The medium is the message.")%>
 
-<%=(html [:span {:class "cf"} (header "Platform, heal thyself" :h3)])%>
+<%=[:section]%>
+<%=(header "Platform, heal thyself" :h3)%>
 
 Another obvious objection to Dorsey in particular funding this project is that he's setting himself up to cure the disease his choices created. Surprisingly, even he isn't the most obnoxious voice doing this. That dubious honor belongs to Nir Eyal, who's currently trying to backpedal on the idea that apps can be addictive so hard that <%=(link "https://www.nytimes.com/2019/10/06/technology/phone-screen-addiction-tech-nir-eyal.html" "he's trying to sell you the cure to a disease he doesn't even think you have.")%>
 
@@ -41,6 +39,7 @@ If that seems to be over-stated rhetoric, well then here's Wolfram, in his testi
 
 Needless to say, any "solution" to this problem that has to satisfy the constraint of leaving the core business model "perfectly intact" is going to be a bit limited.
 
+<%=[:section]%>
 <%=(header "Metaphor and Medium" :h3)%>
 
 The promise of the internet, as I recall it from growing up in the 1990s, was that you'd be able to use your access to it to browse an incredibly rich network of interconnected information with a structure that emerged organically from the links between pages and websites: the World Wide Web. Even the first implementation of HTML fell far short of the potential of the <%=(link "https://en.wikipedia.org/wiki/Project_Xanadu" "original vision for hypertext")%>, but it showed how powerful this new, networked method of organizing information could be.
@@ -49,12 +48,10 @@ That emergent, organic structure is destroyed by being shoved through the narrow
 
 Even the idea that the major social media platforms serve to aggregate things from elsewhere on the internet is beginning to break down:
 
-<%=(html [:div {:class "flex"}
-[:div {:class "fl w-100 w-70-ns"}
-[:div (image "media/screencaps.jpg" "screencaps" "w-50-ns w-100")]]
 
-[:div {:class "fl w-30-ns w-100 pl2 f5"}
-(em "In a pitch-perfect example of how closed in on themselves these platforms can be, I had to take a screenshot of the tweet containing this screencap because evidently right-click+save as is too much in 2019, and I should be using a share button instead.")]])%>
+<%=(image "media/screencaps.jpg" "screencaps" "w-50-ns w-100")%>
+
+<%=(aside "In a pitch-perfect example of how closed in on themselves these platforms can be, I had to take a screenshot of the tweet containing this screencap because evidently right-click+save as is too much in 2019, and I should be using a share button instead.")%>
 
 The ouroboros eats its own tail as the feed consumes itself.
 
