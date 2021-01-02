@@ -328,9 +328,17 @@
    :script [:script {:src "/resources/klipse.js"} ""]
    :wbr [:wbr]
    :hr [:hr]
-   :br [:br]})
+   :br [:br]
+   :table [:table
+           [:caption "an example table"]
+           [:colgroup [:col]]
+           [:tr [:td "a cell"]]]})
 
 (t/deftest models
+  (t/testing "model constructors"
+    (t/is
+     (valid? (->hiccup-model :col global-attributes :empty)
+             [:col])))
 
   (doseq [elem (-> elements :bindings keys)]
     (t/testing (str "model for element: <" elem ">")
@@ -338,7 +346,7 @@
        (or (valid? (-> elements :bindings (get elem))
                    [(keyword elem) "sample string"])
            (valid? (-> elements :bindings (get elem))
-            (get example-forms (keyword elem)))))))
+                   (get example-forms (keyword elem)))))))
 
   (t/testing "full structure"
     (t/is

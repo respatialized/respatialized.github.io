@@ -50,7 +50,7 @@
     #_:meter :nav #_:noscript #_:object :ol #_:output
     :p #_:picture :pre #_:progress :q #_:ruby :s
     :samp :script :section #_:select :small
-    :span :strong :sub :sup #_:svg #_:table
+    :span :strong :sub :sup #_:svg :table
     #_:template #_:textarea :time :ul :var #_:video
     :wbr})
 
@@ -248,18 +248,21 @@
      [:int-str (->constrained-model #(< 0 (Integer/parseInt %) 33)
                                     (gen/fmap str gen/nat) 200)])]))
 
+
 (defn ->hiccup-model
   ([elem-tag attrs contents]
-   (h/in-vector
-    (h/cat
-     [:tag (h/val elem-tag)]
-     [:attributes (if (has-required? attrs) attrs (h/? attrs))]
-     [:contents
-      (h/*
-       (h/not-inlined
-        (apply h/alt
-               [:atomic-element atomic-element]
-               contents)))])))
+   (let [ms [[:tag (h/val elem-tag)]
+             [:attributes (if (has-required? attrs) attrs (h/? attrs))]
+             (if (= :empty contents) nil
+                 [:contents
+                  (h/*
+                   (h/not-inlined
+                    (apply h/alt
+                           [:atomic-element atomic-element]
+                           contents)))])]]
+     (h/not-inlined
+      (h/in-vector
+       (apply h/cat (filter some? ms))))))
   ([elem-tag contents] (->hiccup-model elem-tag global-attributes contents)))
 
 (comment
@@ -374,7 +377,7 @@
                        (h/not-inlined (->hiccup-model
                                        :dd
                                        (map elem-ref flow-tags)))]))]))
-       'div (->child-model :div (map elem-ref flow-tags))
+       'div (->hiccup-model :div (map elem-ref flow-tags))
        'figure
        (h/in-vector
         (h/cat
@@ -474,13 +477,49 @@
                           [:src url]
                           [:type (h/fn string?)])]
                        [:content (h/? (h/fn string?))]))
-       #_ #_
-       'table (h/in-vector
-               (h/cat
-                [:caption (h/? (->hiccup-model
-                                :caption
-                                (map elem-ref flow-tags)))]))]
-
+      'table (h/let ['tr
+                     (h/not-inlined
+                      (h/in-vector
+                       (h/cat
+                        [:tag (h/val :tr)]
+                        [:rowheader
+                         (h/? (->hiccup-model
+                               :th
+                               (h/with-optional-entries
+                                 global-attributes
+                                 [:abbr (h/fn string?)]
+                                 [:colspan (->constrained-model pos-int? gen/small-integer)]
+                                 [:rowspan (->constrained-model #(<= 0 % 65534) gen/small-integer)]
+                                 [:headers (h/fn string?)]
+                                 [:scope (h/enum #{"row" "col" "rowgroup" "colgroup" "auto"})])
+                               (map elem-ref (set/difference flow-tags sectioning-tags heading-tags #{:table :footer :header}))))]
+                        [:rowdata
+                         (h/* (->hiccup-model
+                               :td
+                               (h/with-optional-entries
+                                 global-attributes
+                                 [:colspan (->constrained-model pos-int? gen/small-integer)]
+                                 [:rowspan (->constrained-model #(<= 0 % 65534) gen/small-integer)]
+                                 [:headers (h/fn string?)])
+                               (map elem-ref flow-tags)))])))]
+               (h/in-vector
+                (h/cat
+                 [:tag (h/val :table)]
+                 [:caption (h/? (->hiccup-model :caption (map elem-ref flow-tags)))]
+                 [:colgroups (h/* (->hiccup-model
+                                   :colgroup
+                                   [(->hiccup-model
+                                     :col
+                                     (h/with-optional-entries
+                                       global-attributes
+                                       [:span (h/fn pos-int?)])
+                                     :empty)]))]
+                 [:header (h/? (->hiccup-model :thead [(h/ref 'tr)]))]
+                 [:contents
+                  (h/alt
+                   [:body (->hiccup-model :tbody [(h/ref 'tr)])]
+                   [:rows (h/+ (h/ref 'tr))])]
+                 [:footer (h/? (->hiccup-model :tfoot [(h/ref 'tr)]))])))]
       (h/alt
        [:a (h/ref 'a)]
        [:abbr (h/ref 'abbr)]
@@ -546,13 +585,46 @@
        [:sub (h/ref 'sub)]
        [:sup (h/ref 'sup)]
        #_[:svg (h/ref 'svg)]
-       #_[:table (h/ref 'table)]
+       [:table (h/ref 'table)]
        #_[:template (h/ref 'template)]
        #_[:textarea (h/ref 'textarea)]
        [:time (h/ref 'time)]
        [:ul (h/ref 'ul)]
        [:var (h/ref 'var)]
        [:wbr (h/ref 'wbr)])))
+
+(comment
+  (def colgroup-model
+    (h/not-inlined
+     (h/*
+      (h/in-vector
+       (h/cat [:tag (h/val :colgroup)]
+              [:cols
+               (h/not-inlined (h/*
+                               (->hiccup-model
+                                :col
+                                (h/with-optional-entries
+                                  global-attributes
+                                  [:span (h/fn pos-int?)])
+                                :empty)))])))))
+
+  (def colgroup-model-2
+    (h/*
+      (h/in-vector
+       (h/cat [:tag (h/val :colgroup)]
+              [:cols
+               (h/not-inlined (h/*
+                               (->hiccup-model
+                                :col
+                                (h/with-optional-entries
+                                  global-attributes
+                                  [:span (h/fn pos-int?)])
+                                :empty)))]))))
+
+  (valid? colgroup-model [:colgroup [:col]])
+  (valid? colgroup-model [:colgroup [:col]])
+
+  )
 
 (def p
   (h/let ['em (->child-model :em)
