@@ -6,7 +6,7 @@
             [clojure.string :as string]
             [clojure.java.io :as io]
             [respatialized.styles :as styles]
-            [respatialized.document :refer [process-text]]
+            [respatialized.document]
             [respatialized.parse :refer [parse parse-eval]])
   (:gen-class))
 
@@ -71,8 +71,10 @@
                 :content-class styles/blockquote-content
                 :author-class styles/blockquote-author})))
 
+(defn quote [content author] [:q {:cite author} content])
+
 (defn ul [& items]
-   (into [:ul] (map (fn [i] [:li i]) items)))
+  (into [:ul] (map (fn [i] [:li i]) items)))
 (defn ol [& items]
    (into [:ol] (map (fn [i] [:li i]) items)))
 
@@ -122,9 +124,7 @@
 (defn template->hiccup
   "Converts a template file to a hiccup data structure for the page."
   [t]
-  (let [content (process-text
-                 (parse-eval t [])
-                 [:r-cell {:span "1-6"}])
+  (let [content (parse-eval t [:div])
         page-meta (eval 'metadata)
         body-content (into [:r-grid {:columns (:columns page-meta default-grid)}] content)]
     [:body (doc-header (:title page-meta ""))
@@ -133,11 +133,10 @@
       {:class "mb7"}
       [:div [:a {:href "/"} "Home"]]]]))
 
-(defn page
-  "Converts a comb/hiccup file to HTML."
-  [t]
-  (hp/html5 (template->hiccup t)))
-
+;; (defn page
+;;   "Converts a comb/hiccup file to HTML."
+;;   [t]
+;;   (hp/html5 (template->hiccup t)))
 
 
 
