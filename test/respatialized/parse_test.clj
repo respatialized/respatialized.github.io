@@ -29,7 +29,7 @@
     (t/is (= (parse-eval "<%=[1 2 3]%>") [:div [1 2 3]]))
     (t/is (= (parse-eval "<%=[\"a\" \"b\"]%>")  [:div ["a" "b"]])
           "Escaped quotes in forms should be preserved.")
-    (t/is (= (parse-eval "<%(def var 3)%> foo <%=var%>") [:div " foo " 3])
+    (t/is (= (parse-eval "<%(def var 3)%> foo <%=var%>" [:div] "var-test-ns") [:div " foo " 3])
           "In-form defs should be evaluated successfully.")
 
     (t/is (= (parse-eval "<%=(respatialized.render/em 3)%>")
@@ -39,21 +39,23 @@
              [:div [:em 3]])
           "Namespace scoping should be preserved")
 
-    (t/is (= (parse-eval "<%=(link \"here\" \"text\")%>")
-             [:div [:a {:href "here"} "text"]])
-          "Links should parse + eval to vector forms")
+    (t/is (= (parse-eval "<%=(link \"here\" \"text\")%>" [:div] "link-ns" '[[respatialized.render :refer [link]]])
+             [:div (link "here" "text")])
+          "Links should parse + eval using external namespaces")
 
-    (t/is (= (parse-eval "an inline <%=(link \"here\" \"link\")%>, followed by some <%=(em \"emphasis\").%>")
+    (t/is (= (parse-eval "an inline <%=(link \"here\" \"link\")%>, followed by some <%=(em \"emphasis\").%>"
+                         [:div]
+                         "link-em-ns"
+                         '[[respatialized.render :refer [link em]]])
              [:div
               "an inline "
-              [:a {:href "here"} "link"]
+              (link "here" "link")
               ", followed by some "
-              [:em "emphasis"]])
+              (em "emphasis")])
           "All elements should end up in vector forms")
-    (t/is (vector? (parse-eval "<%=(blockquote \"a quote\" \"by someone\")%>")))
-    (t/is (vector? (parse-eval "<%=(blockquote \"a quote\" \"by someone\"%>") ))
 
-    (t/is (= (parse-eval "<%=[:em\"text\"]%>, with a comma following")
+
+    (t/is (= (parse-eval "<%=[:em \"text\"]%>, with a comma following")
              [:div [:em "text"] ", with a comma following"]))
 
     (t/is (= (hiccup.core/html (parse-eval "<%=[:em\"text\"]%>, with a comma following"))
