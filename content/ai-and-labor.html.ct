@@ -1,6 +1,6 @@
 <% (def metadata {:title "AI and Labor"}) %>
 
-<%=(html [:div {:class "f3"} (header "Notes on AI and Labor")])%>
+<%=[:div {:class "f3"} (header "Notes on AI and Labor")]%>
 
 Here's some thoughts scattered around a linkdump on the topic of <%=(strong "AI and labor")%>:
 

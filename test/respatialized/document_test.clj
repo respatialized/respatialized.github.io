@@ -1,9 +1,8 @@
 (ns respatialized.document-test
   (:require [respatialized.document :refer :all]
-            [respatialized.parse :refer [parse parse-eval]]
-            [respatialized.build :refer [load-deps get-template-files]]
+            [respatialized.parse :refer [parse parse-eval md5]]
+            [respatialized.build :refer [get-template-files]]
             [hiccup.core :refer [html]]
-            [clojure.zip :as zip]
             [clojure.test :as t]
             [clojure.test.check :as tc]
             [clojure.test.check.clojure-test :refer [defspec]]
@@ -13,8 +12,6 @@
             [minimallist.core :refer [valid?]]
             [minimallist.generator :as mg]
             [minimallist.helper :as h]))
-
-(load-deps)
 
 
 (t/deftest transforms
@@ -204,10 +201,21 @@
   (doseq [elem (-> elements :bindings keys)]
     (t/testing (str "model for element: <" elem ">")
       (t/is
-       (or (valid? (-> elements :bindings (get elem))
+       (or (valid? (->element-model (keyword elem))
                    [(keyword elem) "sample string"])
-           (valid? (-> elements :bindings (get elem))
+           (valid? (->element-model (keyword elem))
                    (get example-forms (keyword elem)))))))
+
+  (t/testing "content models"
+    (t/is (palpable? [:p "text"]))
+    (t/is (not (palpable? [:p])))
+
+    (t/is (valid? flow-content [:div [:div [:div [:p "text"]]]]))
+    (t/is (valid? phrasing-content [:em "something"]))
+    ;; (t/is (not (valid? phrasing-content [:em])))
+    ;; h/with-condition isn't working on this?
+
+    )
 
   (t/testing "full structure"
     (t/is
@@ -221,14 +229,14 @@
 
   (t/testing "atomic elements"
     (t/is (valid? global-attributes {:class "a"
-                            :href "http://google.com"}))
+                                     :href "http://google.com"}))
     (t/is (valid? global-attributes {:title "some page"
-                            :href "/relative-page.html"}))
+                                     :href "/relative-page.html"}))
 
-    (t/is (valid? elements
+    (t/is (valid? (->element-model :img)
                   [:img {:src "/pic.jpg" :width 500}]))
 
-)
+    )
   )
 
 (comment
@@ -332,6 +340,7 @@
 
 
 
+
 (t/deftest existing-docs
   (t/testing "parsing and rendering existing pages"
     (let [pages (get-template-files "./content" ".ct")
@@ -339,13 +348,18 @@
           (into {}
                 (map
                  (fn [p]
-                   [p (-> p
-                          slurp
-                          (parse-eval [:article {:columns 8}])
-                          (#(into [:article] sectionize-contents (rest %))))])
+                   (try
+                     [p (-> p
+                            slurp
+                            (parse-eval [:article {:columns 8}]
+                                        (md5 p)
+                                        '[[respatialized.render :refer :all]])
+                            (#(into [:article] sectionize-contents (rest %))))]
+                     (catch Exception e
+                       [p {:error (str "exception: " (.getMessage e))}])))
                  pages))]
       (doseq [[page contents] parsed-pages]
-        (t/is (valid? elements contents)
+        (t/is (valid? (->element-model :article) contents)
               (str "page " page " did not conform to grid spec"))))))
 
 (comment
@@ -353,12 +367,18 @@
 
   (def post-contents
     (into {}
-          (map (fn [p]
-                 [p (-> p
-                        slurp
-                        (parse-eval [:contents])
-                        (#(into [:article] sectionize-contents (rest %))))])
-               pages)))
+                (map
+                 (fn [p]
+                   (try
+                     [p (-> p
+                            slurp
+                            (parse-eval [:article {:columns 8}]
+                                        (md5 p)
+                                        '[[respatialized.render :refer :all]])
+                            (#(into [:article] sectionize-contents (rest %))))]
+                     (catch Exception e
+                       [p {:error (str "exception: " (.getMessage e))}])))
+                 pages)))
 
   (def post-meta
     (into {} (map (fn [[p c]] [p {:valid? (valid? grid c)
