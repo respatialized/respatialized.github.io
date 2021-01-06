@@ -4,22 +4,18 @@
 <%=(header "actual / potential spaces" :h4 "f1 tr") %>
 
 <%=(header "recent work" :h3 "f2")%>
-<%=(ul (html
+<%=(ul
        [:p [:a {:href "not-a-tree.html"} "This Website Is Not A Tree"]]
-       [:p "a metatextual introduction to this site as it is and as it could be."])
-       (html
+       [:p "a metatextual introduction to this site as it is and as it could be."]
        [:p [:a {:href "against-metadata.html"} "Against Metadata"]]
-       [:p "rants against the apparent fact that metadata is treated as an afterthought in program design and configuration management."])
-       (html
+       [:p "rants against the apparent fact that metadata is treated as an afterthought in program design and configuration management."]
        [:p [:a {:href "information-cocoon.html"} "Reifying the Filter Bubble, part 1"]]
-       [:p "new digital infrastructure makes a metaphor less of one."])
-       (html
+       [:p "new digital infrastructure makes a metaphor less of one."]
        [:p [:a {:href "reifying-filter-bubble-2.html"} "Reifying the Filter Bubble, part 2"]]
-       [:p "notes against the 'decentralization' of an impoverished internet."])
-       (html
+       [:p "notes against the 'decentralization' of an impoverished internet."]
        [:p [:a {:href "/working-definition.html"} "A Working Definition"]]
-       [:p "a working definition of my own ideology."]))
+       [:p "a working definition of my own ideology."])
 %>
 
 
-<%=(html [:div {:class "f3"} (strong "Site source: " (link "https://github.com/respatialized/respatialized.github.io" (in-code "github")))])%>
+<%= [:div {:class "f3"} (strong "Site source: " (link "https://github.com/respatialized/respatialized.github.io" (in-code "github")))] %>

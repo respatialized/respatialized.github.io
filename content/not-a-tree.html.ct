@@ -3,7 +3,7 @@
 <%=(header "This Website Is Not A Tree")%>
 
 <%=(blockquote "It must be emphasized, lest the orderly mind shrink in horror from anything that is not clearly articulated and categorized in tree form, that the idea of overlap, ambiguity, multiplicity of aspect and the semilattice are not less orderly than the rigid tree, but more so. They represent a thicker, tougher, more subtle and more complex view of structure." (str "Christopher Alexander, " (link "https://www.patternlanguage.com/archive/cityisnotatree.html" "A City Is Not A Tree")))%>
-<%=(html [:div {:class "f7 tr"} "essential reading."])%>
+<%= [:div {:class "f7 tr"} "essential reading."] %>
 
 <%=(header "Preliminaries" :h3)%>
 <%=(entry-date "2019-03-10")%>
@@ -91,7 +91,7 @@ Mostly because I know that I'm going to have to write my own solution to this pr
 I've gone through myriad to-do apps, organizers, journaling systems. Here's a table depicting my overall thoughts.
 
 <%=
-(html [:div (sorted-map-vec->table [
+ [:div (sorted-map-vec->table [
  {"Type" "Binder notebook"
   "Examples" "Filofax"
   "Advantages" "associative,organic,frictional,multi-modal,simple"
@@ -115,7 +115,7 @@ I've gone through myriad to-do apps, organizers, journaling systems. Here's a ta
  {"Type" "Website"
   "Examples" "This"
   "Advantages" "frictional,multi-modal,associative"
-  "Disadvantages" "laborious,atemporal"}])]) %>
+  "Disadvantages" "laborious,atemporal"}])] %>
 
 All of these advantages and disadvantages stem from one real underlying issue, in my view: each tool imposes its own view over the data you put into it, making alternative ways of looking at the same information difficult or impossible. Paul Chiusano has <%=(link "https://pchiusano.github.io/2016-10-13/view-inspired.html" "written nicely")%> about the conceptually weak data model an "intuitive" design imposes on the information it represents:
 
@@ -165,7 +165,7 @@ A lot of PIMs designed to support academic reseearch are "open" towards producin
 
 Here's a quick sketch of what this might be look like:
 
-<%=(html [:div (image "media/views_sketch.jpg" "views-sketch" "mw20")])%>
+<%= [:div (image "media/views_sketch.jpg" "views-sketch" "mw20")] %>
 
 The bottom has a pomodoro-style task tracker and the "current task", the right pane has a grouping of recent commits to keep the actual output of that task in mind as well. The role of these panes isn't the important part - the mechanism by which they're generated is. By pulling information from a common store, simple contextual visualizations of relevant parts of it would be easy to construct via Datalog queries. 
 
@@ -180,13 +180,13 @@ I started reading about the concept, glossing over the mathematical details in f
 
 <%=(header "Making the library metaphor in 'code library' concrete" :h5)%>
 
-<%=(html [:div [:p {:class "f5"} (em (str "heavily inspired by Rich Hickey's talk " (link "https://youtube.com/watch?v=oyLBGkS5ICk" "Spec-ulation")))]])%>
+<%= [:div [:p {:class "f5"} (em (str "heavily inspired by Rich Hickey's talk " (link "https://youtube.com/watch?v=oyLBGkS5ICk" "Spec-ulation")))]] %>
 
 Right now you have to take home the whole library when you write some code that uses one page of one book.
 
 Statically typed languages that rely on complex class hierarchies, especially because the compiler may make multiple passes across the codebase for definitions in different files ("... all you wanted was the banana." - Joe Armstrong) force you to ship all this supporting material to use one part of it. 
 
-<%=(html [:div [:p {:class "f5"} (em "aside: I don't intend this as an intrinsic dig at statically typed, compiled languages per se. Smart compilers can do dead code elimination, but usually this technique is put to the purpose of reducing ") " executable " (em "size rather than reducing") " dependency " (em "size. It'd be very interesting to see a compiler targeting library code that minimizes the volume of the library code pulled in by the code which declares it as a dependency." (link "https://www.unisonweb.org/docs/tour" "Unison") " has done some interesting work in this direction because of its ability to serialize algebraic data types and send them over the network to perform remote computation.")]])%>
+<%= [:div [:p {:class "f5"} (em "aside: I don't intend this as an intrinsic dig at statically typed, compiled languages per se. Smart compilers can do dead code elimination, but usually this technique is put to the purpose of reducing ") " executable " (em "size rather than reducing") " dependency " (em "size. It'd be very interesting to see a compiler targeting library code that minimizes the volume of the library code pulled in by the code which declares it as a dependency." (link "https://www.unisonweb.org/docs/tour" "Unison") " has done some interesting work in this direction because of its ability to serialize algebraic data types and send them over the network to perform remote computation.")]] %>
 
 So if instead of classes defined across files or nested relationships between algebraic data types defined at compile time, we had functions operating on simple, immutable values defined in self-contained s-expressions, plus some annotations:
 
@@ -281,14 +281,14 @@ But what if someone went further than that, combining a CRDT with a data model a
 
 With existing text snapshotted as facts and recorded in a CRDT, queries could be run against that data to associate formerly disparate pieces of data into new forms, and the composites those queries create could themselves be recorded and annotated as new facts about the collection. The query that retrieves those facts could be stored as data itself, with the new structure that the query identifies added as an annotation to it. Use these queries and the expressive power they create to give a new life to <%=(in-code "structur")%> and <%=(in-code "alpha")%>, the venerable software extensions to <%=(in-code "Kedit")%> written by Howard J. Strauss to aid <%=(link "https://www.newyorker.com/magazine/2013/01/14/structure" "John McPhee in his writing process.")%>
 
-<%= (blockquote (html [:p "He listened to the whole process from pocket notebooks to coded slices of paper, then mentioned a text editor called Kedit, citing its exceptional capabilities in sorting. Kedit (pronounced 'kay-edit'), a product of the Mansfield Software Group, is the only text editor I have ever used. I have never used a word processor. Kedit did not paginate, italicize, approve of spelling, or screw around with headers, WYSIWYGs, thesauruses, dictionaries, footnotes, or Sanskrit fonts. Instead, Howard wrote programs to run with Kedit in imitation of the way I had gone about things for two and a half decades."]
+<%= (blockquote [:div [:p "He listened to the whole process from pocket notebooks to coded slices of paper, then mentioned a text editor called Kedit, citing its exceptional capabilities in sorting. Kedit (pronounced 'kay-edit'), a product of the Mansfield Software Group, is the only text editor I have ever used. I have never used a word processor. Kedit did not paginate, italicize, approve of spelling, or screw around with headers, WYSIWYGs, thesauruses, dictionaries, footnotes, or Sanskrit fonts. Instead, Howard wrote programs to run with Kedit in imitation of the way I had gone about things for two and a half decades."]
 [:p "He wrote Structur. He wrote Alpha. He wrote mini-macros galore. Structur lacked an “e” because, in those days, in the Kedit directory eight letters was the maximum he could use in naming a file. In one form or another, some of these things have come along since, but this was 1984 and the future stopped there. Howard, who died in 2005, was the polar opposite of Bill Gates—in outlook as well as income. Howard thought the computer should be adapted to the individual and not the other way around. One size fits one. The programs he wrote for me were molded like clay to my requirements—an appealing approach to anything called an editor."]
 
 [:p "Structur exploded my notes. It read the codes by which each note was given a destination or destinations (including the dustbin). It created and named as many new Kedit files as there were codes, and, of course, it preserved intact the original set. In my first I.B.M. computer, Structur took about four minutes to sift and separate fifty thousand words. My first computer cost five thousand dollars. I called it a five-thousand-dollar pair of scissors."]
 
 [:p "I wrote my way sequentially from Kedit file to Kedit file from the beginning to the end of the piece. Some of those files created by Structur could be quite long. So each one in turn needed sorting on its own, and sometimes fell into largish parts that needed even more sorting. In such phases, Structur would have been counterproductive. It would have multiplied the number of named files, choked the directory, and sent the writer back to the picnic table, and perhaps under it. So Howard wrote Alpha. Alpha implodes the notes it works on. It doesn’t create anything new. It reads codes and then churns a file internally, organizing it in segments in the order in which they are meant to contribute to the writing."]
 
-[:p "Alpha is the principal, workhorse program I run with Kedit. Used again and again on an ever-concentrating quantity of notes, it works like nesting utensils. It sorts the whole business at the outset, and then, as I go along, it sorts chapter material and subchapter material, and it not infrequently arranges the components of a single paragraph. It has completely served many pieces on its own."]) (link "https://www.newyorker.com/magazine/2013/01/14/structure" "John McPhee, Structure"))%>
+[:p "Alpha is the principal, workhorse program I run with Kedit. Used again and again on an ever-concentrating quantity of notes, it works like nesting utensils. It sorts the whole business at the outset, and then, as I go along, it sorts chapter material and subchapter material, and it not infrequently arranges the components of a single paragraph. It has completely served many pieces on its own."]] (link "https://www.newyorker.com/magazine/2013/01/14/structure" "John McPhee, Structure")) %>
 
 <%=(link "https://docs.racket-lang.org/pollen/" "The book is a program")%>. Tools for writing digital books should be at least as powerful as the tools created for conventional books decades ago. CRDTs provide a reliable and immutable foundation to the discrete chunks of knowledge that McPhee has used for his entire career. A query engine provides the toolkit to devise new ways of composing them together as powerful as <%=(in-code "structur")%> and <%=(in-code "alpha")%>, but with the added benefit of an entire programming language so that the text (or the collection of notes used to produce it) is no longer a closed system but can instead pull in data from the rest of the world. 
 
@@ -306,7 +306,7 @@ Why do we use it? Because one of <%=(link "https://daringfireball.net/projects/m
 
 Every system built atop Markdown will invariably have some ad-hoc and kludgy method of attempting to recapture some part of the structure that emerges from text authored in markdown, and it will be different from every other one because Markdown is blind to structure in all but the most basic of ways. In that regard it is very similar to "plain-text configuration" tools like <%=(link "/against-metadata.html" "YAML")%>, which have all kinds of templating engines bolted on to them to overcome the limitations of what has in practice become a flat-file key-value store.
 
-<%=(html [:p (em "Everyone already knows markdown! It's fast and easy!")])%>
+<%= [:p (em "Everyone already knows markdown! It's fast and easy!")] %>
 
 Just be aware of what you're giving up as an author in pursuit of that, and what you may be imposing on yourself later on down the line if you want to overcome these constraints.
 
@@ -315,11 +315,11 @@ And yes, there's no small irony in the fact that the <%=(link "https://gitlab.co
 <%=(header "Extensible Textual Notation, part 4" :h3)%>
 <%=(entry-date "2019-12-29")%>
 
-<%=(html [:r-grid {:columns 5}
-      [:r-cell {:span 2} (image "media/thinking-about-things.jpg" "laptop sticker reading 'thinking about things'" "mw20")]
-      [:r-cell {:span 3} (blockquote "I read relentlessly. I don’t do any programming not directed at making the computer do something useful, so I don’t do any exercises. I try to spend more time thinking about the problem than I do typing it in." (link "http://web.archive.org/web/20160918041754/http://codequarterly.com/2011/rich-hickey/" "Rich Hickey"))]])%>
+<%= [:section {:columns 5}
+      [:div {:span 2} (image "media/thinking-about-things.jpg" "laptop sticker reading 'thinking about things'" "mw20")]
+      [:div {:span 3} (blockquote "I read relentlessly. I don’t do any programming not directed at making the computer do something useful, so I don’t do any exercises. I try to spend more time thinking about the problem than I do typing it in." (link "http://web.archive.org/web/20160918041754/http://codequarterly.com/2011/rich-hickey/" "Rich Hickey"))]] %>
 
-<%=(html [:p (em "inspiration for what the medium should make possible, and for my prose-first approach to thinking about it: Bret Victor's laptop sticker and Rich Hickey's mindset; the antithesis of the \"shut up and show me the code\" brogrammer ethos")])%>
+<%= [:p (em "inspiration for what the medium should make possible, and for my prose-first approach to thinking about it: Bret Victor's laptop sticker and Rich Hickey's mindset; the antithesis of the \"shut up and show me the code\" brogrammer ethos")] %>
 
 <%=(header (str "Beyond plain text: storing prose within " (in-code "datahike")) :h5)%>
 
@@ -360,7 +360,7 @@ More than anything, I want a tool of my own making, free from any compromises ma
 
 I don't want an outlining tool that helps me produce writing. I want a <%=(em "writing")%> tool that helps me identify and work with the structure that emerges from what I write.
 
-<%=(html [:p (em "that and the founder is building the core product around the demands of the LessWrong crowd and goes on [1/178] twitter rants about stuff he reads on SlateStarCodex. the app feels like the product of that kind of approach: unfocused and built around pseudoproblems.")])%>
+<%= [:p (em "that and the founder is building the core product around the demands of the LessWrong crowd and goes on [1/178] twitter rants about stuff he reads on SlateStarCodex. the app feels like the product of that kind of approach: unfocused and built around pseudoproblems.")] %>
 
 <%=(header "Extensible Textual Notation, part 6" :h3)%>
 <%=(entry-date "2019-12-31")%>
@@ -423,7 +423,7 @@ It was the most beautiful <%=(link "https://wiki.c2.com/?WaterfallModel" "waterf
 
 The codebase is always the most up-to-date part of any software project. Everything else tends to lag behind, mostly due to the unavoidable fact that you don't always know what you need to build before you build it. But why can't we write documents in a way that lends itself a little better to the day-to-day work of software development? Why can't I plop a feature matrix right into my <%=(in-code "readme")%> and then programatically generate a set of test suites for the features within it? That way, by changing the top-level description of the project, I also change the definition of the software that ensures it functions as intended.
 
-<%=(html [:p (em "please do not tell me that org-mode supports tables. I am not interested in a solution specific to emacs lisp that imposes a separation  between structured data and code by tangling out the code into separate files, and thus remains ignorant of the actual information generated by that code.")])%>
+<%=[:p (em "please do not tell me that org-mode supports tables. I am not interested in a solution specific to emacs lisp that imposes a separation  between structured data and code by tangling out the code into separate files, and thus remains ignorant of the actual information generated by that code.")]%>
 
 You might say something like "design should be design, and code should be code. Just because a problem is represented a certain way in the design phase doesn't mean that the actual code should be laid out that way."  I agree with part of the spirit behind this. Stepping away from the laptop to think through the problem is something that everyone should do more often. I deeply enjoy the more embodied sense of problem-solving that sketching on a whiteboard gives me. But sometimes, you need more than a sketch or description; structured data can represent facts about a codebase that spec documents and architecture diagrams cannot. Keeping this up-to-date means seeing and editing it directly in tandem with the code. It means automatically checking off one of the "to-dos" generated from the structured documentation when a given test passes. It means storing information about failed and successful builds not in some <%=(link "https://docs.gitlab.com/ee/ci/pipelines.html" "web interface that has no direct interaction with the code")%> but perhaps in the same data structure as the code itself.
 

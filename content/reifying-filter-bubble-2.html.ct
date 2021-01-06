@@ -1,6 +1,6 @@
 <% (def metadata {:title "Reifying The Filter Bubble, part 2"})%>
 
-<%=[:r-cell {:span "row"} (header (:title metadata) :h3)]%>
+<%=[:div {:span "row"} (header (:title metadata) :h3)]%>
 <%=(entry-date "2019-12-27")%>
 
 In reading about the potential of conflict-free replicated data types, I was brought to the hype around Jack Dorsey's research team developing a <%=(link "https://twitter.com/jack/status/1204766078468911106" "'decentralized'")%> to Twitter's proprietary implementation of an activity feed. From there, I came to Stephen Wolfram's <%=(link "https://writings.stephenwolfram.com/2019/06/testifying-at-the-senate-about-a-i-selected-content-on-the-internet/" "testimony before Congress")%> about AI and algorithmic recommendations and what can be done to make platforms fairer and more transparent.

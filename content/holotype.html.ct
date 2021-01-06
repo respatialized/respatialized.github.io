@@ -1,9 +1,10 @@
 <% (def metadata {:title "HOLOTYPE_/1"}) %>
+<% (require (quote [respatialized.holotype :as holotype])) %>
 
 <%=(header "HOLOTYPE_/1" :h1 "f1")%>
 
 A holotype is an exemplar of a new type.
 
-<%=(html (holotype/canvas->hiccup! (holotype/h2) "media/holotype-2.jpg" "holotype2"))%>
+<%=(holotype/canvas->hiccup! (holotype/h2) "media/holotype-2.jpg" "holotype2")%>
 
 This new type blurs the separation between the content and the code used to create it.

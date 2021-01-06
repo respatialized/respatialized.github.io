@@ -1,7 +1,8 @@
 <% (def metadata {:title "Clojure is my TI-83"}) %>
+<% (require (quote [hiccup.page :as hp])) %>
 
-<%=(html (hp/include-css "https://storage.googleapis.com/app.klipse.tech/css/codemirror.css"))%>
-<%=(html [:div {:class "f3"} (header "Clojure Is My TI-83")])%>
+<%=(hp/include-css "https://storage.googleapis.com/app.klipse.tech/css/codemirror.css")%>
+<%=[:div {:class "f3"} (header "Clojure Is My TI-83")]%>
 
 <%=(header "Part 1" :h3)%>
 <%=(entry-date "2019-05-20")%>
@@ -12,12 +13,12 @@ I was brushing up on some statistics using the <%=(link "https://openstax.org/de
 
 Clojure is an unusually expressive programming language. Its minimal syntax and aggressive polymorphism surprised me with what my intuition came up with on the fly. Here's an example. I'm not super familiar with the standard library or the idiomatic way of doing things, so I was trying to figure out how to filter a vector based on whether the elements were contained in a set.
 
-<%=(html [:div {:class "language-klipse code"}
+<%= [:div {:class "language-klipse code"}
 "; uncomment the lines one by one to get a better idea:
 ;(#{3 4 5} 4)
 ;(#{3 4 5} 2)
 ;(map #{3 4 5} [1 2 3 4 5])
-(filter #{3 4 5} [1 2 3 4 5])"])%>
+(filter #{3 4 5} [1 2 3 4 5])"]%>
 
 Just like that. As soon as the idea came to me I found that I could call a data structure as a function and filter the data I wanted with no syntactic overhead. This expressive power means that it basically takes me as long to <%=(em "implement")%> a function as it does to look up how it might be done on a graphing calculator.
 

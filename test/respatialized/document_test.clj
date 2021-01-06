@@ -360,7 +360,7 @@
                  pages))]
       (doseq [[page contents] parsed-pages]
         (t/is (valid? (->element-model :article) contents)
-              (str "page " page " did not conform to grid spec"))))))
+              (str "page " page " did not conform to document spec"))))))
 
 (comment
   (def pages (get-template-files "./content" ".ct"))
