@@ -9,6 +9,7 @@
    [clojure.test.check.generators :as gen]
    [com.gfredericks.test.chuck.generators :as gen']
    [minimallist.core :as m :refer [valid? describe]]
+   [respatialized.util :refer [valid-model?]]
    [minimallist.helper :as h]
    [minimallist.generator :as mg]
    [minimallist.minimap :refer [minimap-model]]))
@@ -213,25 +214,59 @@
 (def elements
   (h/let
       ;; inline text elements first
-      [#_'phrasing-content #_ (h/alt ...) ; a model that correctly interprets subtags
-       'phrasing-content
-       (apply h/alt
-              [:a (->hiccup-model
-                   :a
-                   (-> global-attributes
-                       (h/with-entries
-                         [:href
-                          (h/alt
-                           [:link url]
-                           [:fragment string-gen])])
-                       (h/with-optional-entries
-                         [:download string-gen]
-                         [:rel string-gen]
-                         [:target (h/enum #{"_self" "_blank" "_parent" "_top"})]))
-                   (h/* (apply h/alt
-                               [:atomic-element atomic-element]
-                               (map elem-ref phrasing-tags))))]
-              (map elem-ref phrasing-tags))
+      ['phrasing-content
+       (h/let ['a-phrasing
+               (->hiccup-model
+                :a
+                (-> global-attributes
+                    (h/with-entries
+                      [:href
+                       (h/alt
+                        [:link url]
+                        [:fragment string-gen])])
+                    (h/with-optional-entries
+                      [:download string-gen]
+                      [:rel string-gen]
+                      [:target (h/enum #{"_self" "_blank" "_parent" "_top"})]))
+                (h/*
+                 (apply h/alt
+                        [:atomic-element atomic-element]
+                        (map elem-ref (conj phrasing-tags
+                                            :a-phrasing
+                                            :ins-phrasing
+                                            :del-phrasing)))))
+               'del-phrasing
+               (->hiccup-model
+                :del
+                (h/with-optional-entries global-attributes
+                  [:cite string-gen]
+                  [:datetime string-gen])
+                (h/*
+                 (apply h/alt
+                        [:atomic-element atomic-element]
+                        (map elem-ref (conj phrasing-tags
+                                            :a-phrasing
+                                            :ins-phrasing
+                                            :del-phrasing)))))
+               'ins-phrasing
+               (->hiccup-model
+                :ins
+                (h/with-optional-entries global-attributes
+                  [:cite string-gen]
+                  [:datetime string-gen])
+                (h/*
+                 (apply h/alt
+                        [:atomic-element atomic-element]
+                        (map elem-ref (conj phrasing-tags
+                                            :a-phrasing
+                                            :ins-phrasing
+                                            :del-phrasing)))))]
+         (h/*  (apply h/alt
+                      [:a (h/ref 'a-phrasing)]
+                      [:ins (h/ref 'ins-phrasing)]
+                      [:del (h/ref 'del-phrasing)]
+                      [:atomic-element atomic-element]
+                      (map elem-ref phrasing-tags))))
        'a (->hiccup-model :a
                           (-> global-attributes
                               (h/with-entries
@@ -243,8 +278,9 @@
                                 [:download string-gen]
                                 [:rel string-gen]
                                 [:target (h/enum #{"_self" "_blank" "_parent" "_top"})]))
-                          (map elem-ref  (set/union (set/difference flow-tags interactive-tags)
-                                                    phrasing-tags)))
+                          (h/alt
+                           [:phrasing-content (h/ref 'phrasing-content)]
+                           [:flow-content (map elem-ref (set/difference flow-tags interactive-tags))]))
        'abbr (->hiccup-model :abbr (map elem-ref phrasing-tags))
        'b (->hiccup-model :b (map elem-ref phrasing-tags))
        'bdi (->hiccup-model :bdi (map elem-ref phrasing-tags))
@@ -263,7 +299,7 @@
        'ins (->hiccup-model :ins [])
        'dfn (->hiccup-model :dfn
                             (map elem-ref (disj phrasing-tags :dfn)))
-       'em (->hiccup-model :em (map elem-ref phrasing-tags))
+       'em (->hiccup-model :em (h/ref 'phrasing-content))
        'i (->hiccup-model :i (map elem-ref phrasing-tags))
        'kbd (->hiccup-model :kbd (map elem-ref phrasing-tags))
        'mark (->hiccup-model :mark (map elem-ref phrasing-tags))
@@ -371,7 +407,7 @@
        'ul (->hiccup-model :ul
                            (conj (map elem-ref #{:script #_:template})
                                  [:li (->hiccup-model :li (map elem-ref flow-tags))]))
-       'p (->hiccup-model :p global-attributes (map elem-ref phrasing-tags))
+       'p (->hiccup-model :p global-attributes (h/ref 'phrasing-content))
        'pre (->hiccup-model :pre global-attributes (map elem-ref phrasing-tags))
        ;; sectioning
        'address (->hiccup-model
@@ -463,6 +499,7 @@
                     [:rows (h/+ (h/ref 'tr))])]
                   [:footer (h/? (->hiccup-model :tfoot [(h/ref 'tr)]))])))]
     (h/alt
+     [:phrasing-content (h/ref 'phrasing-content)]
      [:a (h/ref 'a)]
      [:abbr (h/ref 'abbr)]
      [:article (h/ref 'article)]
