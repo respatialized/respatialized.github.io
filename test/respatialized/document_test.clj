@@ -11,7 +11,8 @@
             [com.gfredericks.test.chuck.properties :as prop']
             [minimallist.core :refer [valid?]]
             [minimallist.generator :as mg]
-            [minimallist.helper :as h]))
+            [minimallist.helper :as h]
+            [minimallist.minimap :as mini]))
 
 
 (t/deftest transforms
@@ -183,6 +184,7 @@
    :img [:img {:src "/sample.jpg"}]
    :q [:q {:cite "Anonymous"} "If you can't convince, confuse!"]
    :script [:script {:src "/resources/klipse.js"} ""]
+   :phrasing-content [:em [:a {:href "something"} "link"]]
    :wbr [:wbr]
    :hr [:hr]
    :br [:br]
@@ -207,15 +209,33 @@
                    (get example-forms (keyword elem)))))))
 
   (t/testing "content models"
+
+    (t/is (valid?
+           mini/minimap-model
+           (->hiccup-model :p global-attributes
+                           (h/* atomic-element))))
+
+    (t/is (valid?
+           mini/minimap-model
+           (->hiccup-model :p global-attributes
+                           (h/* (apply h/alt [:atomic-element atomic-element]
+                                       [])))))
+
+    (t/is (valid?
+           (->hiccup-model :p global-attributes
+                           (h/* atomic-element))
+           [:p {:id "something"} "text in a paragraph"]))
+
+    (t/is (valid? (->element-model :p)  [:p "something" [:a {:href "link"} "text"]])
+          "Phrasing subtags should be respected.")
     (t/is (palpable? [:p "text"]))
     (t/is (not (palpable? [:p])))
 
     (t/is (valid? flow-content [:div [:div [:div [:p "text"]]]]))
     (t/is (valid? phrasing-content [:em "something"]))
-    ;; (t/is (not (valid? phrasing-content [:em])))
     ;; h/with-condition isn't working on this?
+    (t/is (not (valid? phrasing-content [:em]))))
 
-    )
 
   (t/testing "full structure"
     (t/is
@@ -351,7 +371,7 @@
                    (try
                      [p (-> p
                             slurp
-                            (parse-eval [:article {:columns 8}]
+                            (parse-eval [:article]
                                         (md5 p)
                                         '[[respatialized.render :refer :all]])
                             (#(into [:article] sectionize-contents (rest %))))]
@@ -372,7 +392,7 @@
                    (try
                      [p (-> p
                             slurp
-                            (parse-eval [:article {:columns 8}]
+                            (parse-eval [:article]
                                         (md5 p)
                                         '[[respatialized.render :refer :all]])
                             (#(into [:article] sectionize-contents (rest %))))]
