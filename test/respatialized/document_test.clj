@@ -242,6 +242,14 @@
                           :h2
                           (map elem-ref #{:em})))))
 
+    (t/is (valid-model minimap-model
+                       (h/let ['em (->hiccup-model :em [])
+                               'h2 (->hiccup-model
+                                    :h2
+                                    (map elem-ref #{:em}))]
+                         (h/alt [:em (h/ref 'em)]
+                                [:h2 (h/ref 'h2)]))))
+
     (t/is
      (valid-model (->hiccup-model :col global-attributes :empty)
                   [:col])))
@@ -249,9 +257,9 @@
 
   (t/testing "content models"
 
+    ;; TODO revisit the idea of a "constrained model"
+    ;; to identify the offending sub-elements
     (t/is (valid-model minimap-model elements))
-
-
 
     (t/is (valid-model
            (->hiccup-model :p global-attributes
@@ -273,14 +281,14 @@
     (t/is (not (valid? (->element-model :phrasing-content) [:ins [:ins [:ins [:p "text"]]]])))
 
     (t/is (valid-model (->element-model :phrasing-content)
-                  [:a {:href "something"} "link" [:em "text"]])
+                       [:a {:href "something"} "link" [:em "text"]])
           "Phrasing subtags should be respected")
 
     (doseq [elem (-> elements :bindings keys)]
-    (t/testing (str "model for element: <" elem ">")
-      (t/is (valid-model minimap-model (->element-model (keyword elem))))
-      (let [data (get example-forms (keyword elem) [(keyword elem) "sample string"])]
-        (t/is (valid-model (->element-model (keyword elem)) data)))))
+      (t/testing (str "model for element: <" elem ">")
+        (t/is (valid-model minimap-model (->element-model (keyword elem))))
+        (let [data (get example-forms (keyword elem) [(keyword elem) "sample string"])]
+          (t/is (valid-model (->element-model (keyword elem)) data)))))
 
     (t/is (palpable? [:p "text"]))
     (t/is (not (palpable? [:p])))
