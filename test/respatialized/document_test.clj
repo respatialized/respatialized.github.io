@@ -247,10 +247,9 @@
                   [:col])))
 
 
-
   (t/testing "content models"
 
-
+    (t/is (valid-model minimap-model elements))
 
 
 
