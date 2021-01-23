@@ -214,13 +214,6 @@
 
 (t/deftest models
   (t/testing "model constructors"
-    (t/is
-     (valid-model (->hiccup-model :col global-attributes :empty)
-             [:col])))
-
-
-
-  (t/testing "content models"
 
     (t/is (valid-model
            minimap-model
@@ -232,6 +225,34 @@
            (->hiccup-model :p global-attributes
                            (h/* (apply h/alt [:atomic-element atomic-element]
                                        [])))))
+
+    (t/is (valid-model minimap-model
+                       (->hiccup-model
+                        :em [])))
+
+    (t/is (valid-model minimap-model
+                       (h/let ['em (->hiccup-model :em [])]
+                         (->hiccup-model
+                          :h2
+                          [[:em (h/ref 'em)]]))))
+
+    (t/is (valid-model minimap-model
+                       (h/let ['em (->hiccup-model :em [])]
+                         (->hiccup-model
+                          :h2
+                          (map elem-ref #{:em})))))
+
+    (t/is
+     (valid-model (->hiccup-model :col global-attributes :empty)
+                  [:col])))
+
+
+
+  (t/testing "content models"
+
+
+
+
 
     (t/is (valid-model
            (->hiccup-model :p global-attributes
@@ -283,16 +304,16 @@
       ))
 
   (t/testing "atomic elements"
+
+    (t/is (valid-model minimap-model atomic-element))
+
     (t/is (valid-model global-attributes {:class "a"
-                                     :href "http://google.com"}))
+                                          :href "http://google.com"}))
     (t/is (valid-model global-attributes {:title "some page"
-                                     :href "/relative-page.html"}))
+                                          :href "/relative-page.html"}))
 
     (t/is (valid-model (->element-model :img)
-                  [:img {:src "/pic.jpg" :width 500}]))
-
-    )
-  )
+                       [:img {:src "/pic.jpg" :width 500}]))))
 
 (comment
   (-> sample-multi-form-input
