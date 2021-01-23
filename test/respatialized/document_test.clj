@@ -12,8 +12,25 @@
             [minimallist.core :refer [valid?]]
             [minimallist.generator :as mg]
             [minimallist.helper :as h]
-            [minimallist.minimap :as mini]))
+            [minimallist.minimap :refer [minimap-model]])
+  (:import [java.lang Exception]))
 
+(defmethod t/assert-expr 'valid-model [msg form]
+  `(let [model# ~(nth form 1)
+         data# ~(nth form 2)
+         result# (valid? model# data#)
+         data-rep# (get-in data# [:body :key] data#)
+         model-name# (if (= :ref (get-in model# [:body :type]))
+                       (keyword (get-in model# [:body :key]))
+                       "[NULL]")]
+     (t/do-report
+      {:type (if result# :pass :fail)
+       :message ~msg
+       :expected (str (with-out-str (clojure.pprint/pprint data-rep#))
+                      " conforms to model for "
+                      model-name#)
+       :actual result#})
+     result#))
 
 (t/deftest transforms
 
@@ -41,11 +58,11 @@
       (detect-paragraphs
        [:div
         {:class "1col"}
-   "\n\nLinked in the comments on Truyers' post was "
+        "\n\nLinked in the comments on Truyers' post was "
         [:code {:class "ws-normal navy"} "noms"]
-   ", a database directly inspired by Git's decentralized and immutable data model, but designed from the ground up to have a better query model and more flexible schema. Unfortunately, it seems to be unmaintained and not ready for prime time. Additionally, for the use case I'm describing, it's unclear how to effectively distribute the configuration data stored in a "
-   [:code {:class "ws-normal navy"} "noms"]
-   " DB alongside the code that is affected by that configuration in a way that reliably links the two."]
+        ", a database directly inspired by Git's decentralized and immutable data model, but designed from the ground up to have a better query model and more flexible schema. Unfortunately, it seems to be unmaintained and not ready for prime time. Additionally, for the use case I'm describing, it's unclear how to effectively distribute the configuration data stored in a "
+        [:code {:class "ws-normal navy"} "noms"]
+        " DB alongside the code that is affected by that configuration in a way that reliably links the two."]
        #"\n\n")))
 
 
@@ -168,6 +185,7 @@
                             child-elems))))])))
 
 
+
 (def example-forms
   "Some forms used to test the validity of the HTML models"
   {:a [:a {:href "http://www.archive.org"} "a link"]
@@ -184,7 +202,7 @@
    :img [:img {:src "/sample.jpg"}]
    :q [:q {:cite "Anonymous"} "If you can't convince, confuse!"]
    :script [:script {:src "/resources/klipse.js"} ""]
-   :phrasing-content [:em [:a {:href "something"} "link"]]
+   :phrasing-element [:em [:a {:href "something"} "link"]]
    :wbr [:wbr]
    :hr [:hr]
    :br [:br]
@@ -197,44 +215,61 @@
 (t/deftest models
   (t/testing "model constructors"
     (t/is
-     (valid? (->hiccup-model :col global-attributes :empty)
+     (valid-model (->hiccup-model :col global-attributes :empty)
              [:col])))
 
-  (doseq [elem (-> elements :bindings keys)]
-    (t/testing (str "model for element: <" elem ">")
-      (t/is
-       (or (valid? (->element-model (keyword elem))
-                   [(keyword elem) "sample string"])
-           (valid? (->element-model (keyword elem))
-                   (get example-forms (keyword elem)))))))
+
 
   (t/testing "content models"
 
-    (t/is (valid?
-           mini/minimap-model
+    (t/is (valid-model
+           minimap-model
            (->hiccup-model :p global-attributes
                            (h/* atomic-element))))
 
-    (t/is (valid?
-           mini/minimap-model
+    (t/is (valid-model
+           minimap-model
            (->hiccup-model :p global-attributes
                            (h/* (apply h/alt [:atomic-element atomic-element]
                                        [])))))
 
-    (t/is (valid?
+    (t/is (valid-model
            (->hiccup-model :p global-attributes
                            (h/* atomic-element))
            [:p {:id "something"} "text in a paragraph"]))
 
-    (t/is (valid? (->element-model :p)  [:p "something" [:a {:href "link"} "text"]])
+    (t/is (valid-model (->element-model :p)  [:p "something" [:a {:href "link"} "text"]])
           "Phrasing subtags should be respected.")
+
+    (t/is (valid-model (->element-model :phrasing-content) [:a {:href "something"} [:ins "something" [:del "something" [:em "something else"]]]])
+          "Phrasing subtags should be respected.")
+
+    (t/is (valid-model (->element-model :phrasing-content) [:ins [:ins [:ins [:em "text"]]]])
+          "Phrasing subtags should be respected")
+
+    (t/is (valid-model (->element-model :phrasing-content) [:em [:ins [:ins [:em "text"]]]])
+          "Phrasing subtags should be respected")
+
+    (t/is (not (valid? (->element-model :phrasing-content) [:ins [:ins [:ins [:p "text"]]]])))
+
+    (t/is (valid-model (->element-model :phrasing-content)
+                  [:a {:href "something"} "link" [:em "text"]])
+          "Phrasing subtags should be respected")
+
+    (doseq [elem (-> elements :bindings keys)]
+    (t/testing (str "model for element: <" elem ">")
+      (t/is (valid-model minimap-model (->element-model (keyword elem))))
+      (let [data (get example-forms (keyword elem) [(keyword elem) "sample string"])]
+        (t/is (valid-model (->element-model (keyword elem)) data)))))
+
     (t/is (palpable? [:p "text"]))
     (t/is (not (palpable? [:p])))
 
-    (t/is (valid? flow-content [:div [:div [:div [:p "text"]]]]))
-    (t/is (valid? phrasing-content [:em "something"]))
+    (t/is (valid-model flow-content [:div [:div [:div [:p "text"]]]]))
+    (t/is (valid-model phrasing-content [:em "something"]))
     ;; h/with-condition isn't working on this?
-    (t/is (not (valid? phrasing-content [:em]))))
+    ;; (t/is (valid-model (->element-model :phrasing-content) [:em]))
+    )
 
 
   (t/testing "full structure"
@@ -243,17 +278,17 @@
              (vals example-forms)))
 
     (comment
-      (map (fn [[k v]] [k (valid? elements v)]) example-forms)
+      (map (fn [[k v]] [k (valid-model elements v)]) example-forms)
 
       ))
 
   (t/testing "atomic elements"
-    (t/is (valid? global-attributes {:class "a"
+    (t/is (valid-model global-attributes {:class "a"
                                      :href "http://google.com"}))
-    (t/is (valid? global-attributes {:title "some page"
+    (t/is (valid-model global-attributes {:title "some page"
                                      :href "/relative-page.html"}))
 
-    (t/is (valid? (->element-model :img)
+    (t/is (valid-model (->element-model :img)
                   [:img {:src "/pic.jpg" :width 500}]))
 
     )
@@ -312,7 +347,7 @@
 ;; (defspec grid-forms 25
 ;;   (prop/for-all
 ;;    [g (mg/gen simple-grid-model)]
-;;    (valid? simple-grid-model g)))
+;;    (valid-model simple-grid-model g)))
 
 
 (comment
@@ -379,7 +414,7 @@
                        [p {:error (str "exception: " (.getMessage e))}])))
                  pages))]
       (doseq [[page contents] parsed-pages]
-        (t/is (valid? (->element-model :article) contents)
+        (t/is (valid-model (->element-model :article) contents)
               (str "page " page " did not conform to document spec"))))))
 
 (comment
