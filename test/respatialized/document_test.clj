@@ -19,7 +19,11 @@
   `(let [model# ~(nth form 1)
          data# ~(nth form 2)
          result# (valid? model# data#)
-         data-rep# (get-in data# [:body :key] data#)
+         data-rep# (get-in data# [:body :key]
+                           (if (and (contains? data# :bindings)
+                                    (= :let (:type data#)))
+                             :model-data
+                             data#))
          model-name# (if (= :ref (get-in model# [:body :type]))
                        (keyword (get-in model# [:body :key]))
                        "[NULL]")]
@@ -252,13 +256,43 @@
 
     (t/is
      (valid-model (->hiccup-model :col global-attributes :empty)
-                  [:col])))
+                  [:col]))
+
+    (t/testing "model debuggers"
+      (t/is (valid-model
+             minimap-model
+             (restrict-alt-model elements #{:atomic-element :em})))
+
+      (t/is (valid-model
+             (restrict-alt-model elements #{:atomic-element :em})
+             [:em {:id "01"} "text"]))))
+
 
 
   (t/testing "content models"
 
-    ;; TODO revisit the idea of a "constrained model"
-    ;; to identify the offending sub-elements
+    (t/is
+     (valid-model
+      minimap-model
+      (h/in-vector (h/cat
+                    [:tag (h/val :img)]
+                    [:attributes
+                     (-> global-attributes
+                         (h/with-entries [:src url])
+                         (h/with-optional-entries
+                           [:alt string-gen]
+                           [:sizes string-gen]
+                           [:width (->constrained-model #(< 0 % 8192) gen/small-integer)]
+                           [:height (->constrained-model #(< 0 % 8192) gen/small-integer)]
+                           [:loading (h/enum #{"eager" "lazy"})]
+                           [:decoding (h/enum #{"sync" "async" "auto"})]
+                           [:crossorigin (h/enum #{"anonymous" "use-credentials"})]))]))))
+
+    (t/is
+     (valid-model
+      minimap-model
+      (h/in-vector (h/cat [:tag (h/val :hr)] [:attributes (h/? global-attributes)]))))
+
     (t/is (valid-model minimap-model elements))
 
     (t/is (valid-model

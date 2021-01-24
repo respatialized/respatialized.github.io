@@ -18,7 +18,7 @@
   "MDN list of block-level HTML element tags"
   #{:address :article :aside :blockquote
     #_:details :dialog :dd :div :dl :dt
-    :fieldset :figcaption :figure :footer
+    :fieldset :figcaption #_ :figure :footer
     :form :h1 :h2 :h3 :h4 :h5 :h6 :header
     :hr :li :main :nav :ol :p :pre :section
     #_:table :ul})
@@ -45,14 +45,14 @@
   #{:a :abbr :aside #_:audio :b :bdo :bdi
     :blockquote :br #_:button #_:canvas :cite
     :code :data #_:datalist :del #_:details :dfn
-    :div :dl :em #_:embed #_:fieldset :figure
+    :div :dl :em #_:embed #_:fieldset #_ :figure
     :footer #_:form :h1 :h2 :h3 :h4 :h5 :h6
     :header :hr :i #_:iframe :img #_:input :ins
     :kbd #_:label :main #_:map :mark #_:math #_:menu
     #_:meter :nav #_:noscript #_:object :ol #_:output
     :p #_:picture :pre #_:progress :q #_:ruby :s
     :samp :script :section #_:select :small
-    :span :strong :sub :sup #_:svg :table
+    :span :strong :sub :sup #_:svg #_ :table
     #_:template #_:textarea :time :ul :var #_:video
     :wbr})
 
@@ -358,7 +358,7 @@
                                        :dd
                                        (map elem-ref flow-tags)))]))]))
        'div (->hiccup-model :div (map elem-ref flow-tags))
-       'figure
+       #_ #_ 'figure
        (h/in-vector
         (h/cat
          [:tag (h/val :figure)]
@@ -458,6 +458,7 @@
                           [:src url]
                           [:type string-gen])]
                        [:content (h/? string-gen)]))
+       #_ #_
        'table (h/let ['tr
                       (h/not-inlined
                        (h/in-vector
@@ -527,7 +528,7 @@
      [:em (h/ref 'em)]
      #_[:embed (h/ref 'embed)]
      #_[:fieldset (h/ref 'fieldset)]
-     [:figure (h/ref 'figure)]
+     #_[:figure (h/ref 'figure)]
      [:footer (h/ref 'footer)]
      #_[:form (h/ref 'form)]
      [:h1 (h/ref 'h1)] [:h2 (h/ref 'h2)] [:h3 (h/ref 'h3)]
@@ -567,7 +568,7 @@
      [:sub (h/ref 'sub)]
      [:sup (h/ref 'sup)]
      #_[:svg (h/ref 'svg)]
-     [:table (h/ref 'table)]
+     #_[:table (h/ref 'table)]
      #_[:template (h/ref 'template)]
      #_[:textarea (h/ref 'textarea)]
      [:time (h/ref 'time)]
@@ -583,6 +584,51 @@
           {:type :ref :key (quote-kw elem)}}))
 
 
+(defn update-child-elements-model [model children]
+  (let [[t attr contents] (:entries model)]
+    (assoc
+     model
+     :entries
+     [t attr (update-in contents [:model :elements-model :entries]
+                     (fn [e] (into [] (filter #(contains? children (:key %)) e))))])))
+
+(defn restrict-alt-model [{:keys [type bindings body]} children]
+  {:type type
+   :bindings
+   (->> (select-keys bindings (map symbol children))
+        (map (fn [[k bind]] [k (update-child-elements-model bind children)]))
+        (into {}))
+   :body (update
+          body :entries
+          (fn [e] (into [] (filter #(contains? children (:key %)) e))))})
+
+
+(comment
+  ;; dynamic programming to find the offending element(s)
+  (require '[clojure.math.combinatorics :as combo])
+
+  (let [ks (map keyword (keys (:bindings elements)))
+        bad-elements
+        (filter (fn [e]
+                  (let [submodel
+                        (restrict-alt-model
+                         elements
+                         #{e :atomic-element})]
+                    (not (valid? minimap-model submodel)))) ks)
+        bad-subsets (filter (fn [sub-elements]
+                              (let [submodel
+                                    (restrict-alt-model
+                                     elements
+                                     (conj (set sub-elements) :atomic-element))]
+                                (not (valid? minimap-model submodel))))
+                            (combo/subsets ks))]
+
+    (println bad-elements)
+    ;; => (:img :figure :hr :table :br)
+    ;; (apply set (take 100 bad-subsets))
+    )
+
+  )
 
 ;; "content is palpable when it's neither empty or hidden;
 ;; it is content that is rendered and is substantive.
