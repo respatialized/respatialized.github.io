@@ -206,10 +206,10 @@
    :img [:img {:src "/sample.jpg"}]
    :q [:q {:cite "Anonymous"} "If you can't convince, confuse!"]
    :script [:script {:src "/resources/klipse.js"} ""]
-   :phrasing-content [:em [:a {:href "something"} "link"]]
    :wbr [:wbr]
    :hr [:hr]
    :br [:br]
+   #_ #_
    :table [:table
            [:caption "an example table"]
            [:colgroup [:col]]
@@ -336,9 +336,9 @@
 
 
   (t/testing "full structure"
-    (t/is
-     (every? #(valid? elements %)
-             (vals example-forms)))
+    (doseq [[k v] example-forms]
+      (t/testing "model for element: <" k ">"
+                 (t/is (valid-model elements v))))
 
     (comment
       (map (fn [[k v]] [k (valid-model elements v)]) example-forms)

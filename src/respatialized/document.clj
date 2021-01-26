@@ -18,7 +18,7 @@
   "MDN list of block-level HTML element tags"
   #{:address :article :aside :blockquote
     #_:details :dialog :dd :div :dl :dt
-    :fieldset :figcaption #_ :figure :footer
+    :fieldset :figcaption :figure :footer
     :form :h1 :h2 :h3 :h4 :h5 :h6 :header
     :hr :li :main :nav :ol :p :pre :section
     #_:table :ul})
@@ -45,7 +45,7 @@
   #{:a :abbr :aside #_:audio :b :bdo :bdi
     :blockquote :br #_:button #_:canvas :cite
     :code :data #_:datalist :del #_:details :dfn
-    :div :dl :em #_:embed #_:fieldset #_ :figure
+    :div :dl :em #_:embed #_:fieldset :figure
     :footer #_:form :h1 :h2 :h3 :h4 :h5 :h6
     :header :hr :i #_:iframe :img #_:input :ins
     :kbd #_:label :main #_:map :mark #_:math #_:menu
@@ -358,7 +358,7 @@
                                        :dd
                                        (map elem-ref flow-tags)))]))]))
        'div (->hiccup-model :div (map elem-ref flow-tags))
-       #_ #_ 'figure
+        'figure
        (h/in-vector
         (h/cat
          [:tag (h/val :figure)]
@@ -368,20 +368,18 @@
            [:caption-first
             (h/cat
              [:figcaption
-              (-> :figcaption
-                  (->hiccup-model (map elem-ref flow-tags))
-                  h/not-inlined)]
+              (->hiccup-model :figcaption (map elem-ref flow-tags))]
              [:rest (h/*
                      (h/not-inlined
                       (apply h/alt
-                             atomic-element
+                             [:atomic-element atomic-element]
                              (map elem-ref flow-tags))))])]
            [:caption-last
             (h/cat
              [:rest (h/*
                      (h/not-inlined
                       (apply h/alt
-                             atomic-element
+                             [:atomic-element atomic-element]
                              (map elem-ref flow-tags))))]
              [:figcaption
               (-> :figcaption
@@ -391,7 +389,7 @@
             (h/*
              (h/not-inlined
               (apply h/alt
-                     atomic-element
+                     [:atomic-element atomic-element]
                      (map elem-ref flow-tags))))])]))
        'hr (h/in-vector (h/cat [:tag (h/val :hr)] [:attributes (h/? global-attributes)]))
        'ol (->hiccup-model
@@ -528,7 +526,7 @@
      [:em (h/ref 'em)]
      #_[:embed (h/ref 'embed)]
      #_[:fieldset (h/ref 'fieldset)]
-     #_[:figure (h/ref 'figure)]
+     [:figure (h/ref 'figure)]
      [:footer (h/ref 'footer)]
      #_[:form (h/ref 'form)]
      [:h1 (h/ref 'h1)] [:h2 (h/ref 'h2)] [:h3 (h/ref 'h3)]
