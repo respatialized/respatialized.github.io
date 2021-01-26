@@ -206,7 +206,7 @@
    :img [:img {:src "/sample.jpg"}]
    :q [:q {:cite "Anonymous"} "If you can't convince, confuse!"]
    :script [:script {:src "/resources/klipse.js"} ""]
-   :phrasing-element [:em [:a {:href "something"} "link"]]
+   :phrasing-content [:em [:a {:href "something"} "link"]]
    :wbr [:wbr]
    :hr [:hr]
    :br [:br]
@@ -256,16 +256,7 @@
 
     (t/is
      (valid-model (->hiccup-model :col global-attributes :empty)
-                  [:col]))
-
-    (t/testing "model debuggers"
-      (t/is (valid-model
-             minimap-model
-             (restrict-alt-model elements #{:atomic-element :em})))
-
-      (t/is (valid-model
-             (restrict-alt-model elements #{:atomic-element :em})
-             [:em {:id "01"} "text"]))))
+                  [:col])))
 
 
 
@@ -303,22 +294,32 @@
     (t/is (valid-model (->element-model :p)  [:p "something" [:a {:href "link"} "text"]])
           "Phrasing subtags should be respected.")
 
-    (t/is (valid-model (->element-model :phrasing-content) [:a {:href "something"} [:ins "something" [:del "something" [:em "something else"]]]])
+    (t/is (valid-model (->element-model :a) [:a {:href "something"} [:ins "something" [:del "something" [:em "something else"]]]])
           "Phrasing subtags should be respected.")
 
-    (t/is (valid-model (->element-model :phrasing-content) [:ins [:ins [:ins [:em "text"]]]])
+    (t/is (valid-model (->element-model :ins) [:ins [:ins [:ins [:em "text"]]]])
           "Phrasing subtags should be respected")
 
-    (t/is (valid-model (->element-model :phrasing-content) [:em [:ins [:ins [:em "text"]]]])
+    (t/is (valid-model (->element-model :ins) [:ins [:ins "text"]])
           "Phrasing subtags should be respected")
 
-    (t/is (not (valid? (->element-model :phrasing-content) [:ins [:ins [:ins [:p "text"]]]])))
+    (t/is (valid-model (->element-model :del) [:del [:em "text"]])
+          "Phrasing subtags should be respected")
 
-    (t/is (valid-model (->element-model :phrasing-content)
+    (t/is (valid-model (->element-model :em) [:em [:ins [:ins [:em "text"]]]])
+          "Phrasing subtags should be respected")
+
+    (t/is (valid-model (->element-model :em) [:em [:a {:href "link"}] "something"])
+          "Phrasing subtags should be respected")
+
+    (t/is (not (valid? (->element-model :ins) [:ins [:ins [:ins [:p "text"]]]])))
+
+    (t/is (valid-model (->element-model :a)
                        [:a {:href "something"} "link" [:em "text"]])
           "Phrasing subtags should be respected")
 
-    (doseq [elem (-> elements :bindings keys)]
+    (doseq [elem (filter #(not (= % (symbol :phrasing-content)))
+                         (-> elements :bindings keys))]
       (t/testing (str "model for element: <" elem ">")
         (t/is (valid-model minimap-model (->element-model (keyword elem))))
         (let [data (get example-forms (keyword elem) [(keyword elem) "sample string"])]
@@ -328,7 +329,7 @@
     (t/is (not (palpable? [:p])))
 
     (t/is (valid-model flow-content [:div [:div [:div [:p "text"]]]]))
-    (t/is (valid-model phrasing-content [:em "something"]))
+    (t/is (valid-model phrasing-content-m [:em "something"]))
     ;; h/with-condition isn't working on this?
     ;; (t/is (valid-model (->element-model :phrasing-content) [:em]))
     )
