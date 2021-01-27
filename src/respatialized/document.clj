@@ -311,18 +311,18 @@
        's (->hiccup-model :s #_(h/ref '(h/ref 'phrasing-content))
                           (h/ref 'phrasing-content))
        'samp (->hiccup-model :samp (h/ref 'phrasing-content))
-       'img (h/in-vector (h/cat
-                          [:tag (h/val :img)]
-                          [:attributes (-> global-attributes
-                                           (h/with-entries [:src url])
-                                           (h/with-optional-entries
-                                             [:alt string-gen]
-                                             [:sizes string-gen]
-                                             [:width (->constrained-model #(< 0 % 8192) gen/small-integer)]
-                                             [:height (->constrained-model #(< 0 % 8192) gen/small-integer)]
-                                             [:loading (h/enum #{"eager" "lazy"})]
-                                             [:decoding (h/enum #{"sync" "async" "auto"})]
-                                             [:crossorigin (h/enum #{"anonymous" "use-credentials"})]))]))
+       'img (->hiccup-model :img
+                            (-> global-attributes
+                                (h/with-entries [:src url])
+                                (h/with-optional-entries
+                                  [:alt string-gen]
+                                  [:sizes string-gen]
+                                  [:width (->constrained-model #(< 0 % 8192) gen/small-integer)]
+                                  [:height (->constrained-model #(< 0 % 8192) gen/small-integer)]
+                                  [:loading (h/enum #{"eager" "lazy"})]
+                                  [:decoding (h/enum #{"sync" "async" "auto"})]
+                                  [:crossorigin (h/enum #{"anonymous" "use-credentials"})]))
+                            :empty)
        'small (->hiccup-model :small (h/ref 'phrasing-content))
        'span (->hiccup-model :span (h/ref 'phrasing-content))
        'strong (->hiccup-model :strong (h/ref 'phrasing-content))
@@ -358,7 +358,7 @@
                                        :dd
                                        (map elem-ref flow-tags)))]))]))
        'div (->hiccup-model :div (map elem-ref flow-tags))
-        'figure
+       'figure
        (h/in-vector
         (h/cat
          [:tag (h/val :figure)]

@@ -322,6 +322,11 @@
     (t/is (valid-model (->element-model :p)
                        [:p "text" [:img {:src "/picture.jpg"}]]))
 
+    (t/is (valid-model (->element-model :em)
+                       [:em "text" [:br] "more text"]))
+
+    ;; (t/is (valid-model (->element-model :phrasing-content) '([:em [:br] "text"])))
+
     (doseq [elem (filter #(not (= % (symbol :phrasing-content)))
                          (-> elements :bindings keys))]
       (t/testing (str "model for element: <" elem ">")
