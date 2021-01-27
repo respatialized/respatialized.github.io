@@ -204,6 +204,7 @@
    :bdo [:bdo {:dir "rtl"} "right to left text"]
    :time [:time {:datetime "2020-12-31"}]
    :img [:img {:src "/sample.jpg"}]
+   :span [:span [:img {:src "/sample.jpg"}]]
    :q [:q {:cite "Anonymous"} "If you can't convince, confuse!"]
    :script [:script {:src "/resources/klipse.js"} ""]
    :wbr [:wbr]
@@ -318,6 +319,9 @@
                        [:a {:href "something"} "link" [:em "text"]])
           "Phrasing subtags should be respected")
 
+    (t/is (valid-model (->element-model :p)
+                       [:p "text" [:img {:src "/picture.jpg"}]]))
+
     (doseq [elem (filter #(not (= % (symbol :phrasing-content)))
                          (-> elements :bindings keys))]
       (t/testing (str "model for element: <" elem ">")
@@ -337,7 +341,7 @@
 
   (t/testing "full structure"
     (doseq [[k v] example-forms]
-      (t/testing "model for element: <" k ">"
+      (t/testing (str "model for element: <" (symbol k) ">")
                  (t/is (valid-model elements v))))
 
     (comment

@@ -407,9 +407,9 @@
        'ul (->hiccup-model :ul
                            (conj (map elem-ref #{:script #_:template})
                                  [:li (->hiccup-model :li (map elem-ref flow-tags))]))
-       'p (->hiccup-model :p global-attributes (h/ref 'phrasing-content)
-                         #_ phrasing-content)
-       'pre (->hiccup-model :pre global-attributes (h/ref 'phrasing-content))
+       'p (->hiccup-model :p (h/ref 'phrasing-content))
+       'pre (->hiccup-model :pre global-attributes
+                            (h/ref 'phrasing-content))
        ;; sectioning
        'address (->hiccup-model
                  :address
