@@ -207,6 +207,7 @@
    :span [:span [:img {:src "/sample.jpg"}]]
    :q [:q {:cite "Anonymous"} "If you can't convince, confuse!"]
    :script [:script {:src "/resources/klipse.js"} ""]
+   :phrasing-contents [[:em "text"]]
    :wbr [:wbr]
    :hr [:hr]
    :br [:br]

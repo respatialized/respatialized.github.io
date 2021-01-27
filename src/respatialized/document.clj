@@ -262,12 +262,13 @@
                         [:del (h/ref 'del-phrasing)]
                         [:atomic-element atomic-element]
                         (map elem-ref phrasing-tags))))]
-         (h/*  (apply h/alt
-                      [:a (h/ref 'a-phrasing)]
-                      [:ins (h/ref 'ins-phrasing)]
-                      [:del (h/ref 'del-phrasing)]
-                      [:atomic-element atomic-element]
-                      (map elem-ref phrasing-tags))))
+         (apply h/alt
+                [:a (h/ref 'a-phrasing)]
+                [:ins (h/ref 'ins-phrasing)]
+                [:del (h/ref 'del-phrasing)]
+                [:atomic-element atomic-element]
+                (map elem-ref phrasing-tags)))
+       'phrasing-contents (h/* (h/ref 'phrasing-content))
        'a (->hiccup-model :a
                           (-> global-attributes
                               (h/with-entries
@@ -281,36 +282,35 @@
                                 [:target (h/enum #{"_self" "_blank" "_parent" "_top"})]))
                           #_(map elem-ref (set/union (set/difference flow-tags interactive-tags)
                                                      phrasing-tags))
-                          (h/ref 'phrasing-content))
-       'abbr (->hiccup-model :abbr (h/ref 'phrasing-content))
-       'b (->hiccup-model :b (h/ref 'phrasing-content))
-       'bdi (->hiccup-model :bdi (h/ref 'phrasing-content))
+                          (h/ref 'phrasing-contents))
+       'abbr (->hiccup-model :abbr (h/ref 'phrasing-contents))
+       'b (->hiccup-model :b (h/ref 'phrasing-contents))
+       'bdi (->hiccup-model :bdi (h/ref 'phrasing-contents))
        'bdo (->hiccup-model :bdo
                             (h/with-entries global-attributes
                               [:dir (h/enum #{"ltr" "rtl"})])
-                            (h/ref 'phrasing-content))
+                            (h/ref 'phrasing-contents))
        'br (->hiccup-model :br :empty)
-       'cite (->hiccup-model :cite (h/ref 'phrasing-content))
-       'code (->hiccup-model :code (h/ref 'phrasing-content))
+       'cite (->hiccup-model :cite (h/ref 'phrasing-contents))
+       'code (->hiccup-model :code (h/ref 'phrasing-contents))
        'data (->hiccup-model :data
                              (h/with-entries global-attributes
                                [:value string-gen])
-                             (h/ref 'phrasing-content))
-       'del (->hiccup-model :del (h/ref 'phrasing-content))
-       'ins (->hiccup-model :ins (h/ref 'phrasing-content))
+                             (h/ref 'phrasing-contents))
+       'del (->hiccup-model :del (h/ref 'phrasing-contents))
+       'ins (->hiccup-model :ins (h/ref 'phrasing-contents))
        'dfn (->hiccup-model :dfn
                             (map elem-ref (disj phrasing-tags :dfn)))
-       'em (->hiccup-model :em (h/ref 'phrasing-content))
-       'i (->hiccup-model :i (h/ref 'phrasing-content))
-       'kbd (->hiccup-model :kbd (h/ref 'phrasing-content))
-       'mark (->hiccup-model :mark (h/ref 'phrasing-content))
+       'em (->hiccup-model :em (h/ref 'phrasing-contents))
+       'i (->hiccup-model :i (h/ref 'phrasing-contents))
+       'kbd (->hiccup-model :kbd (h/ref 'phrasing-contents))
+       'mark (->hiccup-model :mark (h/ref 'phrasing-contents))
        'q (->hiccup-model :q
                           (h/with-optional-entries global-attributes
                             [:cite url])
-                          (h/ref 'phrasing-content))
-       's (->hiccup-model :s #_(h/ref '(h/ref 'phrasing-content))
-                          (h/ref 'phrasing-content))
-       'samp (->hiccup-model :samp (h/ref 'phrasing-content))
+                          (h/ref 'phrasing-contents))
+       's (->hiccup-model :s (h/ref 'phrasing-contents))
+       'samp (->hiccup-model :samp (h/ref 'phrasing-contents))
        'img (->hiccup-model :img
                             (-> global-attributes
                                 (h/with-entries [:src url])
@@ -323,18 +323,18 @@
                                   [:decoding (h/enum #{"sync" "async" "auto"})]
                                   [:crossorigin (h/enum #{"anonymous" "use-credentials"})]))
                             :empty)
-       'small (->hiccup-model :small (h/ref 'phrasing-content))
-       'span (->hiccup-model :span (h/ref 'phrasing-content))
-       'strong (->hiccup-model :strong (h/ref 'phrasing-content))
-       'sub (->hiccup-model :sub (h/ref 'phrasing-content))
-       'sup (->hiccup-model :sup (h/ref 'phrasing-content))
+       'small (->hiccup-model :small (h/ref 'phrasing-contents))
+       'span (->hiccup-model :span (h/ref 'phrasing-contents))
+       'strong (->hiccup-model :strong (h/ref 'phrasing-contents))
+       'sub (->hiccup-model :sub (h/ref 'phrasing-contents))
+       'sup (->hiccup-model :sup (h/ref 'phrasing-contents))
        'time (->hiccup-model :time
                              (h/with-entries
                                global-attributes
                                [:datetime string-gen])
-                             (h/ref 'phrasing-content))
-       'u (->hiccup-model :u (h/ref 'phrasing-content))
-       'var (->hiccup-model :var (h/ref 'phrasing-content))
+                             (h/ref 'phrasing-contents))
+       'u (->hiccup-model :u (h/ref 'phrasing-contents))
+       'var (->hiccup-model :var (h/ref 'phrasing-contents))
        'wbr (h/val [:wbr])
        ;; then other text
        'blockquote (->hiccup-model :blockquote
@@ -407,9 +407,9 @@
        'ul (->hiccup-model :ul
                            (conj (map elem-ref #{:script #_:template})
                                  [:li (->hiccup-model :li (map elem-ref flow-tags))]))
-       'p (->hiccup-model :p (h/ref 'phrasing-content))
+       'p (->hiccup-model :p (h/ref 'phrasing-contents))
        'pre (->hiccup-model :pre global-attributes
-                            (h/ref 'phrasing-content))
+                            (h/ref 'phrasing-contents))
        ;; sectioning
        'address (->hiccup-model
                  :address
@@ -425,12 +425,12 @@
        'header (->hiccup-model :header (map elem-ref (set/difference
                                                       flow-tags
                                                       #{:header :footer})))
-       'h1 (->hiccup-model :h1 (h/ref 'phrasing-content))
-       'h2 (->hiccup-model :h2 (h/ref 'phrasing-content))
-       'h3 (->hiccup-model :h3 (h/ref 'phrasing-content))
-       'h4 (->hiccup-model :h4 (h/ref 'phrasing-content))
-       'h5 (->hiccup-model :h5 (h/ref 'phrasing-content))
-       'h6 (->hiccup-model :h6 (h/ref 'phrasing-content))
+       'h1 (->hiccup-model :h1 (h/ref 'phrasing-contents))
+       'h2 (->hiccup-model :h2 (h/ref 'phrasing-contents))
+       'h3 (->hiccup-model :h3 (h/ref 'phrasing-contents))
+       'h4 (->hiccup-model :h4 (h/ref 'phrasing-contents))
+       'h5 (->hiccup-model :h5 (h/ref 'phrasing-contents))
+       'h6 (->hiccup-model :h6 (h/ref 'phrasing-contents))
        'main (->hiccup-model :main (map elem-ref flow-tags))
        'nav (->hiccup-model :nav (map elem-ref flow-tags))
        'section (->hiccup-model :section (map elem-ref flow-tags))
@@ -502,6 +502,7 @@
                   [:footer (h/? (->hiccup-model :tfoot [(h/ref 'tr)]))])))]
     (h/alt
      [:phrasing-content (h/ref 'phrasing-content)]
+     [:phrasing-contents (h/ref 'phrasing-contents)]
      [:a (h/ref 'a)]
      [:abbr (h/ref 'abbr)]
      [:article (h/ref 'article)]
@@ -732,7 +733,7 @@
                                 (conj (first (ft-split-at final (- (count final) 1)))
                                       (conj current-elem hh)))
                          :else (recur (concat rest t) (conj final [:p hh]))))
-                     (valid? phrasing-content-m h)
+                     (valid? (->element-model :phrasing-content) h)
                      (if (valid? (->element-model :p) current-elem)
                        (recur t
                               (conj (first (ft-split-at final (- (count final) 1)))
