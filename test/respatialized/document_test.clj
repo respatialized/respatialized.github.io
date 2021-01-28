@@ -211,7 +211,6 @@
    :wbr [:wbr]
    :hr [:hr]
    :br [:br]
-   #_ #_
    :table [:table
            [:caption "an example table"]
            [:colgroup [:col]]

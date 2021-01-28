@@ -21,7 +21,7 @@
     :fieldset :figcaption :figure :footer
     :form :h1 :h2 :h3 :h4 :h5 :h6 :header
     :hr :li :main :nav :ol :p :pre :section
-    #_:table :ul})
+    :table :ul})
 
 (def inline-tags
   "MDN list of inline HTML element tags"
@@ -52,7 +52,7 @@
     #_:meter :nav #_:noscript #_:object :ol #_:output
     :p #_:picture :pre #_:progress :q #_:ruby :s
     :samp :script :section #_:select :small
-    :span :strong :sub :sup #_:svg #_ :table
+    :span :strong :sub :sup #_:svg :table
     #_:template #_:textarea :time :ul :var #_:video
     :wbr})
 
@@ -75,7 +75,7 @@
 
 (def phrasing-subtags
   "MDN list of tags that are phrasing content when they contain only phrasing content."
-  #{:a #_ :area :del :ins #_ :link :map #_ :meta})
+  #{:a #_ :area :del :ins :link :map #_ :meta})
 
 (def embedded-tags
   "MDN list of embedded content element tags"
@@ -261,7 +261,9 @@
                         [:ins (h/ref 'ins-phrasing)]
                         [:del (h/ref 'del-phrasing)]
                         [:atomic-element atomic-element]
-                        (map elem-ref phrasing-tags))))]
+                        (map elem-ref phrasing-tags))))
+               #_ #_'link-phrasing
+               (->hiccup-model :link )]
          (apply h/alt
                 [:a (h/ref 'a-phrasing)]
                 [:ins (h/ref 'ins-phrasing)]
@@ -456,50 +458,51 @@
                           [:src url]
                           [:type string-gen])]
                        [:content (h/? string-gen)]))
-       #_ #_
        'table (h/let ['tr
                       (h/not-inlined
                        (h/in-vector
                         (h/cat
                          [:tag (h/val :tr)]
-                         [:rowheader
-                          (h/? (->hiccup-model
-                                :th
-                                (h/with-optional-entries
-                                  global-attributes
-                                  [:abbr string-gen]
-                                  [:colspan (->constrained-model pos-int? gen/small-integer)]
-                                  [:rowspan (->constrained-model #(<= 0 % 65534) gen/small-integer)]
-                                  [:headers string-gen]
-                                  [:scope (h/enum #{"row" "col" "rowgroup" "colgroup" "auto"})])
-                                (map elem-ref (set/difference flow-tags sectioning-tags heading-tags #{:table :footer :header}))))]
-                         [:rowdata
-                          (h/* (->hiccup-model
-                                :td
-                                (h/with-optional-entries
-                                  global-attributes
-                                  [:colspan (->constrained-model pos-int? gen/small-integer)]
-                                  [:rowspan (->constrained-model #(<= 0 % 65534) gen/small-integer)]
-                                  [:headers string-gen])
-                                (map elem-ref flow-tags)))])))]
-                (h/in-vector
-                 (h/cat
-                  [:tag (h/val :table)]
-                  [:caption (h/? (->hiccup-model :caption (map elem-ref flow-tags)))]
-                  [:colgroups (h/* (->hiccup-model
-                                    :colgroup
-                                    [(->hiccup-model
-                                      :col
+                               [:rowheader
+                                (h/? (->hiccup-model
+                                      :th
                                       (h/with-optional-entries
                                         global-attributes
-                                        [:span int-gen])
-                                      :empty)]))]
-                  [:header (h/? (->hiccup-model :thead [(h/ref 'tr)]))]
-                  [:contents
-                   (h/alt
-                    [:body (->hiccup-model :tbody [(h/ref 'tr)])]
-                    [:rows (h/+ (h/ref 'tr))])]
-                  [:footer (h/? (->hiccup-model :tfoot [(h/ref 'tr)]))])))]
+                                        [:abbr string-gen]
+                                        [:colspan (->constrained-model pos-int? gen/small-integer)]
+                                        [:rowspan (->constrained-model #(<= 0 % 65534) gen/small-integer)]
+                                        [:headers string-gen]
+                                        [:scope (h/enum #{"row" "col" "rowgroup" "colgroup" "auto"})])
+                                      (map elem-ref (set/difference
+                                                     flow-tags sectioning-tags heading-tags
+                                                     #{:table :footer :header}))))]
+                               [:rowdata
+                                (h/* (->hiccup-model
+                                      :td
+                                      (h/with-optional-entries
+                                        global-attributes
+                                        [:colspan (->constrained-model pos-int? gen/small-integer)]
+                                        [:rowspan (->constrained-model #(<= 0 % 65534) gen/small-integer)]
+                                        [:headers string-gen])
+                                      (map elem-ref flow-tags)))])))]
+                      (h/in-vector
+                       (h/cat
+                        [:tag (h/val :table)]
+                        [:caption (h/? (->hiccup-model :caption (map elem-ref flow-tags)))]
+                        [:colgroups (h/* (->hiccup-model
+                                          :colgroup
+                                          [[:col (->hiccup-model
+                                                  :col
+                                                  (h/with-optional-entries
+                                                    global-attributes
+                                                    [:span int-gen])
+                                                  :empty)]]))]
+                        [:header (h/? (->hiccup-model :thead [[:tr (h/ref 'tr)]]))]
+                        [:contents
+                         (h/alt
+                          [:body (->hiccup-model :tbody [[:tr (h/ref 'tr)]])]
+                          [:rows (h/+ (h/ref 'tr))])]
+                        [:footer (h/? (->hiccup-model :tfoot [[:tr (h/ref 'tr)]]))])))]
     (h/alt
      [:phrasing-content (h/ref 'phrasing-content)]
      [:phrasing-contents (h/ref 'phrasing-contents)]
@@ -567,7 +570,7 @@
      [:sub (h/ref 'sub)]
      [:sup (h/ref 'sup)]
      #_[:svg (h/ref 'svg)]
-     #_[:table (h/ref 'table)]
+     [:table (h/ref 'table)]
      #_[:template (h/ref 'template)]
      #_[:textarea (h/ref 'textarea)]
      [:time (h/ref 'time)]
@@ -583,13 +586,76 @@
           {:type :ref :key (quote-kw elem)}}))
 
 
+(comment
+  (def simple-table (h/let ['tr
+                            (h/not-inlined
+                             (h/in-vector
+                              (h/cat
+                               [:tag (h/val :tr)]
+                               [:rowheader
+                                (h/? (->hiccup-model
+                                      :th
+                                      (h/with-optional-entries
+                                        global-attributes
+                                        [:abbr string-gen]
+                                        [:colspan (->constrained-model pos-int? gen/small-integer)]
+                                        [:rowspan (->constrained-model #(<= 0 % 65534) gen/small-integer)]
+                                        [:headers string-gen]
+                                        [:scope (h/enum #{"row" "col" "rowgroup" "colgroup" "auto"})])
+                                      []))]
+                               [:rowdata
+                                (h/* (->hiccup-model
+                                      :td
+                                      (h/with-optional-entries
+                                        global-attributes
+                                        [:colspan (->constrained-model pos-int? gen/small-integer)]
+                                        [:rowspan (->constrained-model #(<= 0 % 65534) gen/small-integer)]
+                                        [:headers string-gen])
+                                      []))])))]
+                      (h/in-vector
+                       (h/cat
+                        [:tag (h/val :table)]
+                        [:caption (h/? (->hiccup-model :caption []))]
+                        [:colgroups (h/* (->hiccup-model
+                                          :colgroup
+                                          [[:col (->hiccup-model
+                                                  :col
+                                                  (h/with-optional-entries
+                                                    global-attributes
+                                                    [:span int-gen])
+                                                  :empty)]]))]
+                        [:header (h/? (->hiccup-model :thead [[:tr (h/ref 'tr)]]))]
+                        [:contents
+                         (h/alt
+                          [:body (->hiccup-model :tbody [[:tr (h/ref 'tr)]])]
+                          [:rows (h/+ (h/ref 'tr))])]
+                        [:footer (h/? (->hiccup-model :tfoot [[:tr (h/ref 'tr)]]))]))))
+
+  (valid? minimap-model simple-table)
+
+
+
+  (valid? simple-table [:table
+                        [:caption "an example table"]
+                        [:colgroup [:col]]
+                        [:tr [:td "a cell"]]])
+
+  (valid? minimap-model (->element-model :table))
+  (valid?  (->element-model :table)
+           [:table
+            [:caption "an example table"]
+            [:colgroup [:col]]
+            [:tr [:td "a cell"]]])
+  )
+
+
 (defn update-child-elements-model [model children]
   (let [[t attr contents] (:entries model)]
     (assoc
      model
      :entries
      [t attr (update-in contents [:model :elements-model :entries]
-                     (fn [e] (into [] (filter #(contains? children (:key %)) e))))])))
+                        (fn [e] (into [] (filter #(contains? children (:key %)) e))))])))
 
 (defn restrict-alt-model [{:keys [type bindings body]} children]
   {:type type
