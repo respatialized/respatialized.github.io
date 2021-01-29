@@ -1,8 +1,8 @@
 <% (def metadata {:title "Clojure is my TI-83"}) %>
 <% (require (quote [hiccup.page :as hp])) %>
 
-<%=(hp/include-css "https://storage.googleapis.com/app.klipse.tech/css/codemirror.css")%>
-<%=[:div {:class "f3"} (header "Clojure Is My TI-83")]%>
+<%=#_[:link {:href "https://storage.googleapis.com/app.klipse.tech/css/codemirror.css" :rel "stylesheet"}]%>
+<%= (header "Clojure Is My TI-83")%>
 
 <%=(header "Part 1" :h3)%>
 <%=(entry-date "2019-05-20")%>

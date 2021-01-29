@@ -18,8 +18,8 @@
     [:meta {:charset "utf-8"}]
     [:meta {:http-equiv "X-UA-Compatible" :content "IE=edge,chrome=1"}]
     [:meta {:name "viewport" :content "width=device-width, initial-scale=1.0, user-scalable=no"}]
-    (hp/include-css "css/raster.css" "css/fonts.css" "css/main.css")
-    ])
+    (hp/include-css "css/raster.css" "css/fonts.css" "css/main.css"
+                    "https://storage.googleapis.com/app.klipse.tech/css/codemirror.css")])
 
 (defn header
   ([title level class]  [level {:class class} title])

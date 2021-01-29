@@ -262,12 +262,33 @@
                         [:del (h/ref 'del-phrasing)]
                         [:atomic-element atomic-element]
                         (map elem-ref phrasing-tags))))
-               #_ #_'link-phrasing
-               (->hiccup-model :link )]
+               'link-phrasing
+               (->hiccup-model
+                :link
+                (h/let
+                    ['link-attrs (-> global-attributes
+                                     (h/with-entries [:itemprop string-gen])
+                                     (h/with-optional-entries
+                                       [:crossorigin (h/enum #{"anonymous" "use-credentials"})]
+                                       [:href url]
+                                       [:media string-gen]
+                                       [:rel string-gen]))]
+                    (h/alt
+                     [:pre (-> (h/ref 'link-attrs)
+                               (h/with-entries
+                                 [:rel (h/enum #{"preload" "prefetch"})])
+                               (h/with-optional-entries
+                                 [:as (h/enum #{"audio" "document" "embed"
+                                                "fetch" "font" "image" "object"
+                                                "script" "style" "track" "video"
+                                                "worker"})]))]
+                     [:main (h/ref 'link-attrs)]))
+                :empty)]
          (apply h/alt
                 [:a (h/ref 'a-phrasing)]
                 [:ins (h/ref 'ins-phrasing)]
                 [:del (h/ref 'del-phrasing)]
+                [:link (h/ref 'link-phrasing)]
                 [:atomic-element atomic-element]
                 (map elem-ref phrasing-tags)))
        'phrasing-contents (h/* (h/ref 'phrasing-content))
@@ -282,8 +303,6 @@
                                 [:download string-gen]
                                 [:rel string-gen]
                                 [:target (h/enum #{"_self" "_blank" "_parent" "_top"})]))
-                          #_(map elem-ref (set/union (set/difference flow-tags interactive-tags)
-                                                     phrasing-tags))
                           (h/ref 'phrasing-contents))
        'abbr (->hiccup-model :abbr (h/ref 'phrasing-contents))
        'b (->hiccup-model :b (h/ref 'phrasing-contents))
@@ -338,6 +357,28 @@
        'u (->hiccup-model :u (h/ref 'phrasing-contents))
        'var (->hiccup-model :var (h/ref 'phrasing-contents))
        'wbr (h/val [:wbr])
+       ;; link
+       'link (->hiccup-model
+              :link
+              (h/let
+                  ['link-attrs (-> global-attributes
+                                   (h/with-optional-entries
+                                     [:crossorigin (h/enum #{"anonymous" "use-credentials"})]
+                                     [:href url]
+                                     [:type (h/enum #{"text/html" "text/css"})]
+                                     [:media string-gen]
+                                     [:rel string-gen]))]
+                  (h/alt
+                   [:pre (-> (h/ref 'link-attrs)
+                             (h/with-entries
+                               [:rel (h/enum #{"preload" "prefetch"})])
+                             (h/with-optional-entries
+                               [:as (h/enum #{"audio" "document" "embed"
+                                              "fetch" "font" "image" "object"
+                                              "script" "style" "track" "video"
+                                              "worker"})]))]
+                   [:main (h/ref 'link-attrs)]))
+              :empty)
        ;; then other text
        'blockquote (->hiccup-model :blockquote
                                    (h/with-optional-entries
@@ -437,72 +478,72 @@
        'nav (->hiccup-model :nav (map elem-ref flow-tags))
        'section (->hiccup-model :section (map elem-ref flow-tags))
        ;; then other stuff
-       'script (h/in-vector
-                (h/cat [:tag (h/val :script)]
-                       [:attributes
-                        (h/with-optional-entries
-                          global-attributes
-                          [:async (h/val true)]
-                          [:crossorigin string-gen]
-                          [:defer (h/val true)]
-                          [:integrity string-gen]
-                          [:nomodule (h/val true)]
-                          [:referrerpolicy (h/enum #{"no-referrer"
-                                                     "no-referrer-when-downgrade"
-                                                     "origin"
-                                                     "origin-when-cross-origin"
-                                                     "same-origin"
-                                                     "strict-origin"
-                                                     "strict-origin-when-cross-origin"
-                                                     ""})]
-                          [:src url]
-                          [:type string-gen])]
-                       [:content (h/? string-gen)]))
+       'script
+       (->hiccup-model
+        :script
+        (h/with-optional-entries
+          global-attributes
+          [:async (h/enum #{true "async"})]
+          [:crossorigin string-gen]
+          [:defer (h/val true)]
+          [:integrity string-gen]
+          [:nomodule (h/val true)]
+          [:referrerpolicy (h/enum #{"no-referrer"
+                                     "no-referrer-when-downgrade"
+                                     "origin"
+                                     "origin-when-cross-origin"
+                                     "same-origin"
+                                     "strict-origin"
+                                     "strict-origin-when-cross-origin"
+                                     ""})]
+          [:src url]
+          [:type string-gen])
+        (h/? string-gen))
        'table (h/let ['tr
                       (h/not-inlined
                        (h/in-vector
                         (h/cat
                          [:tag (h/val :tr)]
-                               [:rowheader
-                                (h/? (->hiccup-model
-                                      :th
-                                      (h/with-optional-entries
-                                        global-attributes
-                                        [:abbr string-gen]
-                                        [:colspan (->constrained-model pos-int? gen/small-integer)]
-                                        [:rowspan (->constrained-model #(<= 0 % 65534) gen/small-integer)]
-                                        [:headers string-gen]
-                                        [:scope (h/enum #{"row" "col" "rowgroup" "colgroup" "auto"})])
-                                      (map elem-ref (set/difference
-                                                     flow-tags sectioning-tags heading-tags
-                                                     #{:table :footer :header}))))]
-                               [:rowdata
-                                (h/* (->hiccup-model
-                                      :td
-                                      (h/with-optional-entries
-                                        global-attributes
-                                        [:colspan (->constrained-model pos-int? gen/small-integer)]
-                                        [:rowspan (->constrained-model #(<= 0 % 65534) gen/small-integer)]
-                                        [:headers string-gen])
-                                      (map elem-ref flow-tags)))])))]
-                      (h/in-vector
-                       (h/cat
-                        [:tag (h/val :table)]
-                        [:caption (h/? (->hiccup-model :caption (map elem-ref flow-tags)))]
-                        [:colgroups (h/* (->hiccup-model
-                                          :colgroup
-                                          [[:col (->hiccup-model
-                                                  :col
-                                                  (h/with-optional-entries
-                                                    global-attributes
-                                                    [:span int-gen])
-                                                  :empty)]]))]
-                        [:header (h/? (->hiccup-model :thead [[:tr (h/ref 'tr)]]))]
-                        [:contents
-                         (h/alt
-                          [:body (->hiccup-model :tbody [[:tr (h/ref 'tr)]])]
-                          [:rows (h/+ (h/ref 'tr))])]
-                        [:footer (h/? (->hiccup-model :tfoot [[:tr (h/ref 'tr)]]))])))]
+                         [:rowheader
+                          (h/? (->hiccup-model
+                                :th
+                                (h/with-optional-entries
+                                  global-attributes
+                                  [:abbr string-gen]
+                                  [:colspan (->constrained-model pos-int? gen/small-integer)]
+                                  [:rowspan (->constrained-model #(<= 0 % 65534) gen/small-integer)]
+                                  [:headers string-gen]
+                                  [:scope (h/enum #{"row" "col" "rowgroup" "colgroup" "auto"})])
+                                (map elem-ref (set/difference
+                                               flow-tags sectioning-tags heading-tags
+                                               #{:table :footer :header}))))]
+                         [:rowdata
+                          (h/* (->hiccup-model
+                                :td
+                                (h/with-optional-entries
+                                  global-attributes
+                                  [:colspan (->constrained-model pos-int? gen/small-integer)]
+                                  [:rowspan (->constrained-model #(<= 0 % 65534) gen/small-integer)]
+                                  [:headers string-gen])
+                                (map elem-ref flow-tags)))])))]
+                (h/in-vector
+                 (h/cat
+                  [:tag (h/val :table)]
+                  [:caption (h/? (->hiccup-model :caption (map elem-ref flow-tags)))]
+                  [:colgroups (h/* (->hiccup-model
+                                    :colgroup
+                                    [[:col (->hiccup-model
+                                            :col
+                                            (h/with-optional-entries
+                                              global-attributes
+                                              [:span int-gen])
+                                            :empty)]]))]
+                  [:header (h/? (->hiccup-model :thead [[:tr (h/ref 'tr)]]))]
+                  [:contents
+                   (h/alt
+                    [:body (->hiccup-model :tbody [[:tr (h/ref 'tr)]])]
+                    [:rows (h/+ (h/ref 'tr))])]
+                  [:footer (h/? (->hiccup-model :tfoot [[:tr (h/ref 'tr)]]))])))]
     (h/alt
      [:phrasing-content (h/ref 'phrasing-content)]
      [:phrasing-contents (h/ref 'phrasing-contents)]
@@ -544,6 +585,7 @@
      [:ins (h/ref 'ins)]
      [:kbd (h/ref 'kbd)]
      #_[:label (h/ref 'label)]
+     [:link (h/ref 'link)]
      [:main (h/ref 'main)]
      #_[:map (h/ref 'map)]
      #_[:mark (h/ref 'mark)]
@@ -645,8 +687,7 @@
            [:table
             [:caption "an example table"]
             [:colgroup [:col]]
-            [:tr [:td "a cell"]]])
-  )
+            [:tr [:td "a cell"]]]))
 
 
 (defn update-child-elements-model [model children]
