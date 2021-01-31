@@ -932,6 +932,62 @@
    (partition-all 2)
    (map process-chunk)))
 
+
+ (defn- make
+    "Return the node, skipping attribute maps if present."
+    {:license {:source "https://github.com/davidsantiago/hickory"
+               :type "Eclipse Public License, v1.0"}}
+    [node children]
+    (if (vector? node)
+      (if (map? (second node))
+        (into (subvec node 0 2) children)
+        (apply vector (first node) children))
+      children))
+
+  (defn- children
+    "Return the node's children, skipping attribute maps if present."
+    {:license {:source "https://github.com/davidsantiago/hickory"
+               :type "Eclipse Public License, v1.0"}}
+    [node]
+    (if (vector? node)
+      (if (map? (second node))
+        (subvec node 2)
+        (subvec node 1))
+      node))
+
+  (defn form-zipper [f]
+    (zip/zipper not-in-form? children make f))
+
+(defn hiccup-form? [f]
+  (and (vector? f)
+       (keyword? (first f))))
+
+(defn valid-form?
+  "Checks whether the given data conforms to its element model based on its keyword"
+  [e]
+  (valid? (->element-model (keyword (first e)))
+          e))
+
+(defn invalid-form? [e]
+  (and (hiccup-form? e) (not (valid-form? e))))
+
+(defn find-invalid-forms [elem]
+  (loop [loc (form-zipper elem)
+         res {}]
+    (let [e (zip/node loc)]
+      (if (zip/end? loc) res
+          (recur (zip/next loc)
+                 (if (hiccup-form? e)
+                   (if (not (valid-form? e))
+                     (assoc res e (valid-form? e))
+                     res)
+                   res))))))
+
+(comment
+  (find-invalid-forms [:div [:p "text"] [:p [:p "text"]]])
+
+  )
+
 (comment
   (def unsectioned
     [:article

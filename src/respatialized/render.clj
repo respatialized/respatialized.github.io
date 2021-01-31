@@ -63,7 +63,7 @@
             :author-class]}]
 
    [:blockquote {:class outer-class}
-    [:p {:class content-class} content]
+    [:div {:class content-class} content]
     [:span {:class author-class} author]])
   ([content author]
    (blockquote content author
@@ -89,7 +89,7 @@
 
       (into
        [:table
-        [:tr {:class header-class} (map get-header ks)]]
+        (into [:tr {:class header-class}] (map get-header ks))]
        (map get-row vs))))
   ([sorted-map-vec]
    (sorted-map-vec->table sorted-map-vec

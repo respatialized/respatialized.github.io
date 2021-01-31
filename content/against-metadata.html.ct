@@ -27,6 +27,7 @@ I doubt I'm the first person to notice these shortcomings; they likely motivated
 Metadata is data. The same tools we use to process data efficiently, store it reliably, and link it together should be used with it. Doing things declaratively is a laudable goal, but those taking it on must recognize how <%=(link "https://en.wikipedia.org/wiki/Datalog" "complex")%> <%=(link "https://en.wikipedia.org/wiki/SQL" "declarative")%> <%=(link "https://en.wikipedia.org/wiki/MiniKanren" "programs")%> actually are. Otherwise, they'll just sweep the existing complexity of the subject under the rug.
 
 Previously:
+
 <%=(ul
 (link "https://mikehadlow.blogspot.com/2012/05/configuration-complexity-clock.html" "The Configuration Complexity Clock")
 (link "https://twitter.com/dr_c0d3/status/1040092903052378112" "At least XML had schemas..."))%>
@@ -54,7 +55,7 @@ This short post sketches out a better way of storing key-value data in Git than 
 Another post on a similar theme, with a quick sketch of an implementation of a key/value store atop Git. Stovell offers a very succinct and general problem statement for any tool that tackles this problem:
 
 <%=(blockquote
- [:p "The two sets of data I'm referring to are:" (ul "Definitions. Environments, machines, projects, deployment steps, variables, and so on. They define what will happen when you deploy something. There usually aren't more than a couple of thousand of any of them. As a user, you spend time crafting and modifying these."
+ [:div "The two sets of data I'm referring to are:" (ul "Definitions. Environments, machines, projects, deployment steps, variables, and so on. They define what will happen when you deploy something. There usually aren't more than a couple of thousand of any of them. As a user, you spend time crafting and modifying these."
 "Records. These collections include releases, deployments, audit events, and so on. Basically, they are a record of the actions you've done using the definitions above. These collections can balloon out to many thousands, perhaps millions of documents. As a user, these are created from simple clicks or even automatically via API's/integration.")] "Paul Stovell")%>
 
 On a Kubernetes deployment, for example, the definitions would be manifest files, and the records would be instances of applying or patching those manifest files. One of the big challenges in developing Kubernetes applications is maintaining a clear sense of how your definitions and records have changed over time using the impoverished semantics of YAML configuration, a problem that Compton and van Hensbergen dealt with using Clojure in the talk above. Having better tooling within your repository itself for tracking definitions and records like this would also be very helpful.

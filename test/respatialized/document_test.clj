@@ -3,6 +3,7 @@
             [respatialized.parse :refer [parse parse-eval md5]]
             [respatialized.build :refer [get-template-files]]
             [hiccup.core :refer [html]]
+            [clojure.zip :as zip]
             [clojure.test :as t]
             [clojure.test.check :as tc]
             [clojure.test.check.clojure-test :refer [defspec]]
@@ -496,19 +497,38 @@
 
   (def post-contents
     (into {}
-                (map
-                 (fn [p]
-                   (try
-                     [p (-> p
-                            slurp
-                            (parse-eval [:article]
-                                        (md5 p)
-                                        '[[respatialized.render :refer :all]])
-                            (#(into [:article] sectionize-contents (rest %))))]
-                     (catch Exception e
-                       [p {:error (str "exception: " (.getMessage e))}])))
-                 pages)))
+          (map
+           (fn [p]
+             (try
+               [p (-> p
+                      slurp
+                      (parse-eval [:article]
+                                  (md5 p)
+                                  '[[respatialized.render :refer :all]])
+                      (#(into [:article] sectionize-contents (rest %))))]
+               (catch Exception e
+                 [p {:error (str "exception: " (.getMessage e))}])))
+           pages)))
 
   (def post-meta
-    (into {} (map (fn [[p c]] [p {:valid? (valid? grid c)
-                                  :size (count c)}]) post-contents))))
+    (into {} (map (fn [[p c]] [p {:valid? (valid? (->element-model :article) c)
+                                  :size (count c)}]) post-contents)))
+
+
+
+  (defn zip-walk [f z]
+    (if (zip/end? z)
+      (zip/root z)
+      (recur f (zip/next (f z)))))
+
+  (def forms
+    (zip-walk (fn [e] {:elem e
+                       :status
+                       (and
+                        (vector? e)
+                        (keyword? (first e))
+                        (valid? (->element-model (first e)) e))})
+              (form-zipper (get post-contents "./content/against-metadata.html.ct"))))
+
+
+  )
