@@ -217,7 +217,8 @@
    :table [:table
            [:caption "an example table"]
            [:colgroup [:col]]
-           [:tr [:td "a cell"]]]
+           [:thead [:tr [:td "label"]]]
+           [:tbody [:tr [:td "a cell"]]]]
    :article [:article [:section "something"]]})
 
 (t/deftest models

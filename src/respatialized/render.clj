@@ -87,10 +87,9 @@
          get-row (fn [rv] (into [:tr {:class row-class}]
                                 (map (fn [v] [:td v]) rv)))]
 
-      (into
-       [:table
-        (into [:tr {:class header-class}] (map get-header ks))]
-       (map get-row vs))))
+     [:table
+      [:thead (into [:tr {:class header-class}] (map get-header ks))]
+      (into [:tbody] (map get-row vs))]))
   ([sorted-map-vec]
    (sorted-map-vec->table sorted-map-vec
                           styles/table-header

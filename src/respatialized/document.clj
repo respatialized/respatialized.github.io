@@ -499,33 +499,34 @@
           [:src url]
           [:type string-gen])
         (h/? string-gen))
-       'table (h/let ['tr
-                      (h/not-inlined
-                       (h/in-vector
-                        (h/cat
-                         [:tag (h/val :tr)]
-                         [:rowheader
-                          (h/? (->hiccup-model
-                                :th
-                                (h/with-optional-entries
-                                  global-attributes
-                                  [:abbr string-gen]
-                                  [:colspan (->constrained-model pos-int? gen/small-integer)]
-                                  [:rowspan (->constrained-model #(<= 0 % 65534) gen/small-integer)]
-                                  [:headers string-gen]
-                                  [:scope (h/enum #{"row" "col" "rowgroup" "colgroup" "auto"})])
-                                (map elem-ref (set/difference
-                                               flow-tags sectioning-tags heading-tags
-                                               #{:table :footer :header}))))]
-                         [:rowdata
-                          (h/* (->hiccup-model
-                                :td
-                                (h/with-optional-entries
-                                  global-attributes
-                                  [:colspan (->constrained-model pos-int? gen/small-integer)]
-                                  [:rowspan (->constrained-model #(<= 0 % 65534) gen/small-integer)]
-                                  [:headers string-gen])
-                                (map elem-ref flow-tags)))])))]
+       'table (h/let ['th
+                      (->hiccup-model
+                       :th
+                       (h/with-optional-entries
+                         global-attributes
+                         [:abbr string-gen]
+                         [:colspan (->constrained-model pos-int? gen/small-integer)]
+                         [:rowspan (->constrained-model #(<= 0 % 65534) gen/small-integer)]
+                         [:headers string-gen]
+                         [:scope (h/enum #{"row" "col" "rowgroup" "colgroup" "auto"})])
+                       (map elem-ref (set/difference
+                                      flow-tags sectioning-tags heading-tags
+                                      #{:table :footer :header})))
+                      'td (->hiccup-model
+                               :td
+                               (h/with-optional-entries
+                                 global-attributes
+                                 [:colspan (->constrained-model pos-int? gen/small-integer)]
+                                 [:rowspan (->constrained-model #(<= 0 % 65534) gen/small-integer)]
+                                 [:headers string-gen])
+                               (map elem-ref flow-tags))
+                      'tr
+                      (->hiccup-model
+                       :tr
+                       global-attributes
+                       (h/alt
+                        [:all-header (h/* (h/ref 'th))]
+                        [:rowdata (h/cat (h/? (h/ref 'th)) (h/* (h/ref 'td)))]))]
                 (h/in-vector
                  (h/cat
                   [:tag (h/val :table)]
