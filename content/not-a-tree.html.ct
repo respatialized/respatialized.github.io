@@ -1,19 +1,22 @@
 <% (def metadata {:title "This Website Is Not A Tree"}) %>
 
-<%=(header "This Website Is Not A Tree")%>
+<%=(header (:title metadata))%>
 
-<%=(blockquote "It must be emphasized, lest the orderly mind shrink in horror from anything that is not clearly articulated and categorized in tree form, that the idea of overlap, ambiguity, multiplicity of aspect and the semilattice are not less orderly than the rigid tree, but more so. They represent a thicker, tougher, more subtle and more complex view of structure." (str "Christopher Alexander, " (link "https://www.patternlanguage.com/archive/cityisnotatree.html" "A City Is Not A Tree")))%>
-<%= [:div {:class "f7 tr"} "essential reading."] %>
+<%=(blockquote
+  {:author "Christopher Alexander"
+   :source "A City Is Not A Tree"
+   :url "https://www.patternlanguage.com/archive/cityisnotatree.html"}
+  "It must be emphasized, lest the orderly mind shrink in horror from anything that is not clearly articulated and categorized in tree form, that the idea of overlap, ambiguity, multiplicity of aspect and the semilattice are not less orderly than the rigid tree, but more so. They represent a thicker, tougher, more subtle and more complex view of structure." )%>
+<%= [:aside {:class "f7 tr"} "essential reading."] %>
 
-<%=(header "Preliminaries" :h3)%>
-<%=(entry-date "2019-03-10")%>
+<%=(header {:level :h3 :date "2019-03-10"} "Preliminaries")%>
 
 This is the first post of respatialized, a website about actual and potential spaces. Part of the reason it took me so long to launch it is because nearly every static site generator forces your writing into a tree-like structure. Only one lets you extend the site generation methods to reflect your own ideas: Matthew Butterick's <%=(link "https://docs.racket-lang.org/pollen/"  "pollen")%> Because I want to combine the sequential and additive writing style of a blog with the associational and iterative nature of a wiki, this was the only choice.
 
 It would have taken me even longer to get started if Joel Dueck hadn't already done the excellent work of creating  <%=(in-code (link "https://github.com/otherjoel/thenotepad" "thenotepad"))%>, which includes functions to produce many of the things we expect from blogs, like sequential indices and RSS feeds, and many that we should expect, but don't (like the ability to generate a PDF from the blog). The code that generates this blog is forked from  <%=(link "https://github.com/otherjoel/thenotepad" "thenotepad")%> and licensed under the MIT License.
 
-<%=(header "Extensible Textual Notation" :h3)%>
-<%=(entry-date "2019-11-13")%>
+<%=(header {:level :h3 :date "2019-11-13"}
+           "Extensible Textual Notation")%>
 
 I recently switched from <%=(in-code "pollen")%> to <%=(in-code "perun")%>. <%=(in-code "perun")%>'s model of publishing everything via a composable collection of <%=(in-code "boot")%> tasks encapsulates everything that I want from <%=(in-code "pollen")%>'s organizational and compositional capabilities. <%=(in-code "pollen")%>'s pagetrees can be recreated by mapping and filtering the sequential collections of <%=(in-code "hiccup")%> data structures <%=(in-code "perun")%> generates, and applying those transformations to generic collections comes more readily to me than creating <%=(in-code ".ptree")%> files (the Clojure refrain, it's just data, etc.). My artwork and other content is also written in and generated using Clojure, so I don't want to have to drop into a different language that I don't know as well just to get it out. For me, the ability to iterate quickly depends on low friction and the power of simplicity: <%=(in-code "boot")%>'s Swiss army knife approach matches that perfectly. 
 
@@ -40,53 +43,54 @@ Other examples in this space:
 
 Both of these are built atop Javascript, and are more focused on interactivity for users than on procedural generation of text at write-time. Clojure(script)'s homoiconicity makes it ideally suited for both purposes- it can be used to generate interactive programs as well as any other form of data you'd want to display. I'm personally more interested in the latter, right now.
 
-<%= (header "Extensible Textual Notation, part 2" :h3) %>
-<%= (entry-date "2019-11-17") %>
+<%= (header {:level :h3 :date "2019-11-17"} "Extensible Textual Notation, part 2") %>
 
 Within the Clojure world and beyond, there are a few tools that suggest directions for what I'm thinking of here.
 
-<%= (header (in-code "perun") :h4) %>
+<%= (header (in-code "perun")) %>
 
 This is what I'm using to write and compile the blog itself right now. However, I don't like that most of the decisions about how to parse markdown into HTML are decided by the fiats of <%=(in-code "flexmark-java")%> I would much prefer to be able to manipulate the content in the form of  <%=(in-code "hiccup")%>  data structures as I see fit <%=(em "before")%> passing it to <%=(in-code "hiccup.core/html5")%> for rendering. <%=(link "https://github.com/hashobject/perun/issues/30" "This was discussed") %> in the <%=(in-code "perun")%> repo, but was set aside when the use case of hyphenation didn' t actually require it.
 
 However, there are many other reasons you'd be interested in representing your writing as data.
-<%= (blockquote "if the book is a program, the source for that book should look more like your brain, and less like HTML (or XML or LaTeX or ...)?" (link "https://docs.racket-lang.org/pollen/second-tutorial.html" "Matthew Butterick"))%>
+<%= (blockquote
+    {:author "Matthew Butterick"
+     :url "https://docs.racket-lang.org/pollen/second-tutorial.html"}
+    "if the book is a program, the source for that book should look more like your brain, and less like HTML (or XML or LaTeX or ...)?")%>
 
 Personally, I'm interested in using the most powerful tools I have. For example, you could parse the writing into discrete chunks represented as <%=(in-code "hiccup")%> data structures, record them as facts in a <%=(link "https://github.com/tonsky/datascript" (in-code "datascript"))%> DB, and query them like any other source of data. This would be even more powerful if you ran it against not just the current state of your writing, but its revision history.
 
-<%= (header (link "https://github.com/metasoarous/oz" (in-code "oz")) :h4) %>
+<%= (header {:level :h4} (link "https://github.com/metasoarous/oz" (in-code "oz"))) %>
 
 As a Clojure enthusiast who got started with Jupyter notebooks, I quite like the idea of using Clojure for interactive documents. I just wish Markdown wasn't so uncritically accepted as the default for text authoring, because it seems silly to give yourself the whole power of a programming language in rendering a document and then arbitrarily restrict its scope to making graphs. Scientific documents in particular deal with lots of structured data: batteries of tests, statistical analyses, summary tables. Presentation of that data is not limited to graphs: a more powerful authoring model would allow you to dynamically generate and restructure the prose annotations of scientific data as easily as the graphs that summarize it. 
 
 Anything less feels like an arbitrary step backward.
 
-<%= (header "Code documentation tools" :h5) %>
+<%= (header {:level :h5} "Code documentation tools") %>
 
 The major area in which programmers <%=(em "currently")%> perform programmatic manipulation of prose and data in tandem is in the realm of documentation generators. In my experience, these tools fall into two broad categories:
 
-- narrative-first tools like <%=(in-code "sphinx, reStructuredText")%>, etc. 
+- narrative-first tools like <%=(in-code "sphinx, reStructuredText")%>, etc.
 They have one primary benefit: if they're to be of any use at all they require the author to write a good amount of prose introducing the project, its rationale and purpose, and the main ways of interacting with it. However, in these tools, docs are generally separate from code - even if they live in the same repo, they're often in <%=(in-code "docs/")%> and can easily come out of sync with the actual code.
 - code-first tools like any <%=(in-code "javadoc, docco, Roxygen2")%>, etc.
 These have the benefit of being much closer to the day-to-day work of developers and are much less likely to become out of sync with the code, because they are usually parsed out of docstrings and special comments and the process of updating documentation can be built into a project's deployment pipeline without much overhead. The drawbacks? You generally end up with a completely decontextualized list of classes or functions that doesn't inform or give examples of how you'd actually <%=(em "use")%> them. 
 
-<%= (header (link "https://gdeer81.github.io/marginalia" (in-code "marginalia")) :h6) %>
+<%= (header {:level :h6} (link "https://gdeer81.github.io/marginalia" (in-code "marginalia"))) %>
 
 <%=(in-code "marginalia")%> generates elegant-looking literate programming documents from plain Clojure source code. Like <%=(in-code "perun")%>, however, it returns rendered HTML rather than structured data from its parsing of source files. 
 
-<%= (header (link "https://github.com/namuol/cod" (in-code "cod")) :h6) %>
+<%= (header {:level :h6} (link "https://github.com/namuol/cod" (in-code "cod"))) %>
 
 As a code documentation tool, <%=(in-code "cod")%> feels like it has the right idea at its core. Instead of deciding how to present the documentation it pulls out of the source code for you, <%=(in-code "cod")%> simply returns JSON data representing the annotations. Any further decisions about how to represent that JSON data in the final documentation are up to the author, allowing for a better blend of narrative and code than other documentation tools.
 
-<%= (header (link "https://docs.racket-lang.org/scribble/" (in-code "scribble")) :h6) %>
+<%= (header {:level :h6} (link "https://docs.racket-lang.org/scribble/" (in-code "scribble"))) %>
 
 The fact that Racket libraries tend to have <%=(em "vastly")%> superior documentation (on average) than any other programming language is a testament to the power of Scribble. Naturally, <%=(in-code "pollen")%> owes a lot to the starting point that <%=(in-code "scribble")%> created.
 
-<%= (header "Why look at code documentation tools?" :h5) %>
+<%= (header {:level :h5} "Why look at code documentation tools?") %>
 
 Mostly because I know that I'm going to have to write my own solution to this problem. I want the solution's source code to itself generate an example of the kind of document I want it to produce, so I'm hoping I can steal as many existing functions as possible from these other libraries while I'm bootstrapping the project.
 
-<%= (header "Structural features of writing and information management systems" :h3)%>
-<%= (entry-date "2019-12-14")%>
+<%= (header {:level :h3 :date "2019-12-14"} "Structural features of writing and information management systems" )%>
 
 I've gone through myriad to-do apps, organizers, journaling systems. Here's a table depicting my overall thoughts.
 
@@ -119,29 +123,33 @@ I've gone through myriad to-do apps, organizers, journaling systems. Here's a ta
 
 All of these advantages and disadvantages stem from one real underlying issue, in my view: each tool imposes its own view over the data you put into it, making alternative ways of looking at the same information difficult or impossible. Paul Chiusano has <%=(link "https://pchiusano.github.io/2016-10-13/view-inspired.html" "written nicely")%> about the conceptually weak data model an "intuitive" design imposes on the information it represents:
 
-<%=(blockquote "We often think about views first because views are concrete, and it’s what we interact with directly when we use software. But actually designing software ‘view first’ is problematic because it leads to rigid models that aren’t flexible enough to support the myriad of creative ways that people use your software. It also leads invariably to feature creep—when your model is overly influenced by some concrete views you had in mind during design, it invariably ends up insufficiently general purpose. So as your software becomes more popular, you start adding one-off ‘features’ to support concrete use cases that your users are asking for. A few years pass of this feature creep, and you have a bloated, complicated piece of software that no one gets joy out of using." (str "Paul Chiusano, " (link "https://pchiusano.github.io/2016-10-13/view-inspired.html" "The design failures of view-first")))%>
+<%=(blockquote
+  {:author "Paul Chiusano"
+   :url "https://pchiusano.github.io/2016-10-13/view-inspired.html"
+   :source "The design failures of view-first"}
+  "We often think about views first because views are concrete, and it’s what we interact with directly when we use software. But actually designing software ‘view first’ is problematic because it leads to rigid models that aren’t flexible enough to support the myriad of creative ways that people use your software. It also leads invariably to feature creep—when your model is overly influenced by some concrete views you had in mind during design, it invariably ends up insufficiently general purpose. So as your software becomes more popular, you start adding one-off ‘features’ to support concrete use cases that your users are asking for. A few years pass of this feature creep, and you have a bloated, complicated piece of software that no one gets joy out of using.")%>
 
 Every to-do list and knowledge management system suffers from this problem, In fact, I can feel the constraints imposed by the table above limiting what I want to say about each tool, so let's dive into what I mean by each of these words:
 
-<%= (ul
-(str (strong "associative") " - topics and items added at different times can be seen side-by-side, permitting recontextualization of existing information.")
-(str (strong "organic") " - order emerges from what is added rather than being imposed.")
-(str (strong "frictional") " - the extra effort required to add additional material actually performs useful work rather than being a hindrance (a benefit that has thus far made handwritten notes more valuable to me than digital ones).")
-(str (strong "multi-modal") " - multiple systems of representation can be easily employed in the same context.")
-(str (strong "atemporal") " - the system has no direct representation of the temporal ordering of its contents.")
-(str (strong "chronological") " - the system has a direct representation of the temporal ordering of its contents.")
-(str (strong "reflective") " - the system provides opportunities for reflection.")
-(str (strong "apresentist") " - the system has no direct representation of what's \"current.\"")
-(str (strong "fast") " - adding information is quick and reliable.")
-(str (strong "simple") " - the system itself does not impose barriers to adding additional information.")
-(str (strong "portable") " - information can be added and recalled through multiple mechanisms or devices.")
-(str (strong "decontextualized") " - information or items are cut off from their surrounding context.")
-(str (strong "non-iterative") " - the system does not support the process of refining information added to it; it expects items in their \"final state.\"")
-(str (strong "deep") " - the system supports long-form treatments of the information added to it")
-(str (strong "hierarchical") " - the system requires information to be organized in a tree format, thwarting associational views of it.")
-(str (strong "situated") " - the system provides useful background information without getting in the way of the work the information is intended to support.")
-(str (strong "compositional") " - underlying data, through association, can be " (em "composed") " into higher-level information.")
-(str (strong "laborious") " - the effort required to add or revise material imposes costs rather than providing benefits."))
+<%= [:ul
+[:li (strong "associative") " - topics and items added at different times can be seen side-by-side, permitting recontextualization of existing information."]
+[:li (strong "organic") " - order emerges from what is added rather than being imposed."]
+[:li (strong "frictional") " - the extra effort required to add additional material actually performs useful work rather than being a hindrance (a benefit that has thus far made handwritten notes more valuable to me than digital ones)."]
+[:li (strong "multi-modal") " - multiple systems of representation can be easily employed in the same context."]
+[:li (strong "atemporal") " - the system has no direct representation of the temporal ordering of its contents."]
+[:li (strong "chronological") " - the system has a direct representation of the temporal ordering of its contents."]
+[:li (strong "reflective") " - the system provides opportunities for reflection."]
+[:li (strong "apresentist") " - the system has no direct representation of what's \"current.\""]
+[:li (strong "fast") " - adding information is quick and reliable."]
+[:li (strong "simple") " - the system itself does not impose barriers to adding additional information."]
+[:li (strong "portable") " - information can be added and recalled through multiple mechanisms or devices."]
+[:li (strong "decontextualized") " - information or items are cut off from their surrounding context."]
+[:li (strong "non-iterative") " - the system does not support the process of refining information added to it; it expects items in their \"final state.\""]
+[:li (strong "deep") " - the system supports long-form treatments of the information added to it"]
+[:li (strong "hierarchical") " - the system requires information to be organized in a tree format, thwarting associational views of it."]
+[:li (strong "situated") " - the system provides useful background information without getting in the way of the work the information is intended to support."]
+[:li (strong "compositional") " - underlying data, through association, can be " (em "composed") " into higher-level information."]
+[:li (strong "laborious") " - the effort required to add or revise material imposes costs rather than providing benefits."]]
 %>
 
 Most recently, I've been using a Zettelkasten-style system for my notes with a filofax binder. It's superb for free association, quick entry, and the generative friction that only putting pen to paper can provide. It's not so good for revisiting previous notes, synthesizing them into new information, reflecting on the past, or maintaining a view of what's "current." Before that, I used a journal-style notebook that was similarly good at quick free-form entry and helped maintain a chronological view of things that aided in reflection, but failed to support associational views of the information recorded within it and similarly suffered from difficulties in keeping things current. I think a two-phase system that facilitates the refinement of paper "drafts" into digital "facts" would be ideal for me, personally.
@@ -156,8 +164,7 @@ It seems daunting to come up with a solution for this, but I've been reading abo
 
 There's a lot more to say on the design of this, but mostly I wanted to get this concept "on paper" for further development into a design.
 
-<%=(header "Structural features of writing and information management systems, part 2" :h3)%>
-<%=(entry-date "2019-12-15")%>
+<%=(header {:level :h3 :date "2019-12-15"} "Structural features of writing and information management systems, part 2")%>
 
 Another distinction that cuts across everything that I referenced in that table above is the idea of <%=(em "closed")%> versus <%=(em "open")%> knowledge management systems. While my notebook has acquired a significant amount of internal complexity, it is largely a <%= (em "closed")%> system, making interaction with other sources of information more difficult. I have a gigantic pinboard backlog, highlights in a kindle, scattered paper notes about physical books, and no means of integrating them or refining them into something more meaningful.
 
@@ -165,28 +172,27 @@ A lot of PIMs designed to support academic reseearch are "open" towards producin
 
 Here's a quick sketch of what this might be look like:
 
-<%= [:div (image "media/views_sketch.jpg" "views-sketch" "mw20")] %>
+<%= (image "media/views_sketch.jpg" "views-sketch" "mw20") %>
 
 The bottom has a pomodoro-style task tracker and the "current task", the right pane has a grouping of recent commits to keep the actual output of that task in mind as well. The role of these panes isn't the important part - the mechanism by which they're generated is. By pulling information from a common store, simple contextual visualizations of relevant parts of it would be easy to construct via Datalog queries. 
 
 A further source of information comes from the seemingly simple fact that these pieces of information are <%=(em "displayed together")%>. The entities referenced by the views currently active could be linked through additional queries - for example, the commits happening in the text editor could create corresponding entities with attributes linking them to the entity of the current task. Similarly, information entries updated when a text file is open or a namespace is edited could be linked with that text file. This establishes a notion of <%=(em "relevance")%> for the supporting materials of the work being done.
 
-<%=(header "This website (could be) a CRDT" :h3)%>
-<%=(entry-date "2019-12-26,2019-12-28")%>
+<%=(header {:level :h3 :date "2019-12-26,2019-12-28"} "This website (could be) a CRDT")%>
 
 While considering potential applications of <%=(link "https://respatialized.net/relay.html" "relay")%> software, I recalled the notion of a <%=(em "conflict-free replicated data type")%>, a data structure that provides a probably correct solution to the problem of imposing a total order on a sequence of edits to a file that arrive out of order, editing different subsets of text, with unreliable timestamps. This data type would be what you reach for if you were designing a collaborative text editor with online and offline editing capabilities, because it would save you from making hard choices about which text to discard and which to keep (or worse, making the user deal with any errors caused by your software and imposing those choices on them).
 
 I started reading about the concept, glossing over the mathematical details in favor of an interest in its potential as an expressive medium for thought. Some ideas that fell out of this:
 
-<%=(header "Making the library metaphor in 'code library' concrete" :h5)%>
+<%=(header {:level :h5} "Making the library metaphor in 'code library' concrete")%>
 
-<%= [:div [:p {:class "f5"} (em (str "heavily inspired by Rich Hickey's talk " (link "https://youtube.com/watch?v=oyLBGkS5ICk" "Spec-ulation")))]] %>
+<%= [:aside [:p {:class "f5"} (em "heavily inspired by Rich Hickey's talk " (link "https://youtube.com/watch?v=oyLBGkS5ICk" "Spec-ulation"))]] %>
 
 Right now you have to take home the whole library when you write some code that uses one page of one book.
 
-Statically typed languages that rely on complex class hierarchies, especially because the compiler may make multiple passes across the codebase for definitions in different files ("... all you wanted was the banana." - Joe Armstrong) force you to ship all this supporting material to use one part of it. 
+Statically typed languages that rely on complex class hierarchies, especially because the compiler may make multiple passes across the codebase for definitions in different files ("... all you wanted was the banana." - Joe Armstrong) force you to ship all this supporting material to use one part of it.
 
-<%= [:div [:p {:class "f5"} (em "aside: I don't intend this as an intrinsic dig at statically typed, compiled languages per se. Smart compilers can do dead code elimination, but usually this technique is put to the purpose of reducing ") " executable " (em "size rather than reducing") " dependency " (em "size. It'd be very interesting to see a compiler targeting library code that minimizes the volume of the library code pulled in by the code which declares it as a dependency." (link "https://www.unisonweb.org/docs/tour" "Unison") " has done some interesting work in this direction because of its ability to serialize algebraic data types and send them over the network to perform remote computation.")]] %>
+<%= [:aside [:p {:class "f5"} (em "aside: I don't intend this as an intrinsic dig at statically typed, compiled languages per se. Smart compilers can do dead code elimination, but usually this technique is put to the purpose of reducing ") " executable " (em "size rather than reducing") " dependency " (em "size. It'd be very interesting to see a compiler targeting library code that minimizes the volume of the library code pulled in by the code which declares it as a dependency." (link "https://www.unisonweb.org/docs/tour" "Unison") " has done some interesting work in this direction because of its ability to serialize algebraic data types and send them over the network to perform remote computation.")]] %>
 
 So if instead of classes defined across files or nested relationships between algebraic data types defined at compile time, we had functions operating on simple, immutable values defined in self-contained s-expressions, plus some annotations:
 
@@ -203,19 +209,19 @@ Rather than a scope defined by a global namespace of evaluated expressions, thes
 
 S-expressions would slot naturally into the delimited data structures required by a CRDT, making this serialization easy (other programming languages may have a harder time). This opens up another application:
 
-<%=(header "New forms of revision control" :h5)%>
+<%=(header {:level :h5} "New forms of revision control")%>
 
 CRDTs can contain arbitrary series of revisions to the same underlying data, in a method guaranteed to converge on a consistent result.
 
 Documentation could be stored in the same CRDT. If the documentation has old timestamps, a tool could be built atop them to warn the user or author that they're stale relative to the rest of the code. Test results could be stored with the hash of the CRDT at the time they were executed, making failing tests trivial to reproduce. With a clever index, the failing tests associated with a given function could be recalled from the codebase's history with a query, providing useful context for finding the source of an unexpected regression.  
 
-<%=(em "again, this requires a language with an unambiguous syntax and referential transparency to be truly effective - I make no claims to being fair to non-lisp programming languages.")%>
+<%=(aside "again, this requires a language with an unambiguous syntax and referential transparency to be truly effective - I make no claims to being fair to non-lisp programming languages.")%>
 
 Configuration for external systems, or expressions that modify it, could be stored in the same CRDT as the code itself. Integration and system tests could be linked with configuration changes in the manner I describe above, providing context for when the components of a distributed system fail and are made to work again. 
 
 Tests could be shipped around with their functions using a similar annotation syntax to the one above so that someone can have guarantees about the external code they're relying on.
 
-<%=(header "A notebook for the table beside your hammock" :h5)%>
+<%=(header {:level :h5} "A notebook for the table beside your hammock")%>
 
 If code and documentation are part of the same data structure as a whole, then an "ideas first" approach to software is as easy to start and maintain as a new experimental repo. The recorded ideas can evolve in tandem with the code that implements them, and their interplay gets expressed through the immutable history of the data structure recording them. It's an environment that makes hammock-driven development as easy as flow-state coding and bug squashing, with the ability to fluidly switch between them without breaking the flow. Code itself as one component part of an open system that doesn't treat writing down the problem and writing the code that solves it as separate activities.
 
@@ -223,16 +229,18 @@ What else is possible? Right now, code takes on the shape that Git repositories,
 
 Alex Miller <%=(link "https://news.ycombinator.com/item?id=20365854" "writes of")%> the new model embraced by <%=(in-code "deps.edn")%>:
 
-<%= (blockquote "deps was designed to find a sweet spot in the middle of this with deps defined as data, aliases capturing program executions as data, but builds as programs. As such, the scope is drastically narrowed in deps to just a) building classpaths (by resolving dependency graphs) and b) launching programs. As such, this tends to be a dramatically simpler model to start with (your initial deps.edn can be empty), and a model that is easy to understand as you scale up. I think there is more to do in how we model \"tools\" (esp tools shared across projects) and program composites, but nothing prevents you from building these yourself if needed (as you have the full power of Clojure at your disposal)." "Alex Miller")%>
+<%=
+  (blockquote
+  {:author "Alex Miller"}
+  "deps was designed to find a sweet spot in the middle of this with deps defined as data, aliases capturing program executions as data, but builds as programs. As such, the scope is drastically narrowed in deps to just a) building classpaths (by resolving dependency graphs) and b) launching programs. As such, this tends to be a dramatically simpler model to start with (your initial deps.edn can be empty), and a model that is easy to understand as you scale up. I think there is more to do in how we model \"tools\" (esp tools shared across projects) and program composites, but nothing prevents you from building these yourself if needed (as you have the full power of Clojure at your disposal).")%>
 
 Storing code in a CRDT has the potential to explore new parts of the misty space between "tools" and "programs" for Clojure code. I'm definitely interested in where this could lead, but I have to figure out how to create s-expressions from my prose first. 
 
-<%=(em "Oh, and by the way, the formal term for the structure that emerges from a properly implemented CRDT is a")%> <%=(link "http://archagon.net/blog/2018/03/24/data-laced-with-history/" "monotonic semilattice")%>. <%=(em "Which, according to Christopher Alexander in the essay I quote above, is exactly the form required to capture the interdependent complexity of a city.")%>
+<%=(aside "Oh, and by the way, the formal term for the structure that emerges from a properly implemented CRDT is a" (link "http://archagon.net/blog/2018/03/24/data-laced-with-history/" "monotonic semilattice") "Which, according to Christopher Alexander in the essay I quote above, is exactly the form required to capture the interdependent complexity of a city.")%>
 
-<%=(header "Extensible Textual Notation, part 3" :h3)%>
-<%=(entry-date "2019-12-28")%>
+<%=(header {:level :h3 :date "2019-12-28"} "Extensible Textual Notation, part 3")%>
 
-<%=(header "Structure from text" :h5)%>
+<%=(header {:level :h5} "Structure from text")%>
 
 I want to replicate <%=(in-code "pollen")%>'s ability to let prose be prose while still incrementally bringing in a programming language when it's needed, but also combine it with Clojure's own data structures to capture the structure that emerges organically from the act of writing, so I could, for example, capture the table above not just as a sequence of textual elements but also preserve the structure of the tabular data itself for future use somewhere else. 
 
@@ -273,7 +281,7 @@ I don't really like 2. it feels ad-hoc and non-relational, whereas 1 seems more 
 
 Speaking of which:
 
-<%=(header "Text from structure" :h5)%>
+<%=(header {:level :h5} "Text from structure")%>
 
 When thinking about where to store this data, I was led to James Smothers' <%=(link "https://github.com/smothers/cause" (in-code "cause"))%>, a very well-documented Clojure implementation of a causal tree, a type of CRDT. It places the notion of a <%=(in-code "CausalBase")%> front and center, which sounds great, except it doesn't quite have the power implied by the "database" referred to by its name - which is generally okay in Clojure because the language already has pretty powerful facilities for quick operations on collections of maps. 
 
@@ -281,47 +289,53 @@ But what if someone went further than that, combining a CRDT with a data model a
 
 With existing text snapshotted as facts and recorded in a CRDT, queries could be run against that data to associate formerly disparate pieces of data into new forms, and the composites those queries create could themselves be recorded and annotated as new facts about the collection. The query that retrieves those facts could be stored as data itself, with the new structure that the query identifies added as an annotation to it. Use these queries and the expressive power they create to give a new life to <%=(in-code "structur")%> and <%=(in-code "alpha")%>, the venerable software extensions to <%=(in-code "Kedit")%> written by Howard J. Strauss to aid <%=(link "https://www.newyorker.com/magazine/2013/01/14/structure" "John McPhee in his writing process.")%>
 
-<%= (blockquote [:div [:p "He listened to the whole process from pocket notebooks to coded slices of paper, then mentioned a text editor called Kedit, citing its exceptional capabilities in sorting. Kedit (pronounced 'kay-edit'), a product of the Mansfield Software Group, is the only text editor I have ever used. I have never used a word processor. Kedit did not paginate, italicize, approve of spelling, or screw around with headers, WYSIWYGs, thesauruses, dictionaries, footnotes, or Sanskrit fonts. Instead, Howard wrote programs to run with Kedit in imitation of the way I had gone about things for two and a half decades."]
+<%= (blockquote
+    {:author "John McPhee"
+     :url "https://www.newyorker.com/magazine/2013/01/14/structure"}
+    [:p "He listened to the whole process from pocket notebooks to coded slices of paper, then mentioned a text editor called Kedit, citing its exceptional capabilities in sorting. Kedit (pronounced 'kay-edit'), a product of the Mansfield Software Group, is the only text editor I have ever used. I have never used a word processor. Kedit did not paginate, italicize, approve of spelling, or screw around with headers, WYSIWYGs, thesauruses, dictionaries, footnotes, or Sanskrit fonts. Instead, Howard wrote programs to run with Kedit in imitation of the way I had gone about things for two and a half decades."]
 [:p "He wrote Structur. He wrote Alpha. He wrote mini-macros galore. Structur lacked an “e” because, in those days, in the Kedit directory eight letters was the maximum he could use in naming a file. In one form or another, some of these things have come along since, but this was 1984 and the future stopped there. Howard, who died in 2005, was the polar opposite of Bill Gates—in outlook as well as income. Howard thought the computer should be adapted to the individual and not the other way around. One size fits one. The programs he wrote for me were molded like clay to my requirements—an appealing approach to anything called an editor."]
 
 [:p "Structur exploded my notes. It read the codes by which each note was given a destination or destinations (including the dustbin). It created and named as many new Kedit files as there were codes, and, of course, it preserved intact the original set. In my first I.B.M. computer, Structur took about four minutes to sift and separate fifty thousand words. My first computer cost five thousand dollars. I called it a five-thousand-dollar pair of scissors."]
 
 [:p "I wrote my way sequentially from Kedit file to Kedit file from the beginning to the end of the piece. Some of those files created by Structur could be quite long. So each one in turn needed sorting on its own, and sometimes fell into largish parts that needed even more sorting. In such phases, Structur would have been counterproductive. It would have multiplied the number of named files, choked the directory, and sent the writer back to the picnic table, and perhaps under it. So Howard wrote Alpha. Alpha implodes the notes it works on. It doesn’t create anything new. It reads codes and then churns a file internally, organizing it in segments in the order in which they are meant to contribute to the writing."]
 
-[:p "Alpha is the principal, workhorse program I run with Kedit. Used again and again on an ever-concentrating quantity of notes, it works like nesting utensils. It sorts the whole business at the outset, and then, as I go along, it sorts chapter material and subchapter material, and it not infrequently arranges the components of a single paragraph. It has completely served many pieces on its own."]] (link "https://www.newyorker.com/magazine/2013/01/14/structure" "John McPhee, Structure")) %>
+[:p "Alpha is the principal, workhorse program I run with Kedit. Used again and again on an ever-concentrating quantity of notes, it works like nesting utensils. It sorts the whole business at the outset, and then, as I go along, it sorts chapter material and subchapter material, and it not infrequently arranges the components of a single paragraph. It has completely served many pieces on its own."])%>
 
 <%=(link "https://docs.racket-lang.org/pollen/" "The book is a program")%>. Tools for writing digital books should be at least as powerful as the tools created for conventional books decades ago. CRDTs provide a reliable and immutable foundation to the discrete chunks of knowledge that McPhee has used for his entire career. A query engine provides the toolkit to devise new ways of composing them together as powerful as <%=(in-code "structur")%> and <%=(in-code "alpha")%>, but with the added benefit of an entire programming language so that the text (or the collection of notes used to produce it) is no longer a closed system but can instead pull in data from the rest of the world. 
 
-<%=(header "The Markdown Cargo Cult" :h3)%>
-<%=(entry-date "2019-12-29")%>
+<%=(header {:level :h3 :date "2019-12-29"} "The Markdown Cargo Cult")%>
 
-<%=(blockquote "First and worst, Markdown isn’t semantic."
-(link "https://docs.racket-lang.org/pollen/second-tutorial.html" "Matthew Butterick"))%>
+<%=(blockquote {:author "Matthew Butterick" :url "https://docs.racket-lang.org/pollen/second-tutorial.html"}
+               "First and worst, Markdown isn’t semantic.") %>
 
 I view basically every other problem with Markdown as downstream from this. Like Butterick, I'm utterly baffled by the degree to which everyone developing new types of interactive authoring tools simply assumes that everyone will want to write text in a format that's completely blind to the organic structure that emerges from ordinary writing. <%=(link "https://jupyter-notebook.readthedocs.io/en/stable/examples/Notebook/Working%20With%20Markdown%20Cells.html" "Jupyter notebooks")%>,  <%=(link "https://www.mkdocs.org/" "documentation tools")%>, <%=(link "https://github.com/metasoarous/oz/blob/be700e721fd758024f0783083279132afc42f317/examples/test.md" "interactive documentation tools")%>, <%=(link "https://github.com/nteract/nteract/blob/f94502e4ff654bb58166bff262f133d4f449b049/packages/outputs/src/components/media/markdown.md" "interactive data science toolboxes")%>, <%=(link "https://idyll-lang.org/docs/syntax" "JS-based explorable explanation tools")%>,  <%=(link "https://github.com/witheve/Eve/commit/fa1700cb37198d1a02ebbaaa506c70c40b201d76" "revolutionary new prototypes of combined programming languages and visual environments")%>, <%=(link "https://github.com/mhuebert/maria/blob/88776252f16ccacb23fb63d83223186b8cd55f8b/editor/src/maria/commands/prose.cljs" "further explorations of how programming could be different")%>, all of them voluntarily choosing to tie the millstone of this impoverished format around their necks despite serious attempts to rethink the combination of code and prose. 
 
 Why do we use it? Because one of <%=(link "https://daringfireball.net/projects/markdown/" "Apple's court intellectuals decided it was convenient for him?")%>
 
-<%=(blockquote "How is Markdown innovative exactly? It took ideas from the 70s, dropped the interesting parts, and was hailed as a revolutionary approach to marking up documents. Ie, the past 30 years of computing have been about narrowing the interface between programmer and computer to the equivalent of a straw (everything as text!) and then try to build an entire system around that." (str (link "https://news.ycombinator.com/item?id=16230676" "Spotted on Hacker News") ", the only reasonable response to someone calling Markdown 'a triumph of programmer ergonomics.'"))%>
+<%=(blockquote
+  {:url "https://news.ycombinator.com/item?id=16230676"
+   :source "Hacker News"}
+  "How is Markdown innovative exactly? It took ideas from the 70s, dropped the interesting parts, and was hailed as a revolutionary approach to marking up documents. Ie, the past 30 years of computing have been about narrowing the interface between programmer and computer to the equivalent of a straw (everything as text!) and then try to build an entire system around that.")%>
+
+Spotted on Hacker News, the only reasonable response to someone calling Markdown 'a triumph of programmer ergonomics.'
 
 Every system built atop Markdown will invariably have some ad-hoc and kludgy method of attempting to recapture some part of the structure that emerges from text authored in markdown, and it will be different from every other one because Markdown is blind to structure in all but the most basic of ways. In that regard it is very similar to "plain-text configuration" tools like <%=(link "/against-metadata.html" "YAML")%>, which have all kinds of templating engines bolted on to them to overcome the limitations of what has in practice become a flat-file key-value store.
 
-<%= [:p (em "Everyone already knows markdown! It's fast and easy!")] %>
+<%= [:aside "Everyone already knows markdown! It's fast and easy!"] %>
 
 Just be aware of what you're giving up as an author in pursuit of that, and what you may be imposing on yourself later on down the line if you want to overcome these constraints.
 
 And yes, there's no small irony in the fact that the <%=(link "https://gitlab.com/respatialized/respatialized.gitlab.io/blob/master/content/not-a-tree.md" "source code for this post")%> is currently written in Markdown. It is indeed fast and easy to get started writing with it, but I'd largely attribute that to path dependence, and the fact that my particular parser leaves the <%=(in-code "div")%> tags I've littered throughout this post intact, which is an accident of choosing to use <%=(in-code "perun")%> and thereby <%=(in-code "flexmark-java")%> rather than the virtues of the format itself. I have every intention of changing the authoring tool I use into something semantically richer, but I had to get my resistance to the format on paper first.
 
-<%=(header "Extensible Textual Notation, part 4" :h3)%>
-<%=(entry-date "2019-12-29")%>
+<%=(header {:level :h3 :date "2019-12-29"} "Extensible Textual Notation, part 4")%>
 
 <%= [:section {:columns 5}
       [:div {:span 2} (image "media/thinking-about-things.jpg" "laptop sticker reading 'thinking about things'" "mw20")]
       [:div {:span 3} (blockquote "I read relentlessly. I don’t do any programming not directed at making the computer do something useful, so I don’t do any exercises. I try to spend more time thinking about the problem than I do typing it in." (link "http://web.archive.org/web/20160918041754/http://codequarterly.com/2011/rich-hickey/" "Rich Hickey"))]] %>
 
-<%= [:p (em "inspiration for what the medium should make possible, and for my prose-first approach to thinking about it: Bret Victor's laptop sticker and Rich Hickey's mindset; the antithesis of the \"shut up and show me the code\" brogrammer ethos")] %>
+<%= [:aside "inspiration for what the medium should make possible, and for my prose-first approach to thinking about it: Bret Victor's laptop sticker and Rich Hickey's mindset; the antithesis of the \"shut up and show me the code\" brogrammer ethos"] %>
 
-<%=(header (str "Beyond plain text: storing prose within " (in-code "datahike")) :h5)%>
+<%=(header {:level :h5} "Beyond plain text: storing prose within " (in-code "datahike"))%>
 
 Here's a <%=(link "https://blog.datopia.io/2018/11/03/hitchhiker-tree/" "background post on the Datahike internals")%> for context about how the hitchhiker B-tree structure allows for self-balancing and efficient updates that "hitchhike" on queries.
 
@@ -329,10 +343,9 @@ Here's another on using the <%=(in-code "dat://")%> protocol for <%=(link "https
 
 Here's what would be a useful starting point for programmatic prose parsing: including a quotation in a piece of prose writing that gets parsed as a separate component and then added to a global list of quotations maintained by the text parser, with a link back to its original positional context within the piece of writing that quoted it.
 
-<%=(header "Extensible Textual Notation, part 5" :h3)%>
-<%=(entry-date "2019-12-30")%>
+<%=(header {:level :h3 :date "2019-12-30"} "Extensible Textual Notation, part 5")%>
 
-<%=(header "A concrete starting point" :h5)%>
+<%=(header {:level :h5} "A concrete starting point")%>
 
 I've managed to come up with a lot of Xanadu-like vaporware ideas in thinking through this tool without producing anything concrete.
 
@@ -344,13 +357,13 @@ Based on some unscientific experimentation, the only markdown->hiccup toolchain 
 
 Other scattered thoughts: 
 
-<%=(header "Plaintext and database" :h5)%>
+<%=(header {:level :h5} "Plaintext and database")%>
 
 Plain text has a lot of virtues as a long-term storage format, so I plan to make it a core part of however I persist the writing that gets parsed into data by ETN.
 
 The current snapshot and any derived views of it exist should exist as plaintext; its history can be preserved using database backup and persistence methods. But perhaps other defined snapshots in the history of the information should be serialized as plain text as well, in a manner similar to git commits or releases.
 
-<%=(header "Thoughts on Roam" :h5)%>
+<%=(header {:level :h5} "Thoughts on Roam")%>
 
 I signed up for Roam because on paper it seems to be exactly what I want: a PIM with the ability to run arbitary Datalog queries across your thoughts and embed hiccup data structures for visual depictions of the concepts. It's built on Clojure, front to back! What's not to like?
 
@@ -360,10 +373,9 @@ More than anything, I want a tool of my own making, free from any compromises ma
 
 I don't want an outlining tool that helps me produce writing. I want a <%=(em "writing")%> tool that helps me identify and work with the structure that emerges from what I write.
 
-<%= [:p (em "that and the founder is building the core product around the demands of the LessWrong crowd and goes on [1/178] twitter rants about stuff he reads on SlateStarCodex. the app feels like the product of that kind of approach: unfocused and built around pseudoproblems.")] %>
+<%= (aside "that and the founder is building the core product around the demands of the LessWrong crowd and goes on [1/178] twitter rants about stuff he reads on SlateStarCodex. the app feels like the product of that kind of approach: unfocused and built around pseudoproblems.") %>
 
-<%=(header "Extensible Textual Notation, part 6" :h3)%>
-<%=(entry-date "2019-12-31")%>
+<%=(header {:level :h3 :date "2019-12-31"} "Extensible Textual Notation, part 6")%>
 
 Yesterday I got too caught up reading the documentation for libraries. Today I'm disabling my wifi and striking out into the wilderness with only the standard library (and my reference book) to help me.
 
@@ -371,8 +383,7 @@ First discovery: I probably don't need to use <%=(in-code "specter")%> when <%=(
 
 One thing that occurred to me when thinking about pulling quotes out of plaintext: while an individual paragraph should be the basic semantic unit of my own writing, the basic semantic unit of a quotation or reference should be a sequence of <%=(em "one or more")%> paragraphs. This preserves more of the structure of the origin and aids in its display in other contexts. For storage purposes, though, it should merely be (for now) a sequence of strings. Worrying about the internal structure of the quote itself (lists, etc) can come later when the specs get more refined.
 
-<%=(header "Extensible Textual Notation, part 7" :h3)%>
-<%=(entry-date "2020-01-05")%>
+<%=(header {:level :h3 :date "2020-01-05"} "Extensible Textual Notation, part 7")%>
 
 With a markdown->hiccup parser in hand, I took on a warm-up exercise to map out the problem space and get comfortable with parsing the data I've already dumped in to these markdown files, I defined some contracts for the data formats I want to pull from the textual information using  <%=(in-code "clojure.spec")%>, which will serve as constraints on the expected behavior of other parsers I write to replace Markdown. It's pretty bare-bones so far, with stuff like the following:
 
@@ -410,8 +421,7 @@ Luckily, I have been spared the experience of suffering through the entire <%=(i
 
 Rather than a <%=(link "https://spec.commonmark.org/" "plaintext spec that monotonically grows in complexity")%> due to the workarounds to handle the corner cases generated by ambiguous syntax, I'm hoping to define as much of the expected structure using <%=(in-code "clojure.spec")%>, which strikes the right balance between the rigidity of a BNF grammar and the ambiguity of a plaintext spec, plus the additional leverage that comes with defining a spec as code: the ability to <%=(link "https://clojure.org/guides/spec#_custom_generators" "generate arbitary adversarial examples")%> to ensure that corner cases are found quicker and dealt with in a more systematic fashion.
 
-<%=(header "Extensible Textual Notation, part 8" :h3)%>
-<%=(entry-date "2020-01-11")%>
+<%=(header {:level :h3 :date "2020-01-11"} "Extensible Textual Notation, part 8")%>
 
 One motivation for this concept was an incredibly useful design exercise when I was building a backend system at work: creating a <%=(link "https://www.evanmiller.org/feature-matrix.html" "feature matrix")%> for the various sub-components to understand their interactions with one another and how those translate into both library code and user-facing features. (read Evan Miller's whole essay; it's a quick read and a succinct, lucid statement of a very powerful idea). In order to produce one, I had to step outside of my trusty text editor and flip over to Google Sheets to create a NxN grid, fill it up with the pair-wise interactions between the components, and then use an unholy spreadsheet formula to transpose those comma-delimited features into a discrete list with separate references to each column in the body of the matrix:
 
@@ -423,7 +433,7 @@ It was the most beautiful <%=(link "https://wiki.c2.com/?WaterfallModel" "waterf
 
 The codebase is always the most up-to-date part of any software project. Everything else tends to lag behind, mostly due to the unavoidable fact that you don't always know what you need to build before you build it. But why can't we write documents in a way that lends itself a little better to the day-to-day work of software development? Why can't I plop a feature matrix right into my <%=(in-code "readme")%> and then programatically generate a set of test suites for the features within it? That way, by changing the top-level description of the project, I also change the definition of the software that ensures it functions as intended.
 
-<%=[:p (em "please do not tell me that org-mode supports tables. I am not interested in a solution specific to emacs lisp that imposes a separation  between structured data and code by tangling out the code into separate files, and thus remains ignorant of the actual information generated by that code.")]%>
+<%=(aside "please do not tell me that org-mode supports tables. I am not interested in a solution specific to emacs lisp that imposes a separation  between structured data and code by tangling out the code into separate files, and thus remains ignorant of the actual information generated by that code.")%>
 
 You might say something like "design should be design, and code should be code. Just because a problem is represented a certain way in the design phase doesn't mean that the actual code should be laid out that way."  I agree with part of the spirit behind this. Stepping away from the laptop to think through the problem is something that everyone should do more often. I deeply enjoy the more embodied sense of problem-solving that sketching on a whiteboard gives me. But sometimes, you need more than a sketch or description; structured data can represent facts about a codebase that spec documents and architecture diagrams cannot. Keeping this up-to-date means seeing and editing it directly in tandem with the code. It means automatically checking off one of the "to-dos" generated from the structured documentation when a given test passes. It means storing information about failed and successful builds not in some <%=(link "https://docs.gitlab.com/ee/ci/pipelines.html" "web interface that has no direct interaction with the code")%> but perhaps in the same data structure as the code itself.
 
@@ -433,15 +443,13 @@ Sometimes it feels like our mental model of tooling for software still comes fro
 
 For one possible foundation for a different approach to managing the history of code, see Unison's concept of <%=(link "https://www.unisonweb.org/docs/tour" "content-addressed code.")%> Content-addressing and tracking the history of functions as individual units means that they can break out of their original repos while maintaining their lineage. Instead of snapshots of whole libraries, functions could migrate from one library to another, picking up unique changes as they propagate their descendants into that new project's context. Code would have a <%=(em "genealogy")%> rather than <%=(em "dependencies")%>. Similarly, I think there's a lot of potential power in storing arbitrary structured data in the same data structure as the code itself. We haven't really taken the conceptual leap towards developing applications around that model because we default to git for any new project and thus rely on its implicit view of the world. Hopefully that can change.
 
-<%=(header "Extensible Textual Notation, part 9" :h3)%>
-<%=(entry-date "2020-01-11")%>
+<%=(header {:level :h3 :date "2020-01-11"} "Extensible Textual Notation, part 9")%>
 
 Turns out I was more right about needing to implement my own <%=(in-code "scribble")%>-like syntax than I knew, because while taking the clojure implementation out for a spin, I discovered that it relies heavily on an <%=(link "https://github.com/jwymanm/chiara" "unmaintained set of reader macros")%> that are incompatible with recent versions of Clojure because <%=(in-code "clojure.spec")%> now enforces compile-time syntax of macros (like <%=(in-code "defn")%>).
 
 I'm going to have to write my own text->EDN parser that replicates what <%=(in-code "scribble")%> relies on reader macros to do. I'm fortunately <%=(em "not")%> trying to alter in any fundamental way how Clojure data is transformed into its AST; I'm just doing some preprocessing on plaintext so it's the right shape when it hits the clojure reader. Into the wilderness.
 
-<%=(header "Extensible Textual Notation, part 10" :h3)%>
-<%=(entry-date "2020-01-21")%>
+<%=(header {:level :h3 :date "2020-01-21"} "Extensible Textual Notation, part 10")%>
 
 While I have a decent enough concept of the _source_ of the data generated through writing in plaintext, I don't yet have a good concept of the _target_ of that data. I intend to use `datahike` as a persistent storage format, but it's daunting to think about where to start.
 
@@ -449,22 +457,19 @@ Here's a good bootstrapping exercise for understanding the format and how it wor
 
 One important benefit of using functions rather than markup to define quotes is the ability to <%=(em "preserve context")%> by including the references back to the piece of writing containing the quotes. This was one of the great promises of project Xanadu, the ability to see in tandem the multiple layers of context surrounding a link to a passage from another page. I cannot create a system as fully dynamic as Xanadu, but I can use an intermediate evaluation step as text is read from its input format to capture the structure created by the text and its references.
 
-<%=(header "Extensible Textual Notation, part 11" :h3)%>
-<%=(entry-date "2020-03-07")%>
+<%=(header {:level :h3 :date "2020-03-07"} "Extensible Textual Notation, part 11")%>
 
 After a couple of half-hearted attempts to replicate the lozenge syntax of <%=(in-code "pollen")%> using a Clojure <%=(in-code "ANTLR")%> parser, I discovered the very new but very fully-featured <%=(link "https://github.com/vivid-inc/ash-ra-template" (in-code "ash-ra-template"))%> library. 
 
 While I recognize that building my own parser is a good programming challenge, I also need to ask myself whether I need to undertake it before doing the work that I want to do in a medium that actually supports it. Right now, I'd prefer the latter.
 
-<%=(header "Extensible Textual Notation, part 12" :h3)%>
-<%=(entry-date "2020-03-23")%>
+<%=(header {:level :h3 :date "2020-03-23"} "Extensible Textual Notation, part 12")%>
 
 The text has extended itself beyond the limitations of Markdown. I now have the power of a real programming language at my disposal in my own writing, and I used it to replace every single backtick and bracket that Markdown required. In so doing, I more fluidly composed the structures provided by HTML by using tools better designed to manipulate them directly instead of burying them under a pre-selected menu of abstractions. I understand HTML better as a result - its structure was not hidden from me. By using a dynamic, computational medium for writing, I can perform Jenny Odell calls "context creation" - I can fully express the context of this page's own creation, false starts, half-baked parsers, and all.
 
 I just wish it hadn't taken until a <%=(link "https://en.wikipedia.org/wiki/2019%E2%80%9320_coronavirus_pandemic" "once-in a generation global crisis")%> to get here.
 
-<%=(header (str "Paragraph detection within " (in-code "ash-ra-template")) :h3)%>
-<%=(entry-date "2020-03-29")%>
+<%=(header {:level :h3 :date "2020-03-29"}  "Paragraph detection within " (in-code "ash-ra-template"))%>
 
 Overall, I'm quite pleased with how well <%=(in-code "ash-ra-template")%> is working to directly create HTML using the power of Clojure and hiccup only when I need it. Now that I know how to make my own rendering library <%=(link "https://github.com/vivid-inc/ash-ra-template/issues/2" (str "available to " (in-code "ash-ra-template")))%>, I'm seamlessly replacing Markdown's defaults with functions that I have total control over. But there's one thing missing from the experience of using markdown or other plaintext formats - paragraph detection. If I want paragraphs now, I have to insert <%=(in-code "[:p \"content\"]")%> blocks, which effectively means I'm <%=(em "just")%> writing in hiccup data structures and not plaintext, defeating the purpose of using a templating engine at all.
 
@@ -472,14 +477,13 @@ Luckily, the documentation for <%=(link "https://docs.racket-lang.org/pollen/thi
 
 Tokenizing the text into paragraphs after evaluation also potentially allows for the recording of the text as facts in a database (see above). I'm not there yet, but I'm about to merge into master and leave Markdown behind for good. 
 
-<%=(header "Holotype: further steps towards simplicity" :h3)%>
-<%=(entry-date "2020-04-11")%>
+<%=(header {:level :h3 :date "2020-04-11"} "Holotype: further steps towards simplicity")%>
 
 I made good progress generating content with <%=(in-code "ash-ra-template")%> - until I wanted to dynamically render an image as part of the build process. I ran into two walls imposed by the closed environment of <%=(in-code "ShimDandy")%>: lack of access to the local filesystem, and the Java classes necessary to render images using <%=(in-code "clojure2d")%> are not available in that context either.
 
 Fortunately, I recently discovered <%=(link "https://github.com/weavejester/comb" (in-code "comb"))%>, a library much like <%=(in-code "ash-ra-template")%> by the author of <%=(in-code "hiccup")%>, which is pretty much <%=(em "exactly")%> what I was thinking about building above, and its parser is exceptionally simple. It lets me seamlessly embed generative artwork into my pages as easily as I can use my templating functions to emphasize text or add headers. You can see an example <%=(link "holotype.html" "here.")%>
 
 In addition to that, the fact that the templates are evaluated in the same context as the rest of my code adds the following benefits:
-<%=(ul (str "I can define a map of metadata attributes at the top of the post that is available to the rendering function, so I can set page-level attributes from within each post itself - no kludges like " (link "https://github.com/hashobject/perun/blob/ca090ca77a3aac18b4ff0ac330febb88c26cab84/src/io/perun/yaml.clj" "YAML front matter") " - I handle my posts' data in pure Clojure.") "I no longer need to install my rendering code to my local maven repo to call it from the templates, which lets me" "rebuild all the pages from the REPL, and" (str "rebuild the pages " (em "much") " faster"))%>
+<%=[:ul [:li "I can define a map of metadata attributes at the top of the post that is available to the rendering function, so I can set page-level attributes from within each post itself - no kludges like " (link "https://github.com/hashobject/perun/blob/ca090ca77a3aac18b4ff0ac330febb88c26cab84/src/io/perun/yaml.clj" "YAML front matter") " - I handle my posts' data in pure Clojure."] [:li "I no longer need to install my rendering code to my local maven repo to call it from the templates, which lets me" "rebuild all the pages from the REPL, and rebuild the pages " (em "much") " faster"]]%>
 
 It even uses the same delimiters, which made it trivial to port all my existing pages over to the new library and simplify my project into a single namespace.

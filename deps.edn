@@ -15,7 +15,6 @@
   ;; data munging
   minimallist/minimallist {:mvn/version "0.0.10"}
   com.gfredericks/test.chuck {:mvn/version "0.2.10"}
-  talltale/talltale {:mvn/version "0.4.3"}
   org.clojure/data.finger-tree {:mvn/version "0.0.3"}
 
   ;; site content

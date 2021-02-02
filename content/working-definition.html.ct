@@ -1,7 +1,6 @@
-<% (def metadata {:title "A Working Definition" :columns 6}) %>
+<% (def metadata {:title "A Working Definition"}) %>
 
-<%=(header (:title metadata) :h3)%>
-<%=(entry-date "2019-07-05")%>
+<%=(header {:level :h3 :date "2019-07-05"} (:title metadata))%>
 
 I had a conversation recently about ecological limits that ended up here:
 

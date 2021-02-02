@@ -95,6 +95,21 @@
                  sectionize-contents
                  [[:p "Some text"]
                   [:p "Some more text"]])))
+
+    (t/is (=
+           [:article
+            [:section
+             [:p "Some text"]
+             [:p "Some more text"]]
+            [:section
+             [:p [:q "a quote"]]]]
+           (into [:article]
+                 sectionize-contents
+                 [[:p "Some text"]
+                  [:p "Some more text"]
+                  [:section]
+                  [:q "a quote"]])))
+
     (t/is (= [:article
               [:section
                [:p "text"
@@ -120,6 +135,22 @@
                    [[:p "text"]
                     [:q "a quote"]
                     [:section]
+                    [:p "more text"]])))
+
+    (t/is (= [:article
+              [:section
+               [:p "text"
+                [:q "a quote"]]]
+              [:section
+               [:header [:h1 "section header"]]
+               [:p "more text"]]]
+             (into [:article]
+                   sectionize-contents
+                   [[:section]
+                    [:p "text"]
+                    [:q "a quote"]
+                    [:section
+                     [:header [:h1 "section header"]]]
                     [:p "more text"]])))
 
     (t/is (= [:article

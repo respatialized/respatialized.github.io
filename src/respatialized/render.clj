@@ -18,28 +18,29 @@
     [:meta {:charset "utf-8"}]
     [:meta {:http-equiv "X-UA-Compatible" :content "IE=edge,chrome=1"}]
     [:meta {:name "viewport" :content "width=device-width, initial-scale=1.0, user-scalable=no"}]
-    (hp/include-css "css/raster.css" "css/fonts.css" "css/main.css"
+    (hp/include-css #_"css/raster.css" "css/fonts.css" "css/main.css"
                     "https://storage.googleapis.com/app.klipse.tech/css/codemirror.css")])
 
 (defn header
-  ([title level class]  [level {:class class} title])
-  ([title level] (header title level styles/header-default))
-  ([title] (header title :h1)))
+  "Create a structured header given the option map and child elements."
+  [{:keys [date level]
+    :or {level :h1}
+    :as opts} & contents]
+  (let [c (if (not (map? opts)) (conj contents opts) contents)
+        h (apply conj [level] c)
+        d (if date [:time {:datetime date} date])]
+    (respatialized.parse/conj-non-nil [:header] h d)))
 
-(defn entry-header
-  ([text class]
-    [:div {:class class} text])
-  ([text] (entry-header text styles/entry-header)))
+(defn em [& contents]  (apply conj [:em] contents))
+(defn strong [& contents]  (apply conj [:strong] contents))
 
-(defn entry-date
-  ([date class]  [:span {:class class} date])
-  ([date] (entry-date date styles/entry-date)))
-
-(defn em [& texts]  (into [:em ] texts))
-(defn strong [& texts]  (into [:strong] texts))
-
-(defn link [url text]
-  [:a {:href url} text])
+(defn link
+  ([url
+    {:keys [frag]
+     :or {frag nil}
+     :as opts} & contents]
+   (let [c (if (not (map? opts)) (conj contents opts) contents)]
+     (apply conj [:a {:href url}] c))))
 
 (defn image
   ([path annotation class]
@@ -47,36 +48,49 @@
   ([path annotation] (image path annotation styles/img-default))
   ([path] (image path "")))
 
-(defn code
-  ([text class]  [:pre {:class class} [:code text]])
-  ([text] (code text styles/code)))
+(defn code ([& contents] [:pre (apply conj [:code] contents)]))
+(defn in-code ([& contents] (apply conj [:code] contents)))
+(defn aside [& contents] (apply conj [:aside] contents))
 
-(defn in-code ([text] (in-code text styles/in-code))
-  ([text class]  [:code {:class class} text]))
-
-(defn aside [& contents] (into [:aside] contents))
+;; (defn )
 
 (defn blockquote
-  ([content author
-    {:keys [:outer-class
-            :content-class
-            :author-class]}]
+  [{:keys [caption url author source]
+    :or {caption nil
+         author ""
+         url ""}
+    :as opts} & contents]
+  (let [c (if (not (map? opts)) (conj contents opts) contents)
+        s (if source [:figcaption author ", " [:cite source]]
+              [:figcaption author])]
+    [:figure
+     (apply conj [:blockquote {:cite url}] c) s]))
 
-   [:blockquote {:class outer-class}
-    [:div {:class content-class} content]
-    [:span {:class author-class} author]])
-  ([content author]
-   (blockquote content author
-               {:outer-class styles/blockquote-outer
-                :content-class styles/blockquote-content
-                :author-class styles/blockquote-author})))
+;; (defn blockquote
+;;   ([content author
+;;     {:keys [:outer-class
+;;             :content-class
+;;             :author-class]}]
 
-(defn quote [content author] [:q {:cite author} content])
+;;    [:blockquote {:class outer-class}
+;;     [:div {:class content-class} content]
+;;     [:span {:class author-class} author]])
+;;   ([content author]
+;;    (blockquote content author
+;;                {:outer-class styles/blockquote-outer
+;;                 :content-class styles/blockquote-content
+;;                 :author-class styles/blockquote-author})))
 
-(defn ul [& items]
-  (into [:ul] (map (fn [i] [:li i]) items)))
-(defn ol [& items]
-   (into [:ol] (map (fn [i] [:li i]) items)))
+(defn quote [{:keys [cite]
+              :or {cite ""}
+              :as opts} & contents]
+  (let [c (if (not (map? opts)) (conj contents opts) contents)]
+    (apply conj [:q {:cite cite}] c)))
+
+(defn ul [& contents]
+  (apply conj [:ul] (map (fn [i] [:li i]) contents)))
+(defn ol [& contents]
+   (apply conj [:ol] (map (fn [i] [:li i]) contents)))
 
 (defn sorted-map-vec->table
   "Converts a vector of maps to a hiccup table."
@@ -84,11 +98,11 @@
    (let [ks (keys (first sorted-map-vec))
          vs (map vals sorted-map-vec)
          get-header (fn [k] [:th k])
-         get-row (fn [rv] (into [:tr {:class row-class}]
+         get-row (fn [rv] (apply conj [:tr {:class row-class}]
                                 (map (fn [v] [:td v]) rv)))]
 
      [:table
-      [:thead (into [:tr {:class header-class}] (map get-header ks))]
+      [:thead (apply conj [:tr {:class header-class}] (map get-header ks))]
       (into [:tbody] (map get-row vs))]))
   ([sorted-map-vec]
    (sorted-map-vec->table sorted-map-vec
@@ -115,8 +129,8 @@
      (map (fn row [r] [:tr {:class row-class}
                        (map (fn [i] [:td i]) r)]) rows)]))
 
-(defn script [content attr-map]
-  [:script attr-map content])
+(defn script [attr-map & contents]
+  (apply conj [:script attr-map] contents))
 
 (def default-grid 8)
 

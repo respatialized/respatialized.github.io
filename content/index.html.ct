@@ -1,9 +1,9 @@
 <% (def metadata {:title "Respatialized"}) %>
 
-<%=(header "Re<br>spatial<br>ized" :h1 "f1 ttu tracked-tight tr lh-solid") %>
-<%=(header "actual / potential spaces" :h4 "f1 tr") %>
+<%=(header {:level :h1} "Re<br>spatial<br>ized") %>
+<%=(header {:level :h4} "actual / potential spaces" ) %>
 
-<%=(header "recent work" :h3 "f2")%>
+<%=(header {:level :h2} "recent work")%>
 <%=(ul
        [:p [:a {:href "not-a-tree.html"} "This Website Is Not A Tree"]]
        [:p "a metatextual introduction to this site as it is and as it could be."]
