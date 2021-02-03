@@ -137,14 +137,16 @@
 (defn template->hiccup
   "Converts a template file to a hiccup data structure for the page."
   [t]
-  (let [content (parse-eval t [:div])
+  (let [content (parse-eval t [:contents])
         page-meta (eval 'metadata)
-        body-content (into [:r-grid {:columns (:columns page-meta default-grid)}] content)]
-    [:body (doc-header (:title page-meta ""))
-     [:article {:lang "en"} body-content]
-     [:footer
-      {:class "mb7"}
-      [:div [:a {:href "/"} "Home"]]]]))
+        body-content (apply conj [:article {:lang "en"}] (rest content))]
+    (list
+    (doc-header (:title page-meta ""))
+     [:body
+      body-content
+      [:footer
+       {:class "mb7"}
+       [:div [:a {:href "/"} "Home"]]]])))
 
 ;; (defn page
 ;;   "Converts a comb/hiccup file to HTML."
