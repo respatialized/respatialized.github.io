@@ -6,7 +6,7 @@
             [clojure.string :as string]
             [clojure.java.io :as io]
             [respatialized.styles :as styles]
-            [respatialized.document]
+            [respatialized.document :refer [sectionize-contents]]
             [respatialized.parse :refer [parse parse-eval]])
   (:gen-class))
 
@@ -139,7 +139,9 @@
   [t]
   (let [content (parse-eval t [:contents])
         page-meta (eval 'metadata)
-        body-content (apply conj [:article {:lang "en"}] (rest content))]
+        body-content (into [:article {:lang "en"}]
+                           sectionize-contents
+                           (rest content))]
     (list
     (doc-header (:title page-meta ""))
      [:body

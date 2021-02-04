@@ -828,7 +828,7 @@
                  (let [h (first s) t (rest s)
                        current-elem (last final)]
                    (cond
-                     (and (string? h) (re-matches #"\s+" h))
+                     #_ #_(and (string? h) (re-matches #"\s+" h))
                      (recur t final)  ; skip whitespace
                      (and (string? h)
                           (some? (re-find re h)))

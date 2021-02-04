@@ -10,8 +10,9 @@ Anyway, here goes: the distinction between data and metadata is a false dichotom
 
 Here's an archetypical example of the distinction as usually drawn: digital photography.
 
-Data: RGB pixel values (or, if you're shooting RAW: a mapping of voltages to sensors).
-Metadata: the date the photograph was taken, aperture, location, etc.
+<%=[:dl
+  [:dt "Data"] [:dd "RGB pixel values (or, if you're shooting RAW: a mapping of voltages to sensors)"]
+  [:dt "Metadata"] [:dd "the date the photograph was taken, aperture, location, etc."]]%>
 
 In short, most of what we actually care about is in the metadata. These offer the ability to understand the process by which the photograph was created, its temporal context, and (in the case of a geotag) what it actually depicts. The only meaningful basis I can see for drawing this distinction is that data is what matters to the machine, and the metadata is what matters to us.
 
