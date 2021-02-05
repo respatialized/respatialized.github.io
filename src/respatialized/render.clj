@@ -11,25 +11,28 @@
   (:gen-class))
 
 (defn doc-header
-  "Returns a default header."
-  [title]
-   [:head
-    [:title (str "Respatialized | " title)]
-    [:meta {:charset "utf-8"}]
-    [:meta {:http-equiv "X-UA-Compatible" :content "IE=edge,chrome=1"}]
-    [:meta {:name "viewport" :content "width=device-width, initial-scale=1.0, user-scalable=no"}]
-    (hp/include-css #_"css/raster.css" "css/fonts.css" "css/main.css"
-                    "https://storage.googleapis.com/app.klipse.tech/css/codemirror.css")])
+  "Returns a default header from a post's metadata def."
+  [{:keys [title css-files page-style]}]
+  (let [page-header
+        [:head
+         [:title (str "Respatialized | " title)]
+         [:meta {:charset "utf-8"}]
+         [:meta {:http-equiv "X-UA-Compatible" :content "IE=edge,chrome=1"}]
+         [:meta {:name "viewport" :content "width=device-width, initial-scale=1.0, user-scalable=no"}]
+         (apply hp/include-css "css/fonts.css" "css/main.css" css-files)]]
+    (if page-style (conj page-header [:style page-style]) page-header)))
 
 (defn header
   "Create a structured header given the option map and child elements."
-  [{:keys [date level]
+  [{:keys [date level class]
     :or {level :h1}
     :as opts} & contents]
   (let [c (if (not (map? opts)) (conj contents opts) contents)
         h (apply conj [level] c)
         d (if date [:time {:datetime date} date])]
-    (respatialized.parse/conj-non-nil [:header] h d)))
+    (respatialized.parse/conj-non-nil
+     [:header]
+     (if class {:class class}) h d)))
 
 (defn em [& contents]  (apply conj [:em] contents))
 (defn strong [& contents]  (apply conj [:strong] contents))
@@ -143,7 +146,7 @@
                            sectionize-contents
                            (rest content))]
     (list
-    (doc-header (:title page-meta ""))
+    (doc-header page-meta)
      [:body
       body-content
       [:footer
@@ -177,3 +180,9 @@
       slurp
       fence-code
       parse))
+
+
+(defn include-source [file-path]
+  (->> file-path
+       slurp
+       (conj [:pre])))
