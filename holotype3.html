@@ -1,22 +1,27 @@
 <!DOCTYPE html>
-<html><head><title>Respatialized | HOLOTYPE/3</title><meta charset="utf-8"><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible"><meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport"><link href="css/fonts.css" rel="stylesheet" type="text/css"><link href="css/main.css" rel="stylesheet" type="text/css"><style>h1, h2, h3 {
+<html><head><title>Respatialized | HOLOTYPE/3</title><meta charset="utf-8"><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible"><meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport"><link href="css/fonts.css" rel="stylesheet" type="text/css"><link href="css/main.css" rel="stylesheet" type="text/css"><style>@import "https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap";
+
+@import "https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@900&display=swap";
+
+h1, h2, h3 {
   font-size: 3rem;
   line-height: 4rem;
   color: #F72B00;
 }
 
 h1 {
-  font-family: monospace;
+  font-family: "Big Shoulders Display", sans;
 }
 
 .emphasis {
-  font-family: "Share Tech Mono"; monospace;
+  font-family: "Share Tech Mono", monospace;
   color: #F72B00;
 }
 
 blockquote {
   text-transform: uppercase;
   font-style: italic;
+  font-family: "Big Shoulders Display", sans;
   color: #F72B00;
   font-weight: 900;
   font-size: 1.2rem;
@@ -31,18 +36,21 @@ article {
   max-width: 700px;
   color: #C5C4C4;
 }</style></head><body><article lang="en"><section><header><h1>HOLOTYPE/3: PAGE-SPECIFIC CSS</h1></header><p>Usually CSS is specified one time for a whole website. Even compositional frameworks like tailwind force you to pick a predefined "framework" of utility classes instead of tailoring the CSS to suit the needs of the page you're trying to make.</p><p>I aim to change that.</p><h4 class="emphasis">CSS @import rules provide a dynamically loaded font to a prespecified class</h4><p>HTML is a suprisingly capable medium, but many tools designed to work with it don't offer you much of its power. They assume that automated HTML generation + simple plaintext markup means you can "set it and forget it", rather than drawing the power to generate HTML into a feedback loop woven into the page authoring and writing experience.</p><p>Or CSS frameworks subtly inherit the norms of the corporate world, where "brand consistency" across developers is a primary goal. Blegh.</p><p>But what if you don't want to do things the same way every time? What if you want an individual page to be styled according to its own needs, instead of a brand?</p><p>That's what <code>holotype</code> gives you the power to do. A thousand stylesheets for a thousand pages.</p><figure><blockquote cite="https://unitscale.com/mb/bomb-in-the-garden/">But the idea of try­ing to do this by hand—I just would’ve quit in de­spair. I would’ve been in tears, scratch­ing my eyes out. So rather than try to do it by hand, I wrote some Python code that gen­er­at­ed all the HTML and CSS.</blockquote><figcaption>Matthew Butterick, <cite>The Bomb In The Garden</cite></figcaption></figure><p>Butterick eventually discovered that Racket gave him the leverage he needed. I personally find that Clojure gives me even more. Here's the source code that generated this page:</p><pre><%(do
-  (require (quote [garden.core :refer [style css]]))
+  (require (quote [garden.core :refer [style css]])
+           (quote [garden.stylesheet :refer [at-import]]))
   (def page-style (css
-                   "@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap')"
+                   (at-import "https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap")
+                   (at-import "https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@900&display=swap")
                    [:h1 :h2 :h3 {:font-size "3rem"
                                  :line-height "4rem"
                                  :color "#F72B00"}]
-                   [:h1 {:font-family "monospace"}]
-                   [:.emphasis {:font-family "\"Share Tech Mono\"; monospace"
+                   [:h1 {:font-family "\"Big Shoulders Display\", sans"}]
+                   [:.emphasis {:font-family "\"Share Tech Mono\", monospace"
                                 :color "#F72B00"}]
                    [:body :background-color "#181615"]
                    [:blockquote {:text-transform "uppercase"
                                  :font-style "italic"
+                                 :font-family "\"Big Shoulders Display\", sans"
                                  :color "#F72B00"
                                  :font-weight "900"
                                  :font-size "1.2rem"
