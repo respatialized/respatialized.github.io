@@ -32,7 +32,7 @@
         d (if date [:time {:datetime date} date])]
     (respatialized.parse/conj-non-nil
      [:header]
-     (if class {:class class}) h d)))
+     (if class {:class class} nil) h d)))
 
 (defn em [& contents]  (apply conj [:em] contents))
 (defn strong [& contents]  (apply conj [:strong] contents))
@@ -182,7 +182,12 @@
       parse))
 
 
-(defn include-source [file-path]
-  (->> file-path
-       slurp
-       (conj [:pre])))
+(defn include-source
+  ([{:keys [details]
+     :or {details nil}
+     :as opts} file-path]
+   (let [source-code (slurp file-path)]
+     (if details (conj [:details [:summary details]]
+                       (code source-code))
+         (code source-code))))
+  ([file-path] (include-source {} file-path)))

@@ -245,6 +245,7 @@
    :hr [:hr]
    :br [:br]
    :link [:link {:rel "stylesheet" :href "/main.css"}]
+   :details [:details [:summary [:h4 "heading"]] [:p "text"]]
    :table [:table
            [:caption "an example table"]
            [:colgroup [:col]]

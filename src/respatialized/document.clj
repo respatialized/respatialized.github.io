@@ -17,7 +17,7 @@
 (def block-level-tags
   "MDN list of block-level HTML element tags"
   #{:address :article :aside :blockquote
-    #_:details :dialog :dd :div :dl :dt
+    :details :dialog :dd :div :dl :dt
     :fieldset :figcaption :figure :footer
     :form :h1 :h2 :h3 :h4 :h5 :h6 :header
     :hr :li :main :nav :ol :p :pre :section
@@ -44,7 +44,7 @@
   "MDN list of flow content element tags"
   #{:a :abbr :aside #_:audio :b :bdo :bdi
     :blockquote :br #_:button #_:canvas :cite
-    :code :data #_:datalist :del #_:details :dfn
+    :code :data #_:datalist :del :details :dfn
     :div :dl :em #_:embed #_:fieldset :figure
     :footer #_:form :h1 :h2 :h3 :h4 :h5 :h6
     :header :hr :i #_:iframe :img #_:input :ins
@@ -84,7 +84,7 @@
 
 (def interactive-tags
   "MDN list of interactive content element tags"
-  #{:a #_:button #_:details #_:embed #_:iframe #_:label
+  #{:a #_:button :details #_:embed #_:iframe #_:label
     #_:select #_:textarea})
 
 
@@ -396,7 +396,7 @@
                         (->hiccup-model
                          :dt
                          (map elem-ref (set/difference flow-tags sectioning-tags))))]
-                      [:details
+                      [:defn-details
                        (h/not-inlined (->hiccup-model
                                        :dd
                                        (map elem-ref flow-tags)))]))]))
@@ -499,6 +499,23 @@
           [:src url]
           [:type string-gen])
         (h/? string-gen))
+       'details (->hiccup-model
+                 :details
+                 (h/in-vector
+                  (h/cat
+                   [:summary
+                    (->hiccup-model
+                     :summary
+                     (h/alt
+                      [:flow-content
+                       (h/* (apply
+                             h/alt
+                             [:atomic-element atomic-element]
+                             (map elem-ref flow-tags)))]
+                      [:heading-content (apply h/alt (map elem-ref heading-tags))]))]
+                   [:flow-content (h/* (apply h/alt
+                                              [:atomic-element atomic-element]
+                                              (map elem-ref flow-tags)))])))
        'table (h/let ['th
                       (->hiccup-model
                        :th
@@ -513,13 +530,13 @@
                                       flow-tags sectioning-tags heading-tags
                                       #{:table :footer :header})))
                       'td (->hiccup-model
-                               :td
-                               (h/with-optional-entries
-                                 global-attributes
-                                 [:colspan (->constrained-model pos-int? gen/small-integer)]
-                                 [:rowspan (->constrained-model #(<= 0 % 65534) gen/small-integer)]
-                                 [:headers string-gen])
-                               (map elem-ref flow-tags))
+                           :td
+                           (h/with-optional-entries
+                             global-attributes
+                             [:colspan (->constrained-model pos-int? gen/small-integer)]
+                             [:rowspan (->constrained-model #(<= 0 % 65534) gen/small-integer)]
+                             [:headers string-gen])
+                           (map elem-ref flow-tags))
                       'tr
                       (->hiccup-model
                        :tr
@@ -565,7 +582,7 @@
      [:data (h/ref 'data)]
      #_[:datalist (h/ref 'datalist)]
      [:del (h/ref 'del)]
-     #_[:details (h/ref 'details)]
+     [:details (h/ref 'details)]
      [:dfn (h/ref 'dfn)]
      [:div (h/ref 'div)]
      [:dl (h/ref 'dl)]

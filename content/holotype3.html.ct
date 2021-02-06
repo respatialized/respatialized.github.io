@@ -50,6 +50,6 @@ That's what <%= (in-code "holotype")%> gives you the power to do. A thousand sty
 
 Butterick eventually discovered that Racket gave him the leverage he needed. I personally find that Clojure gives me even more. Here's the source code that generated this page:
 
-<%= (include-source "./content/holotype3.html.ct") %>
+<%= (include-source {:details "source below:"} "./content/holotype3.html.ct") %>
 
 I have a lot more to learn about effective HTML and CSS. But I consider this a great medium in which to do so, because it productively blurs the line between "source code" and textual content.
