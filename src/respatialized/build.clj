@@ -5,6 +5,7 @@
    [hiccup.page :as hp]
    [respatialized.render :as render :refer :all]
    [respatialized.holotype :as holotype]
+   [juxt.dirwatch :refer [watch-dir close-watcher]]
    [clojure.string :as str]))
 
 (def template-suffix ".ct")
@@ -35,6 +36,7 @@
        io/file
        file-seq
        (filter #(and (.isFile %)
+                     (not (.isDirectory %))
                      (.endsWith (.toString %) suffix)))
        (map #(.toString %))))
 
@@ -54,12 +56,37 @@
                '[hiccup.page :as hp]
                '[hiccup.core :refer [html]])))
 
+(defn rerender [{:keys [file count action]}]
+  (if (#{:create :modify} action)
+    (do
+      (println "re-rendering" (.toString file))
+      (render-template-file (.toString file))
+      (println "rendered"))))
+
 (defn -main
   ([]
-   (load-deps)
-   (render-template-files))
+   (do
+
+     (load-deps)
+     (render-template-files)
+     (println "establishing file watch")
+     (let [fw (watch-dir rerender (io/file "./content/"))]
+       (.addShutdownHook (java.lang.Runtime/getRuntime)
+                         (Thread. (fn []
+                                    (do (println "shutting down")
+                                        (close-watcher fw)
+                                        (shutdown-agents)))))
+       (loop [watch fw]
+         (await fw)
+         (recur [fw])))))
   ([& files]
    (load-deps)
-   (render-template-files files)))
+   (if (and (= 1 (count files))
+            (.isDirectory (io/file (first files))))
+     (do
+       (render-template-files
+        (get-template-files (first files)
+                            template-suffix)))
+     (do (render-template-files files)))))
 
 (comment (-main))

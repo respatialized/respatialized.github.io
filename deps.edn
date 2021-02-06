@@ -9,6 +9,7 @@
   ;; site generation
   hiccup/hiccup {:mvn/version "2.0.0-alpha2" :exclusions [org.clojure/clojure]}
   garden/garden {:mvn/version "1.3.9"}
+  juxt/dirwatch {:mvn/version "0.2.5"}
 
   venantius/glow {:mvn/version "0.1.6"}
 
