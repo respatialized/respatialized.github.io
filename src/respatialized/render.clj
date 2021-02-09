@@ -4,6 +4,7 @@
             [hiccup.element :as elem]
             [hiccup.util :as util]
             [clojure.string :as string]
+            [clojure.pprint :refer [pprint]]
             [clojure.java.io :as io]
             [respatialized.styles :as styles]
             [respatialized.document :refer [sectionize-contents]]
@@ -191,3 +192,21 @@
                        (code source-code))
          (code source-code))))
   ([file-path] (include-source {} file-path)))
+
+
+(defn include-def
+  "Excerpts the source code of the given symbol in the given file."
+  ([{:keys [render-fn def-syms]
+     :or {render-fn #(str (with-out-str (pprint %)))
+          def-syms #{'def 'defn}}} sym f]
+   (with-open [r (clojure.java.io/reader f)]
+     (loop [source (java.io.PushbackReader. r)]
+       (if (not (.ready source)) :not-found
+           (let [e (try (clojure.edn/read source)
+                        (catch Exception e nil))]
+             (if (and (list? e)
+                      (def-syms (first e))
+                      (= sym (symbol (second e))))
+               [:code (render-fn e)]
+               (recur source)))))))
+  ([sym f] (include-def {} sym f)))

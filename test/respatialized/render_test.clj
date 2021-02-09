@@ -32,4 +32,11 @@
     (t/is (= (html [:r-grid {:columns 6} [:r-cell {:span 3} "ab"]])
              "<r-grid columns=\"6\"><r-cell span=\"3\">ab</r-cell></r-grid>"))
 
-  ))
+    )
+
+  (t/testing "source code fns"
+    (t/is (= (include-def {:render-fn str} 'delimiters "./src/respatialized/parse.clj")
+             [:code "(def delimiters [\"<%\" \"%>\"])"]))
+    (t/is (= [:code
+              "(def url (h/alt [:external (regex->model external-link-pattern)] [:internal (regex->model internal-link-pattern)]))"]
+             (include-def {:render-fn str} 'url "./src/respatialized/document.clj")))))
