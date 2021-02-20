@@ -1,6 +1,6 @@
 <% (def metadata {:title "Clojure is my TI-83"}) %>
 
-<%=#_[:link {:href "https://storage.googleapis.com/app.klipse.tech/css/codemirror.css" :rel "stylesheet"}]%>
+<%=[:link {:href "https://storage.googleapis.com/app.klipse.tech/css/codemirror.css" :rel "stylesheet"}]%>
 <%= (header "Clojure Is My TI-83")%>
 
 <%=(header {:level :h3 :date "2019-05-20"} "Part 1")%>

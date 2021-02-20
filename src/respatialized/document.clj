@@ -845,14 +845,12 @@
                  (let [h (first s) t (rest s)
                        current-elem (last final)]
                    (cond
-                     #_ #_(and (string? h) (re-matches #"\s+" h))
-                     (recur t final)  ; skip whitespace
                      (and (string? h)
                           (some? (re-find re h)))
                      (let [[hh & tt] (str/split h re)
                            rest (map (fn [i] [:p i]) tt)]
                        (cond
-                         (or (empty? hh) (re-matches #"\s+" hh)) (recur (concat rest t) final)
+                         (or (empty? hh) (re-matches (re-pattern "\\s+") hh)) (recur (concat rest t) final)
                          (valid? (->element-model :p) current-elem)
                          (recur (concat rest t)
                                 (conj (first (ft-split-at final (- (count final) 1)))
@@ -868,7 +866,7 @@
                      (recur t (conj final h))))))]
      (if v? (apply vector r)  r)))
   ([re] (fn [seq] (detect-paragraphs seq re)))
-  ([] (detect-paragraphs #"\n\n")))
+  ([] (detect-paragraphs (re-pattern "\n\n"))))
 
 (comment
   (detect-paragraphs [:section "some\n\ntext" [:em "with emphasis"]]
@@ -976,9 +974,7 @@
   (defn form-zipper [f]
     (zip/zipper not-in-form? children make f))
 
-(defn hiccup-form? [f]
-  (and (vector? f)
-       (keyword? (first f))))
+(defn hiccup-form? [f] (and (vector? f) (keyword? (first f))))
 
 (defn valid-form?
   "Checks whether the given data conforms to its element model based on its keyword"

@@ -203,7 +203,7 @@
    (with-open [r (clojure.java.io/reader f)]
      (loop [source (java.io.PushbackReader. r)]
        (if (not (.ready source)) :not-found
-           (let [e (try (clojure.edn/read source)
+           (let [e (try (r/read source)
                         (catch Exception e nil))]
              (if (and (list? e)
                       (def-syms (first e))

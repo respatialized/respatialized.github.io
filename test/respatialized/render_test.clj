@@ -35,4 +35,9 @@
              [:code "(def delimiters [\"<%\" \"%>\"])"]))
     (t/is (= [:code
               "(def url (h/alt [:external (regex->model external-link-pattern)] [:internal (regex->model internal-link-pattern)]))"]
-             (include-def {:render-fn str} 'url "./src/respatialized/document.clj")))))
+             (include-def {:render-fn str} 'url "./src/respatialized/document.clj")))
+
+    (t/is (= [:code "(defn hiccup-form? [f] (and (vector? f) (keyword? (first f))))"]
+             (include-def {:render-fn str} 'hiccup-form? "./src/respatialized/document.clj")))
+
+    ))
