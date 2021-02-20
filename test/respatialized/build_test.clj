@@ -9,3 +9,8 @@
 
     (t/is (= [:div 7]
              (template-str->hiccup "<%=(+ 3 4)%>")))))
+
+(t/deftest io-fns
+  (t/testing "path builders"
+    (t/is (= "public/test-post.html"
+           (get-output-filename "./content/test-post.html.ct" "public")))))

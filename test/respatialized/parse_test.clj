@@ -18,6 +18,8 @@
           "Non-forms should be evaluated and not returned.")
 
     (t/is (= (eval-expr "=((+ 3 4)") :respatialized.parse/parse-error)
+          "Invalid exprs should return error values")
+    (t/is (= (eval-expr "=(unknown-function 3 4)") :respatialized.parse/parse-error)
           "Invalid exprs should return error values")))
 
 (t/deftest parser

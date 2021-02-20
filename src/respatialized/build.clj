@@ -9,6 +9,9 @@
    [juxt.dirwatch :refer [watch-dir close-watcher]]
    [clojure.string :as str]))
 
+(def pages
+  (atom {}))
+
 (def template-suffix ".ct")
 (def template-suffix-regex #"#*[.]ct$")
 
@@ -25,17 +28,20 @@
            ::parse-error))))
   ([content-str] (template-str->hiccup content-str {})))
 
-(def pages (atom {}))
+(defn get-output-filename
+  ([path out-dir]
+   (-> path
+       io/file
+       (.getName)
+       (.toString)
+       (str/split template-suffix-regex)
+       first
+       (#(str out-dir "/" %))))
+  ([path] (get-output-filename path "./public")))
 
 (defn render-template-file
   ([path page-fn out-dir]
-   (let [out-file (-> path
-                      io/file
-                      (.getName)
-                      (.toString)
-                      (str/split template-suffix-regex)
-                      first
-                      (#(str out-dir "/" %)))]
+   (let [out-file (get-output-filename path out-dir)]
      (println "Rendering" (.toString out-file))
      (-> path
          slurp
@@ -73,12 +79,7 @@
                '[hiccup.page :as hp]
                '[hiccup.core :refer [html]])))
 
-(defn rerender [{:keys [file count action]}]
-  (if (#{:create :modify} action)
-    (do
-      (println "re-rendering" (.toString file))
-      (render-template-file (.toString file))
-      (println "rendered"))))
+
 
 
 (comment
@@ -89,6 +90,7 @@
   ;; the last known state
   ;; from there, we can begin to think about how to store exceptions
   ;; as values representing state
+  ;; Throwable->map will probably help with this
   (def example-post-map
     {"./content/holotype1.html.ct"
      {:data [#_ "post data"]
@@ -97,16 +99,50 @@
 
   ;; after the initial implementation, other ideas are possible
   ;; 1. print exceptions in the rendered page by
-  ;; 2. split up the successfullly eval'd fns from the errors
+  ;; 2. split up the successfully eval'd fns from the errors
   ;; 3. begin saving a succession of successful renders in a database with commits as "checkpoints"
+  ;; 4. use the state map to drive a nicer terminal UI (e.g. 10/11 files rendered ...)
+  ;; 5. use the state map to drive a web UI that leverages htmx to display rich information about the state of the site being built
   )
+
+(defn update-page-map [old-map page-name page-contents]
+  (if (= ::parse-error page-contents)
+    (do
+      (println "Parse error detected, skipping")
+      old-map)
+    (assoc old-map page-name {:data page-contents
+                              :html (hp/html5 page-contents)})))
+
+(defn write-file! [output-path html-content]
+  (if (not
+       (nil? html-content))
+    (do (println "writing file to" output-path)
+        (spit output-path html-content))))
+
+(defn update-and-write! [fp]
+  (do (let [f-contents
+                 (-> fp slurp
+                     (template-str->hiccup {:page-fn template->hiccup
+                                            :path fp}))]
+             (swap! pages #(update-page-map % fp f-contents)))
+           (let [output-path (get-output-filename fp "./public")
+                 html-content (get-in @pages [fp :html])]
+             (write-file! output-path html-content))))
+
+(defn rerender [{:keys [file count action]}]
+  (if (#{:create :modify} action)
+    (do
+      (println "re-rendering" (.toString file))
+      (update-and-write! (.toString file))
+      (println "rendered"))))
 
 (defn -main
   ([]
    (do
-
      (load-deps)
-     (render-template-files)
+     ;; (render-template-files)
+     (doseq [fp (get-template-files "content" template-suffix)]
+       (update-and-write! fp))
      (println "establishing file watch")
      (let [fw (watch-dir rerender (io/file "./content/"))]
        (.addShutdownHook (java.lang.Runtime/getRuntime)
