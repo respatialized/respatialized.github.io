@@ -6,6 +6,7 @@
             [clojure.string :as string]
             [clojure.pprint :refer [pprint]]
             [clojure.java.io :as io]
+            [clojure.tools.reader :as r]
             [respatialized.styles :as styles]
             [respatialized.document :refer [sectionize-contents]]
             [respatialized.parse :refer [parse parse-eval]])

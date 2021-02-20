@@ -4,10 +4,6 @@
             [respatialized.render :refer :all]
             [respatialized.parse :refer [parse]]))
 
-
-
-
-
 (t/deftest rendering
   (t/testing "html helper fns"
 

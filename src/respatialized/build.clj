@@ -4,12 +4,28 @@
    [hiccup.core :refer [html]]
    [hiccup.page :as hp]
    [respatialized.render :as render :refer :all]
+   [respatialized.parse :as parse]
    [respatialized.holotype :as holotype]
    [juxt.dirwatch :refer [watch-dir close-watcher]]
    [clojure.string :as str]))
 
 (def template-suffix ".ct")
 (def template-suffix-regex #"#*[.]ct$")
+
+(defn template-str->hiccup
+  "Attempts to parse the given string"
+  ([content-str {:keys [page-fn path]
+                 :or {page-fn parse/parse-eval
+                      path "[no file path given]"}}]
+   (try
+     (page-fn content-str)
+     (catch Exception e
+       (do (println (format "Caught an exception for %s: \n\n %s"
+                            path (.getMessage e)))
+           ::parse-error))))
+  ([content-str] (template-str->hiccup content-str {})))
+
+(def pages (atom {}))
 
 (defn render-template-file
   ([path page-fn out-dir]
@@ -21,15 +37,16 @@
                       first
                       (#(str out-dir "/" %)))]
      (println "Rendering" (.toString out-file))
-   (-> path
-       slurp
-       page-fn
-       hp/html5
-       (#(spit out-file %))
-       )))
+     (-> path
+         slurp
+         page-fn
+         hp/html5
+         (#(spit out-file %))
+         )))
   ([path page-fn] (render-template-file path page-fn "public"))
   ([path]
    (render-template-file path render/template->hiccup "public")))
+
 
 (defn get-template-files [dir suffix]
   (->> dir
@@ -62,6 +79,27 @@
       (println "re-rendering" (.toString file))
       (render-template-file (.toString file))
       (println "rendered"))))
+
+
+(comment
+  ;; store the post data and the html and only update it if
+  ;; it renders without errors
+
+  ;; the simplest implementation: just print the error and rerender with
+  ;; the last known state
+  ;; from there, we can begin to think about how to store exceptions
+  ;; as values representing state
+  (def example-post-map
+    {"./content/holotype1.html.ct"
+     {:data [#_ "post data"]
+      :html "<doctype html>..."  ; not a requirement but may improve performance
+      }})
+
+  ;; after the initial implementation, other ideas are possible
+  ;; 1. print exceptions in the rendered page by
+  ;; 2. split up the successfullly eval'd fns from the errors
+  ;; 3. begin saving a succession of successful renders in a database with commits as "checkpoints"
+  )
 
 (defn -main
   ([]

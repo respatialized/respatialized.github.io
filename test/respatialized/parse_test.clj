@@ -9,12 +9,20 @@
 
 (t/use-fixtures :once ns-refer)
 
-(t/deftest parser
-  (t/testing "string parsing"
+(t/deftest evals
+  (t/testing "expression evaluation"
     (t/is (= (eval-expr "=:foo") :foo)
           "Forms should be returned.")
+
     (t/is (= (eval-expr ":foo") nil)
           "Non-forms should be evaluated and not returned.")
+
+    (t/is (= (eval-expr "=((+ 3 4)") :respatialized.parse/parse-error)
+          "Invalid exprs should return error values")))
+
+(t/deftest parser
+  (t/testing "string parsing"
+
 
     (t/is (= (parse-eval "<%=:foo%> bar <%=:baz%>")
              [:div :foo " bar " :baz]))

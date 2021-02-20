@@ -3,6 +3,7 @@
   {:license {:source "https://github.com/weavejester/comb"
              :type "Eclipse Public License, v1.0"}}
   (:require [clojure.edn :as edn]
+            [clojure.tools.reader :as r]
             [clojure.string :as string]))
 
 (def delimiters ["<%" "%>"])
@@ -17,10 +18,18 @@
 
 (defn eval-expr [expr]
   (if (.startsWith expr "=")
-    (eval (edn/read-string (subs expr 1)))
-    (do (eval (edn/read-string expr))
-        nil)))
-
+    (try
+      (eval (r/read-string (subs expr 1)))
+      (catch Exception e
+        (do (println "caught an exception while reading:" (.getMessage e))
+            ::parse-error)))
+    (let [res (try (eval (r/read-string expr))
+                   (catch Exception e
+                     (do (println "caught an exception while reading:" (.getMessage e))
+                         ::parse-error)))]
+      (if (= res ::parse-error)
+        res
+        nil))))
 
 
 (defn yield-expr [expr]
@@ -64,19 +73,24 @@
         (refer-clojure)
         (if deps (apply require deps))
         (if yield?
-          (eval (edn/read-string exp))
-          (do (eval (edn/read-string exp)) nil))))))
+          (eval (r/read-string exp))
+          (do (eval (r/read-string exp)) nil))))))
 
 (defn parse-eval
   ([src start-seq nmspc deps]
-   (let [evaluator (if nmspc #(eval-expr-ns % nmspc deps)
-                       eval-expr)]
+   (let [evaluator
+         (if nmspc #(eval-expr-ns % nmspc deps)
+             eval-expr)]
      (loop [src src form start-seq]
        (let [[_ before expr after] (re-matches parser-regex src)]
          (if expr
            (recur
             after
-            (conj-non-nil form before (evaluator expr)))
+            (conj-non-nil form before
+                          (let [res (evaluator expr)]
+                            (if (= res ::parse-error)
+                              (do (throw (Exception. "parse error detected")))
+                              res))))
            (conj-non-nil form after))))))
   ([src start-seq nmspc] (parse-eval src start-seq nmspc nil))
   ([src start-seq] (parse-eval src start-seq nil))
