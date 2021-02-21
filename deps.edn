@@ -18,6 +18,7 @@
   minimallist/minimallist {:mvn/version "0.0.10"}
   com.gfredericks/test.chuck {:mvn/version "0.2.10"}
   org.clojure/data.finger-tree {:mvn/version "0.0.3"}
+  org.flatland/ordered {:mvn/version "1.5.9"}
 
   ;; site content
   clojure2d/clojure2d {:mvn/version "1.2.0-SNAPSHOT"}

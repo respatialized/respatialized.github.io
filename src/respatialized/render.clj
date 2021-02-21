@@ -7,6 +7,8 @@
             [clojure.pprint :refer [pprint]]
             [clojure.java.io :as io]
             [clojure.tools.reader :as r]
+            [flatland.ordered.set :refer [ordered-set]]
+            [flatland.ordered.map :refer [ordered-map]]
             [respatialized.styles :as styles]
             [respatialized.document :refer [sectionize-contents]]
             [respatialized.parse :refer [parse parse-eval]])
@@ -135,7 +137,7 @@
                        (map (fn [i] [:td i]) r)]) rows)]))
 
 (defn- ->named-row [name vals-map col-names]
-  (let [all-vals (merge (into (sorted-map)
+  (let [all-vals (merge (into (ordered-map)
                               (map (fn [c] [c ""]) col-names))
                         vals-map)]
     (apply conj [:tr [:th {:scope "row"} name]]
@@ -162,7 +164,7 @@
                         vals
                         (map keys)
                         flatten
-                        (into (sorted-set))
+                        (into (ordered-set))
                         (#(disj % subtable-attr)))
          header
          (->header (concat ["name"] body-keys))
@@ -183,7 +185,7 @@
                        vals
                        (map keys)
                        flatten
-                       (into (sorted-set)))
+                       (into (ordered-set)))
          header (->header (concat ["name"] all-keys))]
      [:table header
       (map->tbody m all-keys)])))
