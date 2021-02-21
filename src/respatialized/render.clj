@@ -134,6 +134,60 @@
      (map (fn row [r] [:tr {:class row-class}
                        (map (fn [i] [:td i]) r)]) rows)]))
 
+(defn- ->named-row [name vals-map col-names]
+  (let [all-vals (merge (into (sorted-map)
+                              (map (fn [c] [c ""]) col-names))
+                        vals-map)]
+    (apply conj [:tr [:th {:scope "row"} name]]
+           (map (fn [[_ v]] [:td v]) all-vals))))
+
+(defn- map->tbody
+  ([m cols]
+   (apply conj [:tbody]
+          (map (fn [[k v]] (->named-row k v cols)) m)))
+  ([m cols group-name]
+   (apply conj [:tbody [:tr [:th {:colspan (count cols)} group-name]]]
+          (map (fn [[k v]] (->named-row k v cols)) m))))
+
+(defn- ->header
+  ([cols]
+   [:thead
+    (apply conj [:tr]
+           (map (fn [i] [:th (str (name i))]) cols))]))
+
+(defn map->table
+  "Converts the map to a table. Assumes keys are row headers and values are maps of row entries (key:column/val:val). Optionally breaks up the table into multiple <tbody> elements by an additional attribute"
+  ([m subtable-attr]
+   (let [body-keys (->> m
+                        vals
+                        (map keys)
+                        flatten
+                        (into (sorted-set))
+                        (#(disj % subtable-attr)))
+         header
+         (->header (concat ["name"] body-keys))
+
+         grouped-entries
+         (->> m
+              (group-by (fn [[e vs]] (get vs subtable-attr)))
+              (map (fn [[grp ms]]
+                     [grp (into {} (map (fn [[entry vs]] [entry (dissoc vs subtable-attr)]) ms))])))]
+     (apply conj [:table header]
+            (map (fn [[sub-val vm]]
+                   (map->tbody vm
+                               body-keys
+                               sub-val))
+                 grouped-entries))))
+  ([m]
+   (let [all-keys (->> m
+                       vals
+                       (map keys)
+                       flatten
+                       (into (sorted-set)))
+         header (->header (concat ["name"] all-keys))]
+     [:table header
+      (map->tbody m all-keys)])))
+
 (defn script [attr-map & contents]
   (apply conj [:script attr-map] contents))
 
