@@ -43,10 +43,28 @@
                [:tr [:th {:colspan 2} "J"]]
                [:tr [:th {:scope "row"} "Entry 3"]
                 [:td "Third item"] [:td 252]]]]
-            (map->table {"Entry 1" {:desc "First item" :id 245 :group "I"}
-                         "Entry 2" {:desc "Second item" :id 249 :group "I"}
-                         "Entry 3" {:desc "Third item" :id 252 :group "J"}}
-                        :group)))
+             (map->table {"Entry 1" {:desc "First item" :id 245 :group "I"}
+                          "Entry 2" {:desc "Second item" :id 249 :group "I"}
+                          "Entry 3" {:desc "Third item" :id 252 :group "J"}}
+                         :group))
+          )
+
+    (t/is (= [:table
+              [:thead [:tr [:th "name"] [:th "desc"] [:th "id"] [:th "meta"]]]
+              [:tbody
+               [:tr [:th {:colspan 3} "I"]]
+               [:tr [:th {:scope "row"} "Entry 1"]
+                [:td "First item"] [:td 245] [:td ""]]
+               [:tr [:th {:scope "row"} "Entry 2"]
+                [:td "Second item"] [:td 249] [:td ""]]]
+              [:tbody
+               [:tr [:th {:colspan 3} "J"]]
+               [:tr [:th {:scope "row"} "Entry 3"]
+                [:td "Third item"] [:td 252] [:td "abc"]]]]
+             (map->table {"Entry 1" {:desc "First item" :id 245 :group "I" }
+                          "Entry 2" {:desc "Second item" :id 249 :group "I"}
+                          "Entry 3" {:desc "Third item" :id 252 :group "J" :meta "abc"}}
+                         :group)))
 
     (t/is (= (html [:r-cell {:span 3} "ab"])
              "<r-cell span=\"3\">ab</r-cell>"))
