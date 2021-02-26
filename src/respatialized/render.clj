@@ -7,8 +7,6 @@
             [clojure.pprint :refer [pprint]]
             [clojure.java.io :as io]
             [clojure.tools.reader :as r]
-            [glow.parse]
-            [glow.html]
             [flatland.ordered.set :refer [ordered-set]]
             [flatland.ordered.map :refer [ordered-map]]
             [respatialized.styles :as styles]
@@ -218,12 +216,7 @@
 ;;   [t]
 ;;   (hp/html5 (template->hiccup t)))
 
-(defn highlight-code
-  "Returns a hiccup data structure representing code to be highlighted"
-  [code-str]
-  (-> code-str
-      glow.parse/parse
-      glow.html/hiccup-transform))
+
 
 (def lit-open "//CODE{")
 (def lit-close "}//")

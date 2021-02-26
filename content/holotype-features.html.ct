@@ -1,16 +1,7 @@
-<%(do (require (quote [flatland.ordered.map :refer [ordered-map]])
-      (quote [garden.core :refer [style css]])
-      (quote [garden.stylesheet :refer [at-import]])))%>
-<%(def page-style
-       (css [:.keyword {:color "#E78E65"}]
-            [:.number {:color "#A7B8AB"}]
-            [:pre {:white-space "pre-wrap"}]))>
+<%(def metadata {:title "HOLOTYPE: blueprint"})%>
+<%(require (quote [flatland.ordered.map :refer [ordered-map]]))%>
 
-<%(def metadata
-       {:title "HOLOTYPE: blueprint"
-        :page-style page-style})%>
-
-<%=(header {:level :h1 :date "2021-02-21"} "HOLOTYPE: blueprint")%>
+<%=(header {:level :h1 :date "2021-02-11"} (:title metadata))%>
 
 Holotype will eventually become a library, distributable as an artifact separate from the context of its original creation. This page serves as a blueprint for that library.
 
@@ -66,9 +57,6 @@ Because <%= (in-code "holotype")%> exists mostly as idiosyncratic site generatio
        "Data-driven styling"
        {:description "Constraint-based generation of CSS values"
        :milestone "Beautiful"}
-       "Readable HTML output"
-       {:milestone "Beautiful"
-       :description "Render HTML with linebreaks and separation between elements"}
        "Live Validation"
        {:description "Incorporate schema definitions into error handling logic for real-time validation of HTML spec"
        :milestone "Beautiful"}
@@ -82,8 +70,8 @@ Because <%= (in-code "holotype")%> exists mostly as idiosyncratic site generatio
 
 As an example of following Marz's lead in building up the prototype in the context of concrete use cases, I generated the table below from an ordered map of features defined inline:
 
-<%= [:details [:summary "Table source map"] (code (highlight-code (str features)))] %>
-<%= [:details [:summary (in-code "respatialized.render/map->table")] (code (highlight-code (last (include-def (quote map->table) "./src/respatialized/render.clj"))))]  %>
+<%= [:details [:summary "Table source map"] (in-code (str features))] %>
+<%= [:details [:summary (in-code "respatialized.render/map->table")] (include-def (quote map->table) "./src/respatialized/render.clj")] %>
 
 I didn't have that function before I wrote this post. Rather than writing a general-purpose 'table' function from scratch, I allowed the shape of the data that made the most sense at the time of writing to guide the implementation. A lot of this phase will consist of work like that: specific solutions that serve as data points for a new series of abstractions that unify the design.
 
