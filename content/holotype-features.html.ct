@@ -70,7 +70,10 @@ Because <%= (in-code "holotype")%> exists mostly as idiosyncratic site generatio
 
 As an example of following Marz's lead in building up the prototype in the context of concrete use cases, I generated the table below from an ordered map of features defined inline:
 
-<%= [:details [:summary "Table source map"] (in-code (str features))] %>
+<%= [:details
+
+    [:summary "Table source map"]
+    (code {:class "language-clojure"} (with-out-str (clojure.pprint/pprint features)))] %>
 <%= [:details [:summary (in-code "respatialized.render/map->table")] (include-def (quote map->table) "./src/respatialized/render.clj")] %>
 
 I didn't have that function before I wrote this post. Rather than writing a general-purpose 'table' function from scratch, I allowed the shape of the data that made the most sense at the time of writing to guide the implementation. A lot of this phase will consist of work like that: specific solutions that serve as data points for a new series of abstractions that unify the design.

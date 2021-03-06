@@ -23,7 +23,10 @@
          [:meta {:charset "utf-8"}]
          [:meta {:http-equiv "X-UA-Compatible" :content "IE=edge,chrome=1"}]
          [:meta {:name "viewport" :content "width=device-width, initial-scale=1.0, user-scalable=no"}]
-         (apply hp/include-css "css/fonts.css" "css/main.css" css-files)]]
+         [:script {:type "text/javascript" :src "js/prism.js" :async "async"}]
+         [:script {:type "text/javascript" :src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"}]
+         (apply hp/include-css "css/fonts.css" "css/main.css"
+                css-files)]]
     (if page-style (conj page-header [:style page-style]) page-header)))
 
 (defn header
@@ -158,7 +161,10 @@
            (map (fn [i] [:th (str (name i))]) cols))]))
 
 (defn map->table
-  "Converts the map to a table. Assumes keys are row headers and values are maps of row entries (key:column/val:val). Optionally breaks up the table into multiple <tbody> elements by an additional attribute"
+  "Converts the map to a table. Assumes keys are row headers and values
+  are maps of row entries (key:column/val:val).
+  Optionally breaks up the table into multiple <tbody> elements by an
+  additional attribute."
   ([m subtable-attr]
    (let [body-keys (->> m
                         vals
@@ -254,7 +260,7 @@
 (defn include-def
   "Excerpts the source code of the given symbol in the given file."
   ([{:keys [render-fn def-syms]
-     :or {render-fn #(str (with-out-str (pprint %)))
+     :or {render-fn #(util/escape-html (with-out-str (pprint %)))
           def-syms #{'def 'defn}}} sym f]
    (with-open [r (clojure.java.io/reader f)]
      (loop [source (java.io.PushbackReader. r)]
@@ -264,6 +270,6 @@
              (if (and (list? e)
                       (def-syms (first e))
                       (= sym (symbol (second e))))
-               [:code (render-fn e)]
+               [:pre [:code {:class "language-clojure"} (render-fn e)]]
                (recur source)))))))
   ([sym f] (include-def {} sym f)))
