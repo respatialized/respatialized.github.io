@@ -1,6 +1,7 @@
 (ns respatialized.parse-test
   (:require  [clojure.test :as t]
              [respatialized.render :refer [em link code blockquote]]
+             [minimallist.core :as m]
              [respatialized.parse :refer :all]))
 
 (defn ns-refer [f]
@@ -23,8 +24,49 @@
           "Invalid exprs should return error values")))
 
 (t/deftest parser
-  (t/testing "string parsing"
 
+  (t/testing "parsed element model"
+    (t/is
+     (m/valid? parsed-expr-model
+               {:src "<%=(+ 3 4)%>"
+                :expr '(+ 3 4)
+                :err nil
+                :result 7}))
+    (t/is
+     (m/valid? parsed-expr-model
+               {:src "<%(+ 3 4)%>"
+                :expr '(do (+ 3 4) nil)
+                :err nil
+                :result nil}))
+    (t/is
+     (m/valid? parsed-expr-model
+               {:src "<%((+ 3 4)%>"
+                :expr nil
+                :err {:type clojure.lang.ExceptionInfo
+                      :message "Unexpected EOF while reading item 1 of list."}
+                :result nil})))
+
+  (t/testing "expression parsing"
+    (t/is (= ["text " {:expr '(+ 2 3)
+                       :src "<%=(+ 2 3)%>"
+                       :err nil
+                       :result nil}]
+             (parse "text <%=(+ 2 3)%>")))
+
+    (t/is (= [{:expr nil,
+               :src "<%((+ 2 3)%>",
+               :err
+               {:type clojure.lang.ExceptionInfo,
+                :message "Unexpected EOF while reading item 1 of list."},
+               :result nil}]
+             (parse "<%((+ 2 3)%>")))
+    (t/is (= [{:expr '(do (+ 2 3) nil)
+               :src "<%(+ 2 3)%>"
+               :err nil
+               :result nil}]
+             (parse "<%(+ 2 3)%>"))))
+
+  (t/testing "string parse+eval"
 
     (t/is (= (parse-eval "<%=:foo%> bar <%=:baz%>")
              [:div :foo " bar " :baz]))
@@ -63,7 +105,6 @@
               ", followed by some "
               (em "emphasis")])
           "All elements should end up in vector forms")
-
 
     (t/is (= (parse-eval "<%=[:em \"text\"]%>, with a comma following")
              [:div [:em "text"] ", with a comma following"]))

@@ -4,6 +4,8 @@
              :type "Eclipse Public License, v1.0"}}
   (:require [clojure.edn :as edn]
             [clojure.tools.reader :as r]
+            [minimallist.core :as m]
+            [minimallist.helper :as h]
             [clojure.string :as string]))
 
 (def delimiters ["<%" "%>"])
@@ -15,6 +17,9 @@
         (first delimiters) "(.*?)" (last delimiters)
         ")?"
         "(.*)\\z")))
+
+(def expr-model
+  (h/fn #(and (string? %) (re-matches parser-regex %))))
 
 (defn eval-expr [expr]
   (if (.startsWith expr "=")
@@ -31,11 +36,18 @@
         res
         nil))))
 
-
 (defn yield-expr [expr]
-  (if (.startsWith expr "=")
-    (edn/read-string (subs expr 1))
-    `(do ~(edn/read-string expr) nil)))
+  (let [attempt
+        (try {:success (if (.startsWith expr "=")
+                         (r/read-string (subs expr 1))
+                         `(do ~(r/read-string expr) nil))}
+             (catch Exception e
+               {:error {:type (.getClass e)
+                        :message (.getMessage e)}}))]
+    {:expr (:success attempt)
+     :src (str (first delimiters) expr (last delimiters))
+     :err (:error attempt)
+     :result nil}))
 
 (defn nil-or-empty? [v]
   (if (seqable? v) (empty? v)
@@ -49,6 +61,18 @@
         raw (.digest algorithm (.getBytes s))]
     (format "%032x" (BigInteger. 1 raw))))
 
+(def parsed-expr-model
+  (h/map
+   [:src expr-model]
+   [:expr (h/alt [:nil (h/val nil)]
+                 ; let's not define a model for arbitrary Clojure exprs
+                 [:val (h/fn some?)])]
+   [:err (h/alt [:nil (h/val nil)]
+                [:error (h/map [:type (h/fn class?)]
+                               [:message (h/fn string?)])])]
+   [:result (h/alt [:nil (h/val nil)]
+                   [:val (h/fn some?)])]))
+
 (defn parse
   ([src start-seq]
    (loop [src src form start-seq]
@@ -58,7 +82,7 @@
           after
           (conj-non-nil form before (yield-expr expr)))
          (conj-non-nil form after)))))
-  ([src] (parse src [:div])))
+  ([src] (parse src [])))
 
 (defn eval-expr-ns
   "Evaluates the given EDN string expr in the given ns with the given deps."
