@@ -84,6 +84,50 @@
          (conj-non-nil form after)))))
   ([src] (parse src [])))
 
+
+
+(defn eval-parsed-expr
+  ([{:keys [:src :expr :err :result]
+     :as expr-map} simplify?]
+   (cond err expr-map
+         result result
+         :else (let [res (try
+                           {:result (eval expr)}
+                           (catch Exception e
+                             {:error {:type (.getClass e)
+                                      :message (.getMessage e)}}))]
+                 (if (and simplify? (:result res)) ; nil is overloaded here
+                   (:result res)
+                   (merge expr-map res)))))
+  ([expr] (eval-parsed-expr expr false)))
+
+(comment
+  (def nested-parsed-expr
+    [:div [:p (first (parse "<%=(+ 3 9)%>"))]])
+
+  (clojure.walk/postwalk
+   #(if (m/valid? parsed-expr-model %)
+      (eval-parsed-expr % true)
+      %)
+   nested-parsed-expr)
+  )
+
+
+(defn eval-all
+  ([expr-tree nmspc]
+   (let [nmspc (if nmspc (binding [*ns* (create-ns nmspc)]
+                           (refer-clojure)
+                           *ns*)
+                   *ns*)]
+     (binding [*ns* nmspc]
+       (clojure.walk/postwalk
+        #(if (m/valid? parsed-expr-model %)
+           (eval-parsed-expr % true)
+           %)
+        expr-tree))))
+  ([expr-tree] (eval-all expr-tree nil)))
+
+
 (defn eval-expr-ns
   "Evaluates the given EDN string expr in the given ns with the given deps."
   [expr nmspc deps]

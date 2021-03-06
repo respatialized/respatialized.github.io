@@ -66,6 +66,22 @@
                :result nil}]
              (parse "<%(+ 2 3)%>"))))
 
+  (t/testing "evaluation of parsed expressions"
+    (t/is (= 5 (eval-parsed-expr (first (parse "<%=(+ 2 3)%>")) true)))
+    (t/is (= {:expr '(+ 2 3), :src "<%=(+ 2 3)%>", :err nil, :result 5}
+             (eval-parsed-expr (first (parse "<%=(+ 2 3)%>")) false)))
+    (t/is (= nil
+           (eval-parsed-expr {:expr '(do (def a 3) nil), :src "<%(def a 3)%>", :err nil, :result nil}
+                             true)))
+
+    (t/is (= {:expr nil,
+              :src "<%=((+ 2 3)%>",
+              :err {:type clojure.lang.ExceptionInfo,
+                    :message "Unexpected EOF while reading item 1 of list."},
+              :result nil}
+             (eval-parsed-expr (first (parse "<%=((+ 2 3)%>")) false)
+             (eval-parsed-expr (first (parse "<%=((+ 2 3)%>")) true))))
+
   (t/testing "string parse+eval"
 
     (t/is (= (parse-eval "<%=:foo%> bar <%=:baz%>")
