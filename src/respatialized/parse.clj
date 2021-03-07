@@ -91,14 +91,18 @@
      :as expr-map} simplify?]
    (cond err expr-map
          result result
-         :else (let [res (try
-                           {:result (eval expr)}
-                           (catch Exception e
-                             {:error {:type (.getClass e)
-                                      :message (.getMessage e)}}))]
-                 (if (and simplify? (:result res)) ; nil is overloaded here
-                   (:result res)
-                   (merge expr-map res)))))
+         :else
+         (let [res (try
+                     {:result (eval expr)}
+                     (catch Exception e
+                       {:error {:type (.getClass e)
+                                :message (.getMessage e)}}))]
+           (cond
+             (and simplify? (:result res)) ; nil is overloaded here
+             (:result res)
+             (and (nil? (:result res)) (nil? (:err res)))
+             nil
+             :else (merge expr-map res)))))
   ([expr] (eval-parsed-expr expr false)))
 
 (comment
@@ -115,10 +119,11 @@
 
 (defn eval-all
   ([expr-tree nmspc]
-   (let [nmspc (if nmspc (binding [*ns* (create-ns nmspc)]
-                           (refer-clojure)
-                           *ns*)
-                   *ns*)]
+   (let [nmspc (if nmspc
+                 (binding [*ns* (create-ns nmspc)]
+                   (refer-clojure)
+                   *ns*)
+                 *ns*)]
      (binding [*ns* nmspc]
        (clojure.walk/postwalk
         #(if (m/valid? parsed-expr-model %)
@@ -127,11 +132,27 @@
         expr-tree))))
   ([expr-tree] (eval-all expr-tree nil)))
 
+(defn yank-ns
+  [expr-tree]
+  (->> expr-tree
+       (tree-seq vector? identity)
+       (filter #(and (m/valid? parsed-model %)
+                     (= (symbol 'ns) (first (second (:expr %))))))
+       first
+       :expr
+       second
+       second))
+
+(comment
+  (yank-ns (parse "<%(ns test-ns)%>"))
+
+  )
+
 
 (defn eval-expr-ns
   "Evaluates the given EDN string expr in the given ns with the given deps."
   [expr nmspc deps]
-  (let [yield?  (.startsWith expr "=")
+  (let [yield? (.startsWith expr "=")
         exp (if yield?
               (subs expr 1)
               expr)

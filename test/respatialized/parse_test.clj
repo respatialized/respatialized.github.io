@@ -71,8 +71,8 @@
     (t/is (= {:expr '(+ 2 3), :src "<%=(+ 2 3)%>", :err nil, :result 5}
              (eval-parsed-expr (first (parse "<%=(+ 2 3)%>")) false)))
     (t/is (= nil
-           (eval-parsed-expr {:expr '(do (def a 3) nil), :src "<%(def a 3)%>", :err nil, :result nil}
-                             true)))
+             (eval-parsed-expr {:expr '(do (def a 3) nil), :src "<%(def a 3)%>", :err nil, :result nil}
+                               true)))
 
     (t/is (= {:expr nil,
               :src "<%=((+ 2 3)%>",
@@ -81,6 +81,10 @@
               :result nil}
              (eval-parsed-expr (first (parse "<%=((+ 2 3)%>")) false)
              (eval-parsed-expr (first (parse "<%=((+ 2 3)%>")) true))))
+
+  (t/testing "namespace retrieval"
+
+    (t/is (= (symbol 'test-ns) (yank-ns (parse "<%(ns test-ns)%>")))))
 
   (t/testing "string parse+eval"
 
