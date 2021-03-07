@@ -11,7 +11,8 @@
             [flatland.ordered.map :refer [ordered-map]]
             [respatialized.styles :as styles]
             [respatialized.document :refer [sectionize-contents]]
-            [respatialized.parse :refer [parse parse-eval]])
+            [respatialized.parse :refer [parse parse-eval]
+             :as parse])
   (:gen-class))
 
 (defn doc-header
@@ -204,11 +205,11 @@
 (defn template->hiccup
   "Converts a template file to a hiccup data structure for the page."
   [t]
-  (let [content (parse-eval t [:contents])
+  (let [content (-> t parse/parse parse/eval-with-errors)
         page-meta (eval 'metadata)
         body-content (into [:article {:lang "en"}]
                            sectionize-contents
-                           (rest content))]
+                           content)]
     (list
     (doc-header page-meta)
      [:body

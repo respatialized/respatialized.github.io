@@ -90,4 +90,12 @@ This phase will focus on improving the responsiveness of interactions with the l
 
 <%= (map->table features :milestone) %>
 
+<%=(header {:level :h3} "Features In Detail")%>
 
+<%=(header {:level :h4} "Error handling")%>
+
+Holotype features a parse and evaluate method that allows errors to be surfaced directly, in context. Here's an example:
+
+<%=((invalid-fn :input)%>
+
+The error message encountered during the parse/eval step gets surfaced where the original source expression was in the page, allowing a user to quickly identify the cause and fix it. Particularly useful when paired with live page refreshing.

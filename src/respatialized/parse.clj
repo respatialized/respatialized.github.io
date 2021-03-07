@@ -87,7 +87,7 @@
 
 
 (defn eval-parsed-expr
-  ([{:keys [:src :expr :err :result]
+  ([{:keys [src expr err result]
      :as expr-map} simplify?]
    (cond err expr-map
          result result
@@ -150,6 +150,35 @@
                   i))
         parsed-form))))
   ([parsed-form] (eval-all parsed-form true)))
+
+(defn form->hiccup
+  "If the form has no errors, return its results.
+  Otherwise, create a hiccup form describing the error."
+[{:keys [:src :expr :err :result]
+     :as parsed-expr}]
+  (if err
+    [:div [:h6 "Error"]
+     [:dl
+      [:dt "Error type"]
+      [:dd [:code (str (:type err))]]
+      [:dt "Error message"]
+      [:dd [:code (str (:message err))]]]
+     [:details [:summary "Source expression"]
+      [:pre [:code src]]]]
+    result))
+
+(defn eval-with-errors
+  ([parsed-form]
+   (let [form-nmspc (yank-ns parsed-form)
+         nmspc (if form-nmspc (create-ns form-nmspc) *ns*)]
+     (binding [*ns* nmspc]
+       (refer-clojure)
+       (clojure.walk/postwalk
+        (fn [i] (if (m/valid? parsed-expr-model i)
+                  (form->hiccup (eval-parsed-expr i))
+                  i))
+        parsed-form)))))
+
 
 (defn eval-expr-ns
   "Evaluates the given EDN string expr in the given ns with the given deps."

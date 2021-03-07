@@ -111,12 +111,25 @@
             "Namespace scoping should be preserved")
 
       (t/is (= [[:em "text"] ", with a comma following"]
-             (parse-eval "<%=[:em \"text\"]%>, with a comma following")
-             ))
+               (parse-eval "<%=[:em \"text\"]%>, with a comma following")
+               ))
 
       (t/is (= (hiccup.core/html
                 (apply conj [:div] (parse-eval "<%=[:em \"text\"]%>, with a comma following")))
                "<div><em>text</em>, with a comma following</div>"))))
+
+  (t/testing "eval with error messages"
+    (t/is (m/valid?
+           respatialized.document/elements
+           (form->hiccup {:expr nil,
+                          :src "<%=((+ 2 3)%>",
+                          :err {:type clojure.lang.ExceptionInfo,
+                                :message "Unexpected EOF while reading item 1 of list."},
+                          :result nil})))
+
+    (t/is
+     (= [:div 5]
+        (eval-with-errors [:div {:expr '(+ 2 3), :src "<%=(+ 2 3)%>", :err nil, :result nil}]))))
 
   (t/testing "string parse+eval"
 

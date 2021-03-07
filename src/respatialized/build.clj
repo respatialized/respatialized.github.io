@@ -13,7 +13,7 @@
   (atom {}))
 
 (def template-suffix ".ct")
-(def template-suffix-regex #"#*[.]ct$")
+(def template-suffix-regex (re-pattern "#*[.]ct$"))
 
 (defn template-str->hiccup
   "Attempts to parse the given string"
@@ -163,4 +163,6 @@
                             template-suffix)))
      (do (render-template-files files)))))
 
-(comment (-main))
+(comment
+  (future (-main))
+  )
