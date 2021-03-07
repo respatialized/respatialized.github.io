@@ -117,37 +117,39 @@
   )
 
 
-(defn eval-all
-  ([expr-tree nmspc]
-   (let [nmspc (if nmspc
-                 (binding [*ns* (create-ns nmspc)]
-                   (refer-clojure)
-                   *ns*)
-                 *ns*)]
-     (binding [*ns* nmspc]
-       (clojure.walk/postwalk
-        #(if (m/valid? parsed-expr-model %)
-           (eval-parsed-expr % true)
-           %)
-        expr-tree))))
-  ([expr-tree] (eval-all expr-tree nil)))
+
 
 (defn yank-ns
+  "Pulls the namespace out of the first expression in the parse tree."
   [expr-tree]
-  (->> expr-tree
-       (tree-seq vector? identity)
-       (filter #(and (m/valid? parsed-model %)
-                     (= (symbol 'ns) (first (second (:expr %))))))
-       first
-       :expr
-       second
-       second))
+  (let [first-expr (->> expr-tree
+                        (tree-seq vector? identity)
+                        (filter #(m/valid? parsed-model %))
+                        first
+                        :expr)]
+    (if (and (seq? first-expr)
+             (seq? (second first-expr))
+             (= (symbol 'ns) (first (second first-expr))))
+      (second (second first-expr))
+      nil)))
 
 (comment
   (yank-ns (parse "<%(ns test-ns)%>"))
 
   )
 
+(defn eval-all
+  ([parsed-form simplify?]
+   (let [form-nmspc (yank-ns parsed-form)
+         nmspc (if form-nmspc (create-ns form-nmspc) *ns*)]
+     (binding [*ns* nmspc]
+       (refer-clojure)
+       (clojure.walk/postwalk
+        (fn [i] (if (m/valid? parsed-expr-model i)
+                  (eval-parsed-expr i simplify?)
+                  i))
+        parsed-form))))
+  ([parsed-form] (eval-all parsed-form true)))
 
 (defn eval-expr-ns
   "Evaluates the given EDN string expr in the given ns with the given deps."

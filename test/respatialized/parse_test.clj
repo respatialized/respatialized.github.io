@@ -84,7 +84,39 @@
 
   (t/testing "namespace retrieval"
 
-    (t/is (= (symbol 'test-ns) (yank-ns (parse "<%(ns test-ns)%>")))))
+    (t/is (= (symbol 'test-ns) (yank-ns (parse "<%(ns test-ns)%>"))))
+
+    (t/is (nil? (yank-ns (parse "<%=(+ 3 4)%>"))))
+
+    )
+
+  (t/testing "eval all"
+    (let [parse-eval (comp eval-all parse)]
+      (t/is (= (parse-eval "<%=:foo%> bar <%=:baz%>")
+               [:foo " bar " :baz]))
+      (t/is (= (parse-eval "some text") ["some text"])
+            "Plaintext should be passed as-is")
+      (t/is (= (parse-eval "<%=[1 2 3]%>") [[1 2 3]]))
+      (t/is (= (parse-eval "<%=[\"a\" \"b\"]%>")  [["a" "b"]])
+            "Escaped quotes in forms should be preserved.")
+      (t/is (= [nil " baz " nil " foo " 3]
+               (parse-eval "<%(ns test-form-ns)%> baz <%(def var 3)%> foo <%=var%>"))
+            "In-form defs should be evaluated successfully.")
+
+      (t/is (= (parse-eval "<%=(respatialized.render/em 3)%>")
+               [[:em 3]])
+            "Namespace scoping should be preserved")
+      (t/is (= (parse-eval "<%=(em 3)%>")
+               [[:em 3]])
+            "Namespace scoping should be preserved")
+
+      (t/is (= [[:em "text"] ", with a comma following"]
+             (parse-eval "<%=[:em \"text\"]%>, with a comma following")
+             ))
+
+      (t/is (= (hiccup.core/html
+                (apply conj [:div] (parse-eval "<%=[:em \"text\"]%>, with a comma following")))
+               "<div><em>text</em>, with a comma following</div>"))))
 
   (t/testing "string parse+eval"
 
