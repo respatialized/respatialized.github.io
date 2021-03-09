@@ -43,6 +43,8 @@
                {:src "<%((+ 3 4)%>"
                 :expr nil
                 :err {:type clojure.lang.ExceptionInfo
+                      :cause "Unexpected EOF while reading item 1 of list."
+                      :phase nil
                       :message "Unexpected EOF while reading item 1 of list."}
                 :result nil})))
 
@@ -57,6 +59,8 @@
                :src "<%((+ 2 3)%>",
                :err
                {:type clojure.lang.ExceptionInfo,
+                :phase nil,
+                :cause "Unexpected EOF while reading item 1 of list.",
                 :message "Unexpected EOF while reading item 1 of list."},
                :result nil}]
              (parse "<%((+ 2 3)%>")))
@@ -77,6 +81,8 @@
     (t/is (= {:expr nil,
               :src "<%=((+ 2 3)%>",
               :err {:type clojure.lang.ExceptionInfo,
+                    :cause "Unexpected EOF while reading item 1 of list.",
+                    :phase nil,
                     :message "Unexpected EOF while reading item 1 of list."},
               :result nil}
              (eval-parsed-expr (first (parse "<%=((+ 2 3)%>")) false)

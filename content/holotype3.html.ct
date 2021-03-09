@@ -10,7 +10,7 @@
                    [:h1 {:font-family "\"Big Shoulders Display\", sans"}]
                    [:.emphasis {:font-family "\"Share Tech Mono\", monospace"
                                 :color "#F72B00"}]
-                   [:body :background-color "#181615"]
+                   [:body {:background-color "#181615"}]
                    [:blockquote {:text-transform "uppercase"
                                  :font-style "italic"
                                  :font-family "\"Big Shoulders Display\", sans"

@@ -1,5 +1,25 @@
-<%(def metadata {:title "HOLOTYPE: blueprint"})%>
 <%(require (quote [flatland.ordered.map :refer [ordered-map]]))%>
+
+<%(do (require '[garden.core :as garden :refer [style css]])
+       (def page-style (css
+                        [:body {:background-color "#2B5676"
+                                :font-size "22px"}]
+                        [:h1 :h2 :h3 {:font-size "3rem"
+                                      :line-height "4rem"}]
+                        [:blockquote {:font-weight "900"
+                                      :font-size "1.2rem"
+                                      :line-height "1.75rem"}]
+                        [:pre {:white-space "pre-wrap"
+                               :color "#F4ECEC"}]
+                        [:code {:white-space "pre-wrap"
+                                :color "#F4ECEC"}]
+                        [:article {:max-width "80rem"
+                                   :padding-left "40px"
+                                   :color "#F4ECEC" #_ "#1B2228" }]
+                        [:table {:max-width "1400px"}])))%>
+
+
+<%(def metadata {:title "HOLOTYPE: blueprint" :page-style page-style})%>
 
 <%=(header {:level :h1 :date "2021-02-11"} (:title metadata))%>
 
@@ -96,6 +116,19 @@ This phase will focus on improving the responsiveness of interactions with the l
 
 Holotype features a parse and evaluate method that allows errors to be surfaced directly, in context. Here's an example:
 
-<%=((invalid-fn :input)%>
+<%=(invalid-fn :input)%>
 
-The error message encountered during the parse/eval step gets surfaced where the original source expression was in the page, allowing a user to quickly identify the cause and fix it. Particularly useful when paired with live page refreshing.
+The error message encountered during the parse/eval step gets surfaced where the original source expression was in the page, allowing a user to quickly identify the cause and fix it. Particularly useful when paired with live page refreshing. Right now the focus is on allowing a user to see and respond to errors, but future work may add a machine-friendlier way of catching and responding to them.
+
+
+<%=(header {:level :h2} "Design ethos")%>
+
+<%=[:dl [:dt "Design for density"]
+    [:dd "Try to maximize the information present on a page, both for human and machine consumers of it."]
+    [:dt "Simple things should be simple"]
+        [:dd "A page should be fully renderable with plaintext only. Basic markup should not be intrusive"]
+        [:dt "Don't hide complexity"]
+        [:dd "If a header is created by a function, the user should know that the header is created by a function."]
+    [:dt "Complex things should be possible"]
+    [:dd "The full power of a programming language should be in the hands of users without needing to rebuild/recompile the whole of the underlying source code, and complex behaviors should not be achieved 'automagically.'"]
+        ]%>

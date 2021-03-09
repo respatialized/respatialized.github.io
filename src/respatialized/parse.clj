@@ -42,8 +42,11 @@
                          (r/read-string (subs expr 1))
                          `(do ~(r/read-string expr) nil))}
              (catch Exception e
-               {:error {:type (.getClass e)
-                        :message (.getMessage e)}}))]
+               (let [{:keys [cause phase]} (Throwable->map e)]
+                 {:error {:type (.getClass e)
+                          :cause cause
+                          :phase phase
+                          :message (.getMessage e)}})))]
     {:expr (:success attempt)
      :src (str (first delimiters) expr (last delimiters))
      :err (:error attempt)
@@ -95,8 +98,10 @@
          (let [res (try
                      {:result (eval expr)}
                      (catch Exception e
-                       {:error {:type (.getClass e)
-                                :message (.getMessage e)}}))]
+                       {:err (merge {:type (.getClass e)
+                                     :message (.getMessage e)}
+                                    (select-keys (Throwable->map e)
+                                                 [:cause :phase]))}))]
            (cond
              (and simplify? (:result res)) ; nil is overloaded here
              (:result res)
@@ -124,7 +129,7 @@
   [expr-tree]
   (let [first-expr (->> expr-tree
                         (tree-seq vector? identity)
-                        (filter #(m/valid? parsed-model %))
+                        (filter #(m/valid? parsed-expr-model %))
                         first
                         :expr)]
     (if (and (seq? first-expr)
@@ -162,7 +167,9 @@
       [:dt "Error type"]
       [:dd [:code (str (:type err))]]
       [:dt "Error message"]
-      [:dd [:code (str (:message err))]]]
+      [:dd [:code (str (:cause err))]]
+      [:dt "Error phase"]
+      [:dd [:code (str (:phase err))]]]
      [:details [:summary "Source expression"]
       [:pre [:code src]]]]
     result))
