@@ -34,13 +34,13 @@
     (t/is (= [:table
               [:thead [:tr [:th "name"] [:th "desc"] [:th "id"]]]
               [:tbody
-               [:tr [:th {:colspan 2} "I"]]
+               [:tr [:th {:colspan 3} "I"]]
                [:tr [:th {:scope "row"} "Entry 1"]
                 [:td "First item"] [:td 245]]
                [:tr [:th {:scope "row"} "Entry 2"]
                 [:td "Second item"] [:td 249]]]
               [:tbody
-               [:tr [:th {:colspan 2} "J"]]
+               [:tr [:th {:colspan 3} "J"]]
                [:tr [:th {:scope "row"} "Entry 3"]
                 [:td "Third item"] [:td 252]]]]
              (map->table {"Entry 1" {:desc "First item" :id 245 :group "I"}
@@ -52,13 +52,13 @@
     (t/is (= [:table
               [:thead [:tr [:th "name"] [:th "desc"] [:th "id"] [:th "meta"]]]
               [:tbody
-               [:tr [:th {:colspan 3} "I"]]
+               [:tr [:th {:colspan 4} "I"]]
                [:tr [:th {:scope "row"} "Entry 1"]
                 [:td "First item"] [:td 245] [:td ""]]
                [:tr [:th {:scope "row"} "Entry 2"]
                 [:td "Second item"] [:td 249] [:td ""]]]
               [:tbody
-               [:tr [:th {:colspan 3} "J"]]
+               [:tr [:th {:colspan 4} "J"]]
                [:tr [:th {:scope "row"} "Entry 3"]
                 [:td "Third item"] [:td 252] [:td "abc"]]]]
              (map->table {"Entry 1" {:desc "First item" :id 245 :group "I" }
@@ -74,13 +74,18 @@
     )
 
   (t/testing "source code fns"
-    (t/is (= (include-def {:render-fn str} 'delimiters "./src/respatialized/parse.clj")
-             [:code "(def delimiters [\"<%\" \"%>\"])"]))
-    (t/is (= [:code
-              "(def url (h/alt [:external (regex->model external-link-pattern)] [:internal (regex->model internal-link-pattern)]))"]
+    (t/is (= [:pre [:code
+                    {:class "language-clojure"}
+                    "(def delimiters [\"<%\" \"%>\"])"]]
+             (include-def {:render-fn str} 'delimiters "./src/respatialized/parse.clj")))
+    (t/is (= [:pre [:code
+                    {:class "language-clojure"}
+                    "(def url (h/alt [:external (regex->model external-link-pattern)] [:internal (regex->model internal-link-pattern)]))"]]
              (include-def {:render-fn str} 'url "./src/respatialized/document.clj")))
 
-    (t/is (= [:code "(defn hiccup-form? [f] (and (vector? f) (keyword? (first f))))"]
+    (t/is (= [:pre [:code
+                    {:class "language-clojure"}
+                    "(defn hiccup-form? [f] (and (vector? f) (keyword? (first f))))"]]
              (include-def {:render-fn str} 'hiccup-form? "./src/respatialized/document.clj")))
 
     ))

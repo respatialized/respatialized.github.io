@@ -140,19 +140,19 @@
      (map (fn row [r] [:tr {:class row-class}
                        (map (fn [i] [:td i]) r)]) rows)]))
 
-(defn- ->named-row [name vals-map col-names]
+(defn- ->named-row [row-name vals-map col-names]
   (let [all-vals (merge (into (ordered-map)
                               (map (fn [c] [c ""]) col-names))
                         vals-map)]
-    (apply conj [:tr [:th {:scope "row"} name]]
-           (map (fn [[_ v]] [:td v]) all-vals))))
+    (apply conj [:tr [:th {:scope "row"} row-name]]
+           (map (fn [[k v]] [:td v]) all-vals))))
 
 (defn- map->tbody
   ([m cols]
    (apply conj [:tbody]
           (map (fn [[k v]] (->named-row k v cols)) m)))
   ([m cols group-name]
-   (apply conj [:tbody [:tr [:th {:colspan (count cols)} group-name]]]
+   (apply conj [:tbody [:tr [:th {:colspan (inc (count cols))} group-name]]]
           (map (fn [[k v]] (->named-row k v cols)) m))))
 
 (defn- ->header
@@ -172,7 +172,7 @@
                         (map keys)
                         flatten
                         (into (ordered-set))
-                        (#(disj % subtable-attr)))
+                        ((fn [i] (disj i subtable-attr))))
          header
          (->header (concat ["name"] body-keys))
 
