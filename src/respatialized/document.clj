@@ -66,7 +66,7 @@
 (def phrasing-tags
   "MDN list of phrasing content element tags"
   #{:abbr #_:audio :b :bdi :bdo :br #_:button #_:canvas :cite
-    :code :data #_:datalist :dfn :del :em #_:embed :i #_:iframe :img
+    :code :data #_:datalist :dfn #_ :del :em #_:embed :i #_:iframe :img
     :ins #_:input :kbd #_:label :mark #_:math #_:meter #_:noscript
     #_:object #_:output #_:picture #_:progress :q #_:ruby :samp
     :script #_:select :small :span :strong :sub :sup #_:svg
@@ -151,7 +151,7 @@
 (def atomic-element
  [:orn
   [:boolean :boolean]
-  [:decimal :number]
+  [:decimal :double]
   [:int :int]
   [:text :string]])
 
@@ -227,7 +227,56 @@
            head
            (conj head [:contents content-model]))))
 
-(defn elem-kw [kw] [:ref (-> kw str keyword)])
+(defn ref-item [i]
+  (let [i (if (keyword? i) (-> i str keyword) i)] [:schema [:ref i]]))
+
+(comment
+
+  (def Hiccup
+    [:schema {:registry {"hiccup" [:orn
+                                   [:node [:catn
+                                           [:name keyword?]
+                                           [:props [:? [:map-of keyword? any?]]]
+                                           [:children [:* [:schema [:ref "hiccup"]]]]]]
+                                   [:primitive [:orn
+                                                [:nil nil?]
+                                                [:boolean boolean?]
+                                                [:number number?]
+                                                [:text string?]]]]}}
+     "hiccup"])
+
+  (def sample-phrasing
+    [:schema {:registry
+              {"a-phrasing"
+               [:catn
+                [:tag [:= :a]]
+                [:attributes [:? [:map-of keyword? any?]]]
+                [:contents [:* [:schema [:ref "phrasing-content"]]]]]
+               "phrasing-content"
+               [:orn
+                [:atomic-element atomic-element]
+                [:node [:orn
+                        [:a [:schema [:ref "a-phrasing"]]]
+                        [:child [:schema [:ref "phrasing-content"]]]]]]
+              "a"
+               [:catn
+                [:tag [:= :a]]
+                [:attributes [:? [:map-of keyword? any?]]]
+                [:contents [:* [:orn
+                                [:phrasing [:schema [:ref "phrasing-content"]]]
+                                [:flow [:schema [:ref "flow-content"]]]]]]]
+               "flow-content"
+               [:orn
+                [:atomic-element atomic-element]
+                [:node [:orn
+                        [:a [:schema [:ref "a"]]]
+                        [:child [:schema [:ref "flow-content"]]]]]]}}
+     "flow-content"])
+
+  ;; it works
+  (m/validate sample-phrasing [:a {:href "https://google.com"} "text"] )
+
+  )
 
 (def elements
   [:schema
@@ -235,7 +284,7 @@
     {::phrasing-content
      [:schema
       {:registry
-       {::a-phrasing
+       {"a-phrasing"
         (->hiccup-schema
          :a
          (mu/merge
@@ -246,16 +295,17 @@
            [:download {:optional true} :string]
            [:rel {:optional true} :string]
            [:target {:optional true} [:enum "_self" "_blank" "_parent" "_top"]]])
-         [:*
-          (apply conj
-                 [:altn
-                  [:a (elem-kw :a-phrasing)]
-                  [:ins (elem-kw :ins-phrasing) ]
-                  [:del (elem-kw :del-phrasing) ]
-                  [:atomic-element atomic-element]]
-                 (map (fn [t] [t (elem-kw t)])
-                      phrasing-tags))])
-        ::del-phrasing
+         [:* atomic-element
+          #_ (apply conj
+                    [:altn
+                     [:a  [:schema [:ref "a-phrasing"]]]
+                     [:ins [:schema [:ref "ins-phrasing"]] ]
+                     [:del [:schema [:ref "del-phrasing"]]  ]
+                     [:atomic-element atomic-element]]
+                    (map (fn [t] [t (ref-item t)])
+                         []
+                         #_ phrasing-tags))])
+        "del-phrasing"
         (->hiccup-schema
          :del
          (mu/merge
@@ -266,13 +316,14 @@
          [:*
           (apply conj
                  [:altn
-                  [:a (elem-kw :a-phrasing)]
-                  [:ins (elem-kw :ins-phrasing) ]
-                  [:del (elem-kw :del-phrasing) ]
+                  [:a   [:schema [:ref "a-phrasing"]]]
+                  [:ins [:schema [:ref "ins-phrasing"]]]
+                  [:del [:schema [:ref "del-phrasing"]]]
                   [:atomic-element atomic-element]]
-                 (map (fn [t] [t (elem-kw t)])
-                      phrasing-tags))])
-        ::ins-phrasing
+                 (map (fn [t] [t (ref-item t)])
+                      []
+                      #_phrasing-tags))])
+        "ins-phrasing"
         (->hiccup-schema
          :ins
          (mu/merge
@@ -283,13 +334,14 @@
          [:*
           (apply conj
                  [:altn
-                  [:a (elem-kw :a-phrasing)]
-                  [:ins (elem-kw :ins-phrasing) ]
-                  [:del (elem-kw :del-phrasing) ]
+                  [:a   [:schema [:ref "a-phrasing"]]]
+                  [:ins [:schema [:ref "ins-phrasing"]]]
+                  [:del [:schema [:ref "del-phrasing"]]]
                   [:atomic-element atomic-element]]
-                 (map (fn [t] [t (elem-kw t)])
-                      phrasing-tags))])
-        ::link-phrasing
+                 (map (fn [t] [t (ref-item t)])
+                      []
+                      #_phrasing-tags))])
+        "link-phrasing"
         (->hiccup-schema
          :link
          [:altn
@@ -313,305 +365,316 @@
                         "fetch" "font" "image" "object"
                         "script" "style" "track" "video" "worker"]]])]]
          nil)
-        }}
-      (apply conj
-             [:altn
-              [:a ::a-phrasing]
-              [:ins ::ins-phrasing]
-              [:del ::del-phrasing]
-              [:link ::link-phrasing]
-              [:atomic-element atomic-element]]
-             (map (fn [t] [t (elem-kw t)]) phrasing-tags))]
-     ::phrasing-contents [:* [:ref ::phrasing-content]]
-     ::a  (->hiccup-schema
-           :a
-           (mu/merge
-            global-attributes
-            [:map
-             [:href [:orn [:link url]
-                     [:fragment :string]]]
-             [:download {:optional true} :string]
-             [:rel {:optional true} :string]
-             [:target {:optional true} [:enum "_self" "_blank" "_parent" "_top"]]])
-           [:ref ::phrasing-contents])
-     ::abbr (->hiccup-schema :abbr global-attributes [:ref ::phrasing-contents])
-     ::b (->hiccup-schema :b global-attributes [:ref ::phrasing-contents])
-     ::bdi (->hiccup-schema :bdi global-attributes [:ref ::phrasing-contents])
-     ::bdo (->hiccup-schema
-            :bdo
-            (mu/merge global-attributes
-                      [:map [:dir [:enum "ltr" "rtl"]]])
-            [:ref ::phrasing-contents])
-     ::br (->hiccup-schema :br global-attributes nil)
-     ::code (->hiccup-schema :code global-attributes [:ref ::phrasing-contents])
-     ::data (->hiccup-schema :data
-                             (mu/merge global-attributes
-                                       [:map [:value :string]])
-                             [:ref ::phrasing-contents])
-     ::del (->hiccup-schema :del global-attributes [:ref ::phrasing-contents])
-     ::ins (->hiccup-schema :ins global-attributes [:ref ::phrasing-contents])
-     ::dfn (->hiccup-schema :dfn global-attributes
-                            (apply conj
-                                   [:altn
-                                    [:atomic-element atomic-element]]
-                                   (map (fn [t] [t (elem-kw t)])
-                                        (disj phrasing-tags :dfn))))
-     ::mark (->hiccup-schema :mark global-attributes [:ref ::phrasing-contents])
-     ::q (->hiccup-schema :q
-                          (mu/merge global-attributes
-                                    [:map [:cite {:optional true} url]])
-                          [:ref ::phrasing-contents])
-     ::s (->hiccup-schema :s global-attributes [:ref ::phrasing-contents])
-     ::samp (->hiccup-schema :samp global-attributes [:ref ::phrasing-contents])
-     ::img (->hiccup-schema
-            :img
-            (mu/merge
-             global-attributes
-             [:map
-              [:src url]
-              [:alt :string]
-              [:sizes :string]
-              [:width [:and [:> 0] [:<= 8192]]]
-              [:height [:and [:> 0] [:<= 8192]]]
-              [:loading [:enum "eager" "lazy"]]
-              [:decoding [:enum "sync" "async" "auto"]]
-              [:crossorigin [:enum "anonymous" "use-credentials"]]])
-            nil)
-     ::small (->hiccup-schema :small global-attributes [:ref ::phrasing-contents])
-     ::span (->hiccup-schema :span global-attributes [:ref ::phrasing-contents])
-     ::strong (->hiccup-schema :strong global-attributes [:ref ::phrasing-contents])
-     ::sub (->hiccup-schema :sub global-attributes [:ref ::phrasing-contents])
-     ::sup (->hiccup-schema :sup global-attributes [:ref ::phrasing-contents])
-     ::time (->hiccup-schema :time
-                             (mu/merge global-attributes
-                                       [:map [:datetime :string]])
-                             [:ref ::phrasing-contents])
-     ::u (->hiccup-schema :u global-attributes [:ref ::phrasing-contents])
-     ::var (->hiccup-schema :var global-attributes [:ref ::phrasing-contents])
-     ::wbr [:= [:wbr]]
-     ::link  (->hiccup-schema
-              :link
-              [:altn
-               [:main (mu/merge
-                       global-attributes
-                       [:map
-                        [:itemprop :string]
-                        [:crossorigin {:optional true} [:enum "anonymous" "use-credentials"]]
-                        [:href {:optional true} url]
-                        [:media {:optional true} :string]
-                        [:rel {:optional true} :string]])]
-               [:pre (mu/merge
-                      global-attributes
-                      [:map
-                       [:itemprop :string]
-                       [:crossorigin {:optional true} [:enum "anonymous" "use-credentials"]]
-                       [:href {:optional true} url]
-                       [:media {:optional true} :string]
-                       [:rel [:enum "preload" "prefetch"]]
-                       [:as [:enum "audio" "document" "embed"
-                             "fetch" "font" "image" "object"
-                             "script" "style" "track" "video" "worker"]]])]]
-              nil)
-     ::flow-contents
-     [:* (apply conj
-                [:altn [:atomic-element atomic-element]]
-                (map (fn [t] [t (elem-kw t)]) flow-tags))]
-     ::blockquote (->hiccup-schema
-                   :blockquote
-                   (mu/merge global-attributes
-                             [:map [:cite {:optional true} :string]])
-                   [:ref ::flow-contents])
-     ::dl [:catn
-           [:tag [:= :dl]]
-           [:attributes global-attributes]
-           [:definitions
-            [:*
-             [:catn
-              [:term
-               (->hiccup-schema
-                :dt
-                global-attributes
-                (apply conj
-                       [:altn
-                        [:atomic-element atomic-element]]
-                       (map (fn [t] [t (elem-kw t)])
-                            (set/difference flow-tags sectioning-tags))))]
-              [:details
-               (->hiccup-schema :dd global-attributes [:ref ::flow-contents])]]]]]
-     ::div (->hiccup-schema :div global-attributes [:ref ::flow-contents])
-     ::figure (->hiccup-schema
-               :figure global-attributes
+        "phrasing"
+        (apply conj
                [:altn
-                [:caption-first
-                 [:catn
-                  [:figcaption (->hiccup-schema
-                                :figcaption
-                                global-attributes
-                                [:ref ::flow-contents])]
-                  [:rest [:* [:ref ::flow-contents]]]]]
-                [:caption-last
-                 [:catn
-                  [:rest [:* [:ref ::flow-contents]]]
-                  [:figcaption (->hiccup-schema
-                                :figcaption
-                                global-attributes
-                                [:ref ::flow-contents])]]]
-                [:no-caption
-                 [:* [:ref ::flow-contents]]]])
-     ::hr (->hiccup-schema :hr global-attributes nil)
-     ::ol (->hiccup-schema
-           :ol (mu/merge global-attributes
-                         [:map
-                          [:reversed {:optional true} :boolean]
-                          [:start {:optional true} [:and [:> 0] [:< 65536]]]
-                          [:type {:optional true} [:enum "a" "A" "i" "I" "1"]]])
-           [:*
-            [:altn
-             [:li (->hiccup-schema :li
-                                   (mu/merge
-                                    global-attributes
-                                    [:map [:value {:optional true} :int]])
-                                   [:ref ::flow-contents])]
-             [:script [:ref ::script]]]])
-     ::ul (->hiccup-schema
-           :ul global-attributes
-           [:* [:altn
-                [:li (->hiccup-schema :li global-attributes
-                                      [:ref ::flow-content])]
-                [:script [:ref ::script]]]])
-     ::p (->hiccup-schema :p global-attributes [:ref ::phrasing-contents])
-     ::pre (->hiccup-schema :pre global-attributes [:ref ::phrasing-contents])
-     ::address (->hiccup-schema :address
-                                global-attributes
-                                [:* (apply
-                                     conj
-                                     [:altn [:atomic-element atomic-element]]
-                                     (map (fn [t] [t (elem-kw t)])
-                                          (set/difference
-                                           flow-tags
-                                           sectioning-tags
-                                           #{:h1 :h2 :h3 :h4 :h5 :h6
-                                             :header :footer})))])
-     ::article (->hiccup-schema :article global-attributes [:ref ::flow-contents])
-     ::aside (->hiccup-schema :aside global-attributes [:ref ::flow-contents])
-     ::footer (->hiccup-schema
-               :footer
-               global-attributes
-               [:* (apply
-                    conj
-                    [:altn [:atomic-element atomic-element]]
-                    (map (fn [t] [t (elem-kw t)])
-                         (set/difference flow-tags
-                                         #{:header :footer})))])
-     ::h1 (->hiccup-schema :h1 global-attributes [:ref ::phrasing-contents])
-     ::h2 (->hiccup-schema :h2 global-attributes [:ref ::phrasing-contents])
-     ::h3 (->hiccup-schema :h3 global-attributes [:ref ::phrasing-contents])
-     ::h4 (->hiccup-schema :h4 global-attributes [:ref ::phrasing-contents])
-     ::h5 (->hiccup-schema :h5 global-attributes [:ref ::phrasing-contents])
-     ::h6 (->hiccup-schema :h6 global-attributes [:ref ::phrasing-contents])
-     ::main (->hiccup-schema :main global-attributes [:ref ::flow-contents])
-     ::nav (->hiccup-schema :nav global-attributes [:ref ::flow-contents])
-     ::section (->hiccup-schema :section global-attributes [:ref ::flow-contents])
-     ::script (->hiccup-schema
-               :script
-               (mu/merge
-                global-attributes
-                [:map
-                 [:async {:optional true} [:enum true "async"]]
-                 [:crossorigin {:optional true} :string]
-                 [:defer {:optional true} [:= true]]
-                 [:integrity {:optional true} :string]
-                 [:nomodule {:optional true} :string]
-                 [:referrerpolicy {:optional true}
-                  [:enum "no-referrer" "no-referrer-when-downgrade"
-                   "origin" "origin-when-cross-origin" "same-origin"
-                   "strict-origin" "strict-origin-when-cross-origin" ""]]
-                 [:src url]
-                 [:type :string]])
-               [:? :string])
-     ::details (->hiccup-schema
-                :details
-                global-attributes
-                [:catn
-                 [:summary (->hiccup-schema
-                            :summary
-                            global-attributes
-                            [:altn [:flow-content [:ref ::flow-contents]]
-                             [:heading-content
-                              (apply conj [:altn]
-                                     (map (fn [t] [t (elem-kw t)])
-                                          heading-tags))]])]
-                 [:contents [:ref ::flow-contents]]])
-     ::table [:schema
-              {:registry
-               {::th (->hiccup-schema
-                      :th
-                      (mu/merge global-attributes
-                                [:map
-                                 [:abbr {:optional true} :string]
-                                 [:colspan {:optional true} [:and [:> 0] [:< 65534]]]
-                                 [:rowspan {:optional true} [:and [:> 0] [:< 65534]]]
-                                 [:headers {:optional true} :string]
-                                 [:scope {:optional true} [:enum "row" "col" "rowgroup"
-                                                           "colgroup" "auto"]]])
-                      [:*
-                       (apply conj
-                              [:altn [:atomic-element atomic-element]]
-                              (map (fn [t] [t (elem-kw t)])
-                                   (set/difference flow-tags sectioning-tags
-                                                   heading-tags #{:table :footer :header})))])
-                ::td (->hiccup-schema
-                      :td
-                      (mu/merge
-                       global-attributes
-                       [:map
-                        [:colspan {:optional true} [:and [:> 0] [:< 65534]]]
-                        [:rowspan {:optional true} [:and [:> 0] [:< 65534]]]
-                        [:headers {:optional true} :string]])
-                      [:ref ::flow-contents])
-                ::tr (->hiccup-schema
-                      :tr global-attributes
-                      [:altn
-                       [:all-header [:* [:ref ::th]]]
-                       [:rowdata [:catn [:header [:? [:ref ::th]]]
-                                  [:data [:* [:ref ::td]]]]]])}}
-              (->hiccup-schema
-               :table
-               global-attributes
-               [:catn
-                [:caption [:? (->hiccup-schema :caption global-attributes [:ref ::flow-contents])]]
-                [:colgroups
-                 [:*
-                  [:altn
-                   [:empty-span
-                    (->hiccup-schema
-                     :colgroup
-                     (mu/merge global-attributes
-                               [:map [:span [:>= 1]]])
-                     nil)]
-                   [:cols
-                    (->hiccup-schema
-                     :colgroup
-                     global-attributes
-                     [:* (->hiccup-schema
-                          :col
-                          (mu/merge global-attributes
-                                    [:map [:span [:>= 1]]])
-                          nil)])]]]]
-                [:header [:? (->hiccup-schema :thead
-                                              global-attributes
-                                              [:* [:ref ::tr]])]]
-                [:contents
-                 [:altn
-                  [:body (->hiccup-schema :tbody
-                                          global-attributes
-                                          [:* [:ref ::tr]])]
-                  [:rows [:+ [:ref ::tr]]]]]
-                [:footer [:? (->hiccup-schema :tfoot
-                                              global-attributes
-                                              [:* [:ref ::tr]])]]])]
+                [:a    [:schema [:ref "a-phrasing"]]]
+                [:ins  [:schema [:ref "ins-phrasing"]]]
+                [:del  [:schema [:ref "del-phrasing"]]]
+                [:link [:schema [:ref "link-phrasing"]]]
+                [:atomic-element atomic-element]]
+               (map (fn [t] [t (ref-item t)])
+                    []
+                    #_phrasing-tags))}}
+      "phrasing"]
+     ::phrasing-contents [:* [:schema [:ref ::phrasing-content]]]
+     ;; ::a  (->hiccup-schema
+     ;;       :a
+     ;;       (mu/merge
+     ;;        global-attributes
+     ;;        [:map
+     ;;         [:href [:orn [:link url]
+     ;;                 [:fragment :string]]]
+     ;;         [:download {:optional true} :string]
+     ;;         [:rel {:optional true} :string]
+     ;;         [:target {:optional true} [:enum "_self" "_blank" "_parent" "_top"]]])
+     ;;       [:ref ::phrasing-contents])
+     ;; ::abbr (->hiccup-schema :abbr global-attributes [:schema [:ref ::phrasing-contents]])
+     ;; ::b (->hiccup-schema :b global-attributes [:schema [:ref ::phrasing-contents]])
+     ;; ::bdi (->hiccup-schema :bdi global-attributes [:schema [:ref ::phrasing-contents]])
+     ;; ::bdo (->hiccup-schema
+     ;;        :bdo
+     ;;        (mu/merge global-attributes
+     ;;                  [:map [:dir [:enum "ltr" "rtl"]]])
+     ;;        [:schema [:ref ::phrasing-contents]])
+     ;; ::br (->hiccup-schema :br global-attributes nil)
+     ;; ::code (->hiccup-schema :code global-attributes [:schema [:ref ::phrasing-contents]])
+     ;; ::data (->hiccup-schema :data
+     ;;                         (mu/merge global-attributes
+     ;;                                   [:map [:value :string]])
+     ;;                         [:schema [:ref ::phrasing-contents]])
+     ;; ::del (->hiccup-schema :del global-attributes [:schema [:ref ::phrasing-contents]])
+     ;; ::ins (->hiccup-schema :ins global-attributes [:schema [:ref ::phrasing-contents]])
+     ;; ::dfn (->hiccup-schema :dfn global-attributes
+     ;;                        (apply conj
+     ;;                               [:altn
+     ;;                                [:atomic-element atomic-element]]
+     ;;                               (map (fn [t] [t (ref-item t)])
+     ;;                                    (disj phrasing-tags :dfn))))
+     ;; ::mark (->hiccup-schema :mark global-attributes [:schema [:ref ::phrasing-contents]])
+     ;; ::q (->hiccup-schema :q
+     ;;                      (mu/merge global-attributes
+     ;;                                [:map [:cite {:optional true} url]])
+     ;;                      [:schema [:ref ::phrasing-contents]])
+     ;; ::s (->hiccup-schema :s global-attributes [:schema [:ref ::phrasing-contents]])
+     ;; ::samp (->hiccup-schema :samp global-attributes [:schema [:ref ::phrasing-contents]])
+     ;; ::img (->hiccup-schema
+     ;;        :img
+     ;;        (mu/merge
+     ;;         global-attributes
+     ;;         [:map
+     ;;          [:src url]
+     ;;          [:alt :string]
+     ;;          [:sizes :string]
+     ;;          [:width [:and [:> 0] [:<= 8192]]]
+     ;;          [:height [:and [:> 0] [:<= 8192]]]
+     ;;          [:loading [:enum "eager" "lazy"]]
+     ;;          [:decoding [:enum "sync" "async" "auto"]]
+     ;;          [:crossorigin [:enum "anonymous" "use-credentials"]]])
+     ;;        nil)
+     ;; ::small (->hiccup-schema :small global-attributes [:schema [:ref ::phrasing-contents]])
+     ;; ::span (->hiccup-schema :span global-attributes [:schema [:ref ::phrasing-contents]])
+     ;; ::strong (->hiccup-schema :strong global-attributes [:schema [:ref ::phrasing-contents]])
+     ;; ::sub (->hiccup-schema :sub global-attributes [:schema [:ref ::phrasing-contents]])
+     ;; ::sup (->hiccup-schema :sup global-attributes [:schema [:ref ::phrasing-contents]])
+     ;; ::time (->hiccup-schema :time
+     ;;                         (mu/merge global-attributes
+     ;;                                   [:map [:datetime :string]])
+     ;;                         [:schema [:ref ::phrasing-contents]])
+     ;; ::u (->hiccup-schema :u global-attributes [:schema [:ref ::phrasing-contents]])
+     ;; ::var (->hiccup-schema :var global-attributes [:schema [:ref ::phrasing-contents]])
+     ;; ::wbr [:= [:wbr]]
+     ;; ::link  (->hiccup-schema
+     ;;          :link
+     ;;          [:altn
+     ;;           [:main (mu/merge
+     ;;                   global-attributes
+     ;;                   [:map
+     ;;                    [:itemprop :string]
+     ;;                    [:crossorigin {:optional true} [:enum "anonymous" "use-credentials"]]
+     ;;                    [:href {:optional true} url]
+     ;;                    [:media {:optional true} :string]
+     ;;                    [:rel {:optional true} :string]])]
+     ;;           [:pre (mu/merge
+     ;;                  global-attributes
+     ;;                  [:map
+     ;;                   [:itemprop :string]
+     ;;                   [:crossorigin {:optional true} [:enum "anonymous" "use-credentials"]]
+     ;;                   [:href {:optional true} url]
+     ;;                   [:media {:optional true} :string]
+     ;;                   [:rel [:enum "preload" "prefetch"]]
+     ;;                   [:as [:enum "audio" "document" "embed"
+     ;;                         "fetch" "font" "image" "object"
+     ;;                         "script" "style" "track" "video" "worker"]]])]]
+     ;;          nil)
+     ;; ::flow-contents
+     ;; [:* (apply conj
+     ;;            [:altn [:atomic-element atomic-element]]
+     ;;            (map (fn [t] [t (ref-item t)]) flow-tags))]
+     ;; ::blockquote (->hiccup-schema
+     ;;               :blockquote
+     ;;               (mu/merge global-attributes
+     ;;                         [:map [:cite {:optional true} :string]])
+     ;;               [:schema [:ref ::flow-contents]])
+     ;; ::dl [:catn
+     ;;       [:tag [:= :dl]]
+     ;;       [:attributes global-attributes]
+     ;;       [:definitions
+     ;;        [:*
+     ;;         [:catn
+     ;;          [:term
+     ;;           (->hiccup-schema
+     ;;            :dt
+     ;;            global-attributes
+     ;;            (apply conj
+     ;;                   [:altn
+     ;;                    [:atomic-element atomic-element]]
+     ;;                   (map (fn [t] [t (ref-item t)])
+     ;;                        (set/difference flow-tags sectioning-tags))))]
+     ;;          [:details
+     ;;           (->hiccup-schema :dd global-attributes [:schema [:ref ::flow-contents]])]]]]]
+     ;; ::div (->hiccup-schema :div global-attributes [:schema [:ref ::flow-contents]])
+     ;; ::figure (->hiccup-schema
+     ;;           :figure global-attributes
+     ;;           [:altn
+     ;;            [:caption-first
+     ;;             [:catn
+     ;;              [:figcaption (->hiccup-schema
+     ;;                            :figcaption
+     ;;                            global-attributes
+     ;;                            [:schema [:ref ::flow-contents]])]
+     ;;              [:rest [:* [:schema [:ref ::flow-contents]]]]]]
+     ;;            [:caption-last
+     ;;             [:catn
+     ;;              [:rest [:* [:schema [:ref ::flow-contents]]]]
+     ;;              [:figcaption (->hiccup-schema
+     ;;                            :figcaption
+     ;;                            global-attributes
+     ;;                            [:schema [:ref ::flow-contents]])]]]
+     ;;            [:no-caption
+     ;;             [:* [:schema [:ref ::flow-contents]]]]])
+     ;; ::hr (->hiccup-schema :hr global-attributes nil)
+     ;; ::ol (->hiccup-schema
+     ;;       :ol (mu/merge global-attributes
+     ;;                     [:map
+     ;;                      [:reversed {:optional true} :boolean]
+     ;;                      [:start {:optional true} [:and [:> 0] [:< 65536]]]
+     ;;                      [:type {:optional true} [:enum "a" "A" "i" "I" "1"]]])
+     ;;       [:*
+     ;;        [:altn
+     ;;         [:li (->hiccup-schema :li
+     ;;                               (mu/merge
+     ;;                                global-attributes
+     ;;                                [:map [:value {:optional true} :int]])
+     ;;                               [:schema [:ref ::flow-contents]])]
+     ;;         [:script [:schema [:ref ::script]]]]])
+     ;; ::ul (->hiccup-schema
+     ;;       :ul global-attributes
+     ;;       [:* [:altn
+     ;;            [:li (->hiccup-schema :li global-attributes
+     ;;                                  [:schema [:ref ::flow-content]])]
+     ;;            [:script [:schema [:ref ::script]]]]])
+     ;; ::p (->hiccup-schema :p global-attributes [:schema [:ref ::phrasing-contents]])
+     ;; ::pre (->hiccup-schema :pre global-attributes [:schema [:ref ::phrasing-contents]])
+     ;; ::address (->hiccup-schema :address
+     ;;                            global-attributes
+     ;;                            [:* (apply
+     ;;                                 conj
+     ;;                                 [:altn [:atomic-element atomic-element]]
+     ;;                                 (map (fn [t] [t (ref-item t)])
+     ;;                                      (set/difference
+     ;;                                       flow-tags
+     ;;                                       sectioning-tags
+     ;;                                       #{:h1 :h2 :h3 :h4 :h5 :h6
+     ;;                                         :header :footer})))])
+     ;; ::article (->hiccup-schema :article global-attributes [:schema [:ref ::flow-contents]])
+     ;; ::aside (->hiccup-schema :aside global-attributes [:schema [:ref ::flow-contents]])
+     ;; ::footer (->hiccup-schema
+     ;;           :footer
+     ;;           global-attributes
+     ;;           [:* (apply
+     ;;                conj
+     ;;                [:altn [:atomic-element atomic-element]]
+     ;;                (map (fn [t] [t (ref-item t)])
+     ;;                     (set/difference flow-tags
+     ;;                                     #{:header :footer})))])
+     ;; ::h1 (->hiccup-schema :h1 global-attributes [:schema [:ref ::phrasing-contents]])
+     ;; ::h2 (->hiccup-schema :h2 global-attributes [:schema [:ref ::phrasing-contents]])
+     ;; ::h3 (->hiccup-schema :h3 global-attributes [:schema [:ref ::phrasing-contents]])
+     ;; ::h4 (->hiccup-schema :h4 global-attributes [:schema [:ref ::phrasing-contents]])
+     ;; ::h5 (->hiccup-schema :h5 global-attributes [:schema [:ref ::phrasing-contents]])
+     ;; ::h6 (->hiccup-schema :h6 global-attributes [:schema [:ref ::phrasing-contents]])
+     ;; ::main (->hiccup-schema :main global-attributes [:schema [:ref ::flow-contents]])
+     ;; ::nav (->hiccup-schema :nav global-attributes [:schema [:ref ::flow-contents]])
+     ;; ::section (->hiccup-schema :section global-attributes [:schema [:ref ::flow-contents]])
+     ;; ::script (->hiccup-schema
+     ;;           :script
+     ;;           (mu/merge
+     ;;            global-attributes
+     ;;            [:map
+     ;;             [:async {:optional true} [:enum true "async"]]
+     ;;             [:crossorigin {:optional true} :string]
+     ;;             [:defer {:optional true} [:= true]]
+     ;;             [:integrity {:optional true} :string]
+     ;;             [:nomodule {:optional true} :string]
+     ;;             [:referrerpolicy {:optional true}
+     ;;              [:enum "no-referrer" "no-referrer-when-downgrade"
+     ;;               "origin" "origin-when-cross-origin" "same-origin"
+     ;;               "strict-origin" "strict-origin-when-cross-origin" ""]]
+     ;;             [:src url]
+     ;;             [:type :string]])
+     ;;           [:? :string])
+     ;; ::details (->hiccup-schema
+     ;;            :details
+     ;;            global-attributes
+     ;;            [:catn
+     ;;             [:summary (->hiccup-schema
+     ;;                        :summary
+     ;;                        global-attributes
+     ;;                        [:altn [:flow-content [:schema [:ref ::flow-contents]]]
+     ;;                         [:heading-content
+     ;;                          (apply conj [:altn]
+     ;;                                 (map (fn [t] [t (ref-item t)])
+     ;;                                      heading-tags))]])]
+     ;;             [:contents [:schema [:ref ::flow-contents]]]])
+     ;; ::table [:schema
+     ;;          {:registry
+     ;;           {::th (->hiccup-schema
+     ;;                  :th
+     ;;                  (mu/merge global-attributes
+     ;;                            [:map
+     ;;                             [:abbr {:optional true} :string]
+     ;;                             [:colspan {:optional true} [:and [:> 0] [:< 65534]]]
+     ;;                             [:rowspan {:optional true} [:and [:> 0] [:< 65534]]]
+     ;;                             [:headers {:optional true} :string]
+     ;;                             [:scope {:optional true} [:enum "row" "col" "rowgroup"
+     ;;                                                       "colgroup" "auto"]]])
+     ;;                  [:*
+     ;;                   (apply conj
+     ;;                          [:altn [:atomic-element atomic-element]]
+     ;;                          (map (fn [t] [t (ref-item t)])
+     ;;                               (set/difference flow-tags sectioning-tags
+     ;;                                               heading-tags #{:table :footer :header})))])
+     ;;            ::td (->hiccup-schema
+     ;;                  :td
+     ;;                  (mu/merge
+     ;;                   global-attributes
+     ;;                   [:map
+     ;;                    [:colspan {:optional true} [:and [:> 0] [:< 65534]]]
+     ;;                    [:rowspan {:optional true} [:and [:> 0] [:< 65534]]]
+     ;;                    [:headers {:optional true} :string]])
+     ;;                  [:schema [:ref ::flow-contents]])
+     ;;            ::tr (->hiccup-schema
+     ;;                  :tr global-attributes
+     ;;                  [:altn
+     ;;                   [:all-header [:* [:schema [:ref ::th]]]]
+     ;;                   [:rowdata [:catn [:header [:? [:schema [:ref ::th]]]]
+     ;;                              [:data [:* [:schema [:ref ::td]]]]]]])}}
+     ;;          (->hiccup-schema
+     ;;           :table
+     ;;           global-attributes
+     ;;           [:catn
+     ;;            [:caption [:? (->hiccup-schema :caption
+     ;;                                           global-attributes
+     ;;                                           [:schema [:ref ::flow-contents]])]]
+     ;;            [:colgroups
+     ;;             [:*
+     ;;              [:altn
+     ;;               [:empty-span
+     ;;                (->hiccup-schema
+     ;;                 :colgroup
+     ;;                 (mu/merge global-attributes
+     ;;                           [:map [:span [:>= 1]]])
+     ;;                 nil)]
+     ;;               [:cols
+     ;;                (->hiccup-schema
+     ;;                 :colgroup
+     ;;                 global-attributes
+     ;;                 [:* (->hiccup-schema
+     ;;                      :col
+     ;;                      (mu/merge global-attributes
+     ;;                                [:map [:span [:>= 1]]])
+     ;;                      nil)])]]]]
+     ;;            [:header [:? (->hiccup-schema :thead
+     ;;                                          global-attributes
+     ;;                                          [:* [:schema [:ref ::tr]]])]]
+     ;;            [:contents
+     ;;             [:altn
+     ;;              [:body (->hiccup-schema :tbody
+     ;;                                      global-attributes
+     ;;                                      [:* [:schema [:ref ::tr]]])]
+     ;;              [:rows [:+ [:schema [:ref ::tr]]]]]]
+     ;;            [:footer [:? (->hiccup-schema :tfoot
+     ;;                                          global-attributes
+     ;;                                          [:* [:schema [:ref ::tr]]])]]])]
+     ;; ::element (apply conj
+     ;;                  [:altn
+     ;;                   [:atomic-element atomic-element]]
+     ;;                  (map ref-item (set/union flow-tags phrasing-tags heading-tags
+     ;;                                           sectioning-tags)))
      }}
-   ::code])
+   #_ ::element
+   ::phrasing-content])
 
 
 (comment
