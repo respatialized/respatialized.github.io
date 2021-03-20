@@ -65,9 +65,9 @@
 
 (def phrasing-tags
   "MDN list of phrasing content element tags"
-  #{:abbr #_:audio :b :bdi :bdo :br #_:button #_:canvas :cite
+  #{:abbr #_:audio :b #_ :bdi :bdo :br #_:button #_:canvas :cite
     :code :data #_:datalist :dfn #_ :del :em #_:embed :i #_:iframe :img
-    :ins #_:input :kbd #_:label :mark #_:math #_:meter #_:noscript
+    #_:input :kbd #_:label :mark #_:math #_:meter #_:noscript
     #_:object #_:output #_:picture #_:progress :q #_:ruby :samp
     :script #_:select :small :span :strong :sub :sup #_:svg
     #_:textarea :time :var #_:video :wbr})
@@ -85,7 +85,6 @@
   "MDN list of interactive content element tags"
   #{:a #_:button :details #_:embed #_:iframe #_:label
     #_:select #_:textarea})
-
 
 (def transparent-tags
   "MDN list of transparent content tags"
@@ -126,17 +125,27 @@
     [:tabindex :int]
     [:title :string]]))
 
-#_(defn ->constrained-model
-  ([pred generator max-tries-or-opts]
-   (-> (h/fn pred)
-       (h/with-test-check-gen
-         (gen/such-that pred generator max-tries-or-opts))))
-  ([pred generator]
-   (-> (h/fn pred)
-       (h/with-test-check-gen
-         (gen/such-that pred generator)))))
+(def atomic-element
+ [:orn
+  [:boolean :boolean]
+  [:decimal :double]
+  [:int :int]
+  [:text :string]])
+
 
 (comment
+
+  #_(defn ->constrained-model
+      ([pred generator max-tries-or-opts]
+       (-> (h/fn pred)
+           (h/with-test-check-gen
+             (gen/such-that pred generator max-tries-or-opts))))
+      ([pred generator]
+       (-> (h/fn pred)
+           (h/with-test-check-gen
+             (gen/such-that pred generator)))))
+
+
   ;; example code from minimallist
   (def hiccup-model
     (h/let ['hiccup (h/alt [:node (h/in-vector (h/cat [:name (h/fn keyword?)]
@@ -146,45 +155,38 @@
                                             [:boolean (h/fn boolean?)]
                                             [:number (h/fn number?)]
                                             [:text string-gen])])]
-      (h/ref 'hiccup))))
+      (h/ref 'hiccup)))
 
-(def atomic-element
- [:orn
-  [:boolean :boolean]
-  [:decimal :double]
-  [:int :int]
-  [:text :string]])
 
-(defn quote-kw [kw] `~(symbol kw))
-(defn elem-ref [e] [e (h/ref (quote-kw e))])
 
-(defn has-required?
-  "Checks to see if at least one entry in the given map model has required keys"
-  [model]
-  (and
-   (= :map (:type model))
-   (some #(nil? (get % :optional)) (:entries model))))
+  (defn quote-kw [kw] `~(symbol kw))
+  (defn elem-ref [e] [e (h/ref (quote-kw e))])
 
-(defn ->hiccup-model
-  ([elem-tag attrs contents]
-   (let [ms [[:tag (h/val elem-tag)]
-             [:attributes (if (has-required? attrs) attrs (h/? attrs))]
-             (cond (= :empty contents) nil
-                   (valid? minimap-model contents)
-                   [:contents contents]
-                   (or (set? contents) (sequential? contents))
-                   [:contents
-                    (h/*
-                     (h/not-inlined
-                      (apply h/alt
-                             [:atomic-element atomic-element]
-                             contents)))])]]
-     (h/not-inlined
-      (h/in-vector
-       (apply h/cat (filter some? ms))))))
-  ([elem-tag contents] (->hiccup-model elem-tag global-attributes contents)))
+  (defn has-required?
+    "Checks to see if at least one entry in the given map model has required keys"
+    [model]
+    (and
+     (= :map (:type model))
+     (some #(nil? (get % :optional)) (:entries model))))
 
-(comment
+  (defn ->hiccup-model
+    ([elem-tag attrs contents]
+     (let [ms [[:tag (h/val elem-tag)]
+               [:attributes (if (has-required? attrs) attrs (h/? attrs))]
+               (cond (= :empty contents) nil
+                     (valid? minimap-model contents)
+                     [:contents contents]
+                     (or (set? contents) (sequential? contents))
+                     [:contents
+                      (h/*
+                       (h/not-inlined
+                        (apply h/alt
+                               [:atomic-element atomic-element]
+                               contents)))])]]
+       (h/not-inlined
+        (h/in-vector
+         (apply h/cat (filter some? ms))))))
+    ([elem-tag contents] (->hiccup-model elem-tag global-attributes contents)))
 
                                         ; ruby isn't supported yet
   (let
@@ -227,23 +229,14 @@
            head
            (conj head [:contents content-model]))))
 
-(defn ref-item [i]
-  (let [i (if (keyword? i) (-> i str keyword) i)] [:schema [:ref i]]))
+(defn- dbl-colon [kw]
+  (keyword (str kw)))
+
+(defn ns-kw [kw] (keyword (str *ns*) (str (name kw))))
+
+(defn ref-item [i] [:schema [:ref i]])
 
 (comment
-
-  (def Hiccup
-    [:schema {:registry {"hiccup" [:orn
-                                   [:node [:catn
-                                           [:name keyword?]
-                                           [:props [:? [:map-of keyword? any?]]]
-                                           [:children [:* [:schema [:ref "hiccup"]]]]]]
-                                   [:primitive [:orn
-                                                [:nil nil?]
-                                                [:boolean boolean?]
-                                                [:number number?]
-                                                [:text string?]]]]}}
-     "hiccup"])
 
   (def sample-phrasing
     [:schema {:registry
@@ -258,7 +251,7 @@
                 [:node [:orn
                         [:a [:schema [:ref "a-phrasing"]]]
                         [:child [:schema [:ref "phrasing-content"]]]]]]
-              "a"
+               "a"
                [:catn
                 [:tag [:= :a]]
                 [:attributes [:? [:map-of keyword? any?]]]
@@ -274,7 +267,251 @@
      "flow-content"])
 
   ;; it works
-  (m/validate sample-phrasing [:a {:href "https://google.com"} "text"] )
+  (m/validate sample-phrasing [:a {:href "https://google.com"} "text"])
+
+  (def sample-phrasing-2
+    [:schema
+     {:registry
+      {"a-phrasing" (->hiccup-schema
+                     :a
+                     (mu/merge global-attributes
+                               [:map [:href url]])
+                     [:* [:schema [:ref ::phrasing-content]]])
+       ::em (->hiccup-schema
+             :em
+             global-attributes
+             [:* [:schema [:ref "phrasing content"]]])
+       ::phrasing-content
+       [:orn [:atomic-element atomic-element]
+        [:node
+         (apply
+          conj
+          [:orn
+           [:a (ref-item "a-phrasing")]]
+          (map (fn [t] [t (ref-item (ns-kw t))])
+               #{:em}))]]}}
+     ::phrasing-content])
+
+  (m/validate sample-phrasing-2 [:a {:href "https://google.com"} "text"])
+
+  )
+
+
+(def phrasing-content
+    [:schema
+     {:registry
+      {"a-phrasing"
+       (->hiccup-schema
+        :a
+        (mu/merge
+         global-attributes
+         [:map
+          [:href url]
+          [:download {:optional true} :string]
+          [:rel {:optional true} :string]
+          [:target {:optional true}
+           [:enum "_self" "_blank" "_parent" "_top"]]])
+        [:* [:schema [:ref ::phrasing-content]]])
+       "del-phrasing"
+       (->hiccup-schema
+        :del
+        (mu/merge
+         global-attributes
+         [:map [:cite {:optional true} :string]
+          [:datetime {:optional true} :string]])
+        [:* [:schema [:ref ::phrasing-content]]])
+       "ins-phrasing"
+       (->hiccup-schema
+        :ins
+        (mu/merge
+         global-attributes
+         [:map [:cite {:optional true} :string]
+          [:datetime {:optional true} :string]])
+        [:* [:schema [:ref ::phrasing-content]]])
+       "link-phrasing"
+       (->hiccup-schema
+        :ins
+        [:altn
+         [:main
+          (mu/merge
+           global-attributes
+           [:map
+            [:itemprop :string]
+            [:crossorigin {:optional true}
+             [:enum "anonymous" "use-credentials"]]
+            [:href {:optional true} url]
+            [:media {:optional true} :string]
+            [:rel {:optional true} :string]])]
+         [:pre
+          (mu/merge
+           global-attributes
+           [:map
+            [:itemprop :string]
+            [:crossorigin {:optional true}
+             [:enum "anonymous" "use-credentials"]]
+            [:href {:optional true} url]
+            [:media {:optional true} :string]
+            [:rel [:enum "preload" "prefetch"]]
+            [:as [:enum "audio" "document" "embed"
+                  "fetch" "font" "image" "object"
+                  "script" "style" "track" "video" "worker"]]])]]
+        nil)
+       ::abbr (->hiccup-schema
+               :abbr
+               (mu/merge global-attributes
+                         [:map [:title :string]])
+               [:* [:schema [:ref ::phrasing-content]]])
+       #_ ::area
+       #_ ::audio
+       ::b (->hiccup-schema
+            :b
+            global-attributes
+            [:* [:schema [:ref ::phrasing-content]]])
+       ::bdo (->hiccup-schema
+              :bdo
+              (mu/merge global-attributes
+                        [:map [:dir [:enum "ltr" "rtl"]]])
+              [:* [:schema [:ref ::phrasing-content]]])
+       ::br (->hiccup-schema :br global-attributes nil)
+       #_ ::button
+       #_ ::canvas
+       ::cite (->hiccup-schema
+               :cite
+               global-attributes
+               [:* [:schema [:ref ::phrasing-content]]])
+       ::code (->hiccup-schema
+               :code
+               global-attributes
+               [:* [:schema [:ref ::phrasing-content]]])
+       ::data (->hiccup-schema
+               :data
+               (mu/merge global-attributes
+                         [:map [:value :string]])
+               [:* [:schema [:ref ::phrasing-content]]])
+       #_ ::datalist
+       ::dfn (->hiccup-schema
+              :dfn
+              global-attributes
+              [:* [:orn [:atomic-element atomic-element]
+                   [:node
+                    (apply
+                     conj
+                     [:orn
+                      [:a (ref-item "a-phrasing")]
+                      [:del (ref-item "del-phrasing")]
+                      [:ins (ref-item "ins-phrasing")]
+                      [:link (ref-item "link-phrasing")]]
+                     (map (fn [t] [t [:schema [:ref (ns-kw t)]]])
+                          (disj phrasing-tags :dfn)))]]])
+       ::em (->hiccup-schema
+             :em
+             global-attributes
+             [:* [:schema [:ref ::phrasing-content]]])
+       #_ ::embed
+       ::i (->hiccup-schema
+            :i
+            global-attributes
+            [:* [:schema [:ref ::phrasing-content]]])
+       #_ ::iframe
+       ::img (->hiccup-schema
+              :img
+              (mu/merge
+               global-attributes
+               [:map
+                [:src url]
+                [:alt {:optional true} :string]
+                [:sizes {:optional true} :string]
+                [:width {:optional true} [:and [:> 0] [:<= 8192]]]
+                [:height {:optional true} [:and [:> 0] [:<= 8192]]]
+                [:loading {:optional true} [:enum "eager" "lazy"]]
+                [:decoding {:optional true} [:enum "sync" "async" "auto"]]
+                [:crossorigin {:optional true} [:enum "anonymous" "use-credentials"]]])
+              nil)
+       #_ ::input
+       ::kbd (->hiccup-schema
+              :kbd global-attributes
+              [:* [:schema [:ref ::phrasing-content]]])
+       #_ ::label
+       #_ ::map
+       ::mark (->hiccup-schema
+               :mark global-attributes
+               [:* [:schema [:ref ::phrasing-content]]])
+       ::meta (->hiccup-schema
+               :meta (mu/merge global-attributes
+                               [:map [:itemprop :string]])
+               nil)
+       #_ ::meter
+       #_ ::noscript
+       #_ ::object
+       #_ ::output
+       #_ ::picture
+       #_ ::progress
+       ::q (->hiccup-schema
+            :q (mu/merge global-attributes
+                         [:map [:cite {:optional true} :string]])
+            [:* [:schema [:ref ::phrasing-content]]])
+       #_ ::ruby
+       ::samp (->hiccup-schema
+               :samp global-attributes
+               [:* [:schema [:ref ::phrasing-content]]])
+       ::script (->hiccup-schema
+                 :script
+                 (mu/merge
+                  global-attributes
+                  [:map
+                   [:async {:optional true} [:enum true "async"]]
+                   [:crossorigin {:optional true} :string]
+                   [:defer {:optional true} [:= true]]
+                   [:integrity {:optional true} :string]
+                   [:nomodule {:optional true} :string]
+                   [:referrerpolicy {:optional true}
+                    [:enum "no-referrer" "no-referrer-when-downgrade"
+                     "origin" "origin-when-cross-origin" "same-origin"
+                     "strict-origin" "strict-origin-when-cross-origin" ""]]
+                   [:src url]
+                   [:type :string]])
+                 [:? :string])
+       ::small (->hiccup-schema
+                :small global-attributes
+                [:* [:schema [:ref ::phrasing-content]]])
+       ::span (->hiccup-schema
+               :span global-attributes
+               [:* [:schema [:ref ::phrasing-content]]])
+       ::strong (->hiccup-schema
+                 :strong global-attributes
+                 [:* [:schema [:ref ::phrasing-content]]])
+       ::sub (->hiccup-schema
+              :sub global-attributes
+              [:* [:schema [:ref ::phrasing-content]]])
+       ::sup (->hiccup-schema
+              :sup global-attributes
+              [:* [:schema [:ref ::phrasing-content]]])
+       #_ ::svg
+       #_ ::textarea
+       ::time (->hiccup-schema
+               :time (mu/merge global-attributes
+                               [:map [:datetime :string]])
+               [:* [:schema [:ref ::phrasing-content]]])
+       ::var (->hiccup-schema
+              :var global-attributes
+              [:* [:schema [:ref ::phrasing-content]]])
+       #_ ::video
+       ::phrasing-content
+       [:orn [:atomic-element atomic-element]
+        [:node
+         (apply
+          conj
+          [:orn
+           [:a (ref-item "a-phrasing")]
+           [:del (ref-item "del-phrasing")]
+           [:ins (ref-item "ins-phrasing")]
+           [:link (ref-item "link-phrasing")]]
+          (map (fn [t] [t [:schema [:ref (ns-kw t)]]])
+               #{:em}))]]}}
+     ::phrasing-content])
+
+(comment
+  (m/validate phrasing-content [:em [:a {:href "http://google.com"} "link"] "more text"])
 
   )
 
