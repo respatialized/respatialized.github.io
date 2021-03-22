@@ -4,22 +4,21 @@
             [respatialized.build :refer [get-template-files]]
             [hiccup.core :refer [html]]
             [clojure.zip :as zip]
+            [clojure.set :as set]
             [clojure.test :as t]
             [clojure.test.check :as tc]
             [clojure.test.check.clojure-test :refer [defspec]]
             [clojure.test.check.generators :as gen]
             [clojure.test.check.properties :as prop]
             [com.gfredericks.test.chuck.properties :as prop']
-            [minimallist.core :refer [valid?]]
-            [minimallist.generator :as mg]
-            [minimallist.helper :as h]
-            [minimallist.minimap :refer [minimap-model]])
+            [malli.core :as m :refer [validate]]
+            [malli.generator :as mg])
   (:import [java.lang Exception]))
 
 (defmethod t/assert-expr 'valid-model [msg form]
   `(let [model# ~(nth form 1)
          data# ~(nth form 2)
-         result# (valid? model# data#)
+         result# (validate model# data#)
          data-rep# (get-in data# [:body :key]
                            (if (and (contains? data# :bindings)
                                     (= :let (:type data#)))
@@ -196,32 +195,6 @@
       [:div]
       (process-nexts [:div])))))
 
-(defn finalize-elem-model
-  "Return a constrained version of the given element's model such that it has no child elements"
-  [elem]
-  (h/in-vector
-   (h/cat
-    [:tag (h/val elem)]
-    [:attributes (h/? global-attributes)]
-    [:contents (h/repeat 1 10 (h/not-inlined atomic-element))])))
-
-(defn one-level-deep
-  "Return a version of the given elements that can have a single level of nesting."
-  [elem child-elems]
-  (h/in-vector
-   (h/cat
-    [:tag (h/val elem)]
-    [:attributes (h/? global-attributes)]
-    [:contents
-     (h/repeat 1 15
-               (h/not-inlined
-                (apply h/alt
-                       atomic-element
-                       (map finalize-elem-model
-                            child-elems))))])))
-
-
-
 (def example-forms
   "Some forms used to test the validity of the HTML models"
   {:a [:a {:href "http://www.archive.org"} "a link"]
@@ -256,34 +229,34 @@
 (t/deftest models
   (t/testing "model constructors"
 
-    (t/is (valid-model
+    #_(t/is (valid-model
            minimap-model
            (->hiccup-model :p global-attributes
                            (h/* atomic-element))))
 
-    (t/is (valid-model
+    #_(t/is (valid-model
            minimap-model
            (->hiccup-model :p global-attributes
                            (h/* (apply h/alt [:atomic-element atomic-element]
                                        [])))))
 
-    (t/is (valid-model minimap-model
+    #_(t/is (valid-model minimap-model
                        (->hiccup-model
                         :em [])))
 
-    (t/is (valid-model minimap-model
+    #_(t/is (valid-model minimap-model
                        (h/let ['em (->hiccup-model :em [])]
                          (->hiccup-model
                           :h2
                           [[:em (h/ref 'em)]]))))
 
-    (t/is (valid-model minimap-model
+    #_(t/is (valid-model minimap-model
                        (h/let ['em (->hiccup-model :em [])]
                          (->hiccup-model
                           :h2
                           (map elem-ref #{:em})))))
 
-    (t/is (valid-model minimap-model
+    #_(t/is (valid-model minimap-model
                        (h/let ['em (->hiccup-model :em [])
                                'h2 (->hiccup-model
                                     :h2
@@ -292,14 +265,14 @@
                                 [:h2 (h/ref 'h2)]))))
 
     (t/is
-     (valid-model (->hiccup-model :col global-attributes :empty)
+     (valid-model (->hiccup-schema :col global-attributes nil)
                   [:col])))
 
 
 
   (t/testing "content models"
 
-    (t/is
+    #_(t/is
      (valid-model
       minimap-model
       (h/in-vector (h/cat
@@ -316,65 +289,82 @@
                            [:decoding (h/enum #{"sync" "async" "auto"})]
                            [:crossorigin (h/enum #{"anonymous" "use-credentials"})]))]))))
 
-    (t/is
+    #_(t/is
      (valid-model
       minimap-model
       (h/in-vector (h/cat [:tag (h/val :hr)] [:attributes (h/? global-attributes)]))))
 
-    (t/is (valid-model minimap-model elements))
+    #_(t/is (valid-model minimap-model elements))
 
     (t/is (valid-model
-           (->hiccup-model :p global-attributes
-                           (h/* atomic-element))
+           (->hiccup-schema :p global-attributes
+                            [:* atomic-element])
            [:p {:id "something"} "text in a paragraph"]))
 
-    (t/is (valid-model (->element-model :p)  [:p "something" [:a {:href "link"} "text"]])
+    (t/is (valid-model (subschema flow-content :respatialized.document/p)
+                       [:p "something" [:a {:href "link"} "text"]])
           "Phrasing subtags should be respected.")
 
-    (t/is (valid-model (->element-model :a) [:a {:href "something"} [:ins "something" [:del "something" [:em "something else"]]]])
+    (t/is (valid-model
+           (subschema phrasing-content "a-phrasing")
+           [:a {:href "something"} [:ins "something" [:del "something" [:em "something else"]]]])
           "Phrasing subtags should be respected.")
 
-    (t/is (valid-model (->element-model :ins) [:ins [:ins [:ins [:em "text"]]]])
+    (t/is (valid-model
+           (subschema phrasing-content "ins-phrasing")
+           [:ins [:ins [:ins [:em "text"]]]])
           "Phrasing subtags should be respected")
 
-    (t/is (valid-model (->element-model :ins) [:ins [:ins "text"]])
+    (t/is (valid-model
+           (subschema phrasing-content "ins-phrasing")
+           [:ins [:ins "text"]])
           "Phrasing subtags should be respected")
 
-    (t/is (valid-model (->element-model :del) [:del [:em "text"]])
+    (t/is (valid-model
+           (subschema phrasing-content "del-phrasing")
+           [:del [:em "text"]])
           "Phrasing subtags should be respected")
 
-    (t/is (valid-model (->element-model :em) [:em [:ins [:ins [:em "text"]]]])
+    (t/is (valid-model
+           (subschema phrasing-content :respatialized.document/em)
+           [:em [:ins [:ins [:em "text"]]]])
           "Phrasing subtags should be respected")
 
-    (t/is (valid-model (->element-model :em) [:em [:a {:href "link"}] "something"])
+    (t/is (valid-model
+           (subschema phrasing-content :respatialized.document/em)
+           [:em [:a {:href "link"}] "something"])
           "Phrasing subtags should be respected")
 
-    (t/is (not (valid? (->element-model :ins) [:ins [:ins [:ins [:p "text"]]]])))
+    (t/is (not (validate
+                (subschema phrasing-content "ins-phrasing")
+                [:ins [:ins [:ins [:p "text"]]]])))
 
-    (t/is (valid-model (->element-model :a)
-                       [:a {:href "something"} "link" [:em "text"]])
+    (t/is (valid-model
+           (subschema phrasing-content "a-phrasing")
+           [:a {:href "something"} "link" [:em "text"]])
           "Phrasing subtags should be respected")
 
-    (t/is (valid-model (->element-model :p)
-                       [:p "text" [:img {:src "/picture.jpg"}]]))
+    (t/is (valid-model
+           (subschema flow-content :respatialized.document/p)
+           [:p "text" [:img {:src "/picture.jpg"}]]))
 
-    (t/is (valid-model (->element-model :em)
-                       [:em "text" [:br] "more text"]))
+    (t/is (valid-model
+           (subschema phrasing-content :respatialized.document/em)
+           [:em "text" [:br] "more text"]))
 
     ;; (t/is (valid-model (->element-model :phrasing-content) '([:em [:br] "text"])))
 
-    (doseq [elem (filter #(not (= % (symbol :phrasing-content)))
-                         (-> elements :bindings keys))]
-      (t/testing (str "model for element: <" elem ">")
-        (t/is (valid-model minimap-model (->element-model (keyword elem))))
-        (let [data (get example-forms (keyword elem) [(keyword elem) "sample string"])]
-          (t/is (valid-model (->element-model (keyword elem)) data)))))
+    (doseq [elem (set/union flow-tags phrasing-tags heading-tags)]
+      (t/testing (str "model for element: <" (name elem) ">")
+        (let [data (get example-forms elem
+                        [elem "sample string"])]
+          (t/is (valid-model elements data)))))
 
     (t/is (palpable? [:p "text"]))
     (t/is (not (palpable? [:p])))
 
     (t/is (valid-model flow-content [:div [:div [:div [:p "text"]]]]))
-    (t/is (valid-model phrasing-content-m [:em "something"]))
+    ;; (t/is (valid-model phrasing-content-m [:em "something"]))
     ;; h/with-condition isn't working on this?
     ;; (t/is (valid-model (->element-model :phrasing-content) [:em]))
     )
@@ -392,14 +382,15 @@
 
   (t/testing "atomic elements"
 
-    (t/is (valid-model minimap-model atomic-element))
 
     (t/is (valid-model global-attributes {:class "a"
                                           :href "http://google.com"}))
     (t/is (valid-model global-attributes {:title "some page"
                                           :href "/relative-page.html"}))
 
-    (t/is (valid-model (->element-model :img)
+    (t/is (valid-model (subschema
+                        phrasing-content
+                        :respatialized.document/img)
                        [:img {:src "/pic.jpg" :width 500}]))))
 
 (comment
@@ -411,41 +402,16 @@
 
   )
 
-;; (def simple-grid-cell-model
-;;   "A version of grid cells that has a limit on how deeply nested the forms can be."
-;;   (h/in-vector
-;;    (h/cat
-;;     [:tag (h/val :r-cell)]
-;;     [:attributes (h/? (h/with-optional-entries global-attributes [:span raster-span]))]
-;;     [:contents
-;;      (h/repeat
-;;       1 25
-;;       (h/not-inlined
-;;        (apply h/alt
-;;               (map
-;;                (fn [e] [e (one-level-deep e)]) (keys doc-tree)))))])))
-
-;; (def simple-grid-model
-;;   "A version of the grid without mutually recursive child refs, for testing by induction."
-;;   (h/in-vector
-;;    (h/cat
-;;     [:tag (h/val :r-grid)]
-;;     [:attributes
-;;      (h/with-entries global-attributes
-;;        [:columns (->constrained-model #(< 0 % 33) gen/small-integer 250)])]
-;;     [:contents
-;;      (h/repeat 1 25
-;;                (h/not-inlined simple-grid-cell-model))])))
 
 (defspec atomic-forms 250
   (prop/for-all
-   [p (mg/gen atomic-element)]
-   (valid? atomic-element p)))
+   [p (mg/generator atomic-element)]
+   (validate atomic-element p)))
 
 (defspec elem-attributes 250
   (prop/for-all
-   [a (mg/gen global-attributes)]
-   (valid? global-attributes a)))
+   [a (mg/generator global-attributes)]
+   (validate global-attributes a)))
 
 ;; (defspec grid-cell-forms 25
 ;;   (prop/for-all
@@ -459,6 +425,58 @@
 
 
 (comment
+
+
+(defn finalize-elem-model
+  "Return a constrained version of the given element's model such that it has no child elements"
+  [elem]
+  (h/in-vector
+   (h/cat
+    [:tag (h/val elem)]
+    [:attributes (h/? global-attributes)]
+    [:contents (h/repeat 1 10 (h/not-inlined atomic-element))])))
+
+(defn one-level-deep
+  "Return a version of the given elements that can have a single level of nesting."
+  [elem child-elems]
+  (h/in-vector
+   (h/cat
+    [:tag (h/val elem)]
+    [:attributes (h/? global-attributes)]
+    [:contents
+     (h/repeat 1 15
+               (h/not-inlined
+                (apply h/alt
+                       atomic-element
+                       (map finalize-elem-model
+                            child-elems))))])))
+
+  (def simple-grid-cell-model
+    "A version of grid cells that has a limit on how deeply nested the forms can be."
+    (h/in-vector
+     (h/cat
+      [:tag (h/val :r-cell)]
+      [:attributes (h/? (h/with-optional-entries global-attributes [:span raster-span]))]
+      [:contents
+       (h/repeat
+        1 25
+        (h/not-inlined
+         (apply h/alt
+                (map
+                 (fn [e] [e (one-level-deep e)]) (keys doc-tree)))))])))
+
+  (def simple-grid-model
+    "A version of the grid without mutually recursive child refs, for testing by induction."
+    (h/in-vector
+     (h/cat
+      [:tag (h/val :r-grid)]
+      [:attributes
+       (h/with-entries global-attributes
+         [:columns (->constrained-model #(< 0 % 33) gen/small-integer 250)])]
+      [:contents
+       (h/repeat 1 25
+                 (h/not-inlined simple-grid-cell-model))])))
+
 
   (gen/sample (mg/gen raster-span) 20)
 
@@ -522,7 +540,8 @@
                        [p {:error (str "exception: " (.getMessage e))}])))
                  pages))]
       (doseq [[page contents] parsed-pages]
-        (t/is (valid-model (->element-model :article) contents)
+        (t/is ((get element-validators :article)
+                contents)
               (str "page " page " did not conform to document spec"))))))
 
 (comment

@@ -4,8 +4,7 @@
              :type "Eclipse Public License, v1.0"}}
   (:require [clojure.edn :as edn]
             [clojure.tools.reader :as r]
-            [minimallist.core :as m]
-            [minimallist.helper :as h]
+            [malli.core :as m]
             [clojure.string :as string]))
 
 (def delimiters ["<%" "%>"])
@@ -18,8 +17,7 @@
         ")?"
         "(.*)\\z")))
 
-(def expr-model
-  (h/fn #(and (string? %) (re-matches parser-regex %))))
+(def expr-model [:re parser-regex])
 
 (defn eval-expr [expr]
   (if (.startsWith expr "=")
@@ -65,16 +63,15 @@
     (format "%032x" (BigInteger. 1 raw))))
 
 (def parsed-expr-model
-  (h/map
+  [:map
    [:src expr-model]
-   [:expr (h/alt [:nil (h/val nil)]
-                 ; let's not define a model for arbitrary Clojure exprs
-                 [:val (h/fn some?)])]
-   [:err (h/alt [:nil (h/val nil)]
-                [:error (h/map [:type (h/fn class?)]
-                               [:message (h/fn string?)])])]
-   [:result (h/alt [:nil (h/val nil)]
-                   [:val (h/fn some?)])]))
+   [:expr [:orn [:nil [:= nil]]
+           [:val [:any]]]]
+   [:err [:orn [:nil [:= nil]]
+          [:error [:map [:type class?]
+                   [:message [:string]]]]]]
+   [:result [:orn [:nil [:= nil]]
+             [:val [:any]]]]])
 
 (defn parse
   ([src start-seq]
@@ -129,7 +126,7 @@
   [expr-tree]
   (let [first-expr (->> expr-tree
                         (tree-seq vector? identity)
-                        (filter #(m/valid? parsed-expr-model %))
+                        (filter #(m/validate parsed-expr-model %))
                         first
                         :expr)]
     (if (and (seq? first-expr)
@@ -150,7 +147,7 @@
      (binding [*ns* nmspc]
        (refer-clojure)
        (clojure.walk/postwalk
-        (fn [i] (if (m/valid? parsed-expr-model i)
+        (fn [i] (if (m/validate parsed-expr-model i)
                   (eval-parsed-expr i simplify?)
                   i))
         parsed-form))))
@@ -181,7 +178,7 @@
      (binding [*ns* nmspc]
        (refer-clojure)
        (clojure.walk/postwalk
-        (fn [i] (if (m/valid? parsed-expr-model i)
+        (fn [i] (if (m/validate parsed-expr-model i)
                   (form->hiccup (eval-parsed-expr i))
                   i))
         parsed-form)))))
