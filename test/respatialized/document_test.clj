@@ -301,79 +301,79 @@
                             [:* atomic-element])
            [:p {:id "something"} "text in a paragraph"]))
 
-    (t/is (valid-model (subschema flow-content :respatialized.document/p)
+    (t/is (valid-model (subschema element :respatialized.document/p)
                        [:p "something" [:a {:href "link"} "text"]])
           "Phrasing subtags should be respected.")
 
     (t/is (valid-model
-           (subschema phrasing-content "a-phrasing")
+           (subschema element "a-phrasing")
            [:a {:href "something"} [:ins "something" [:del "something" [:em "something else"]]]])
           "Phrasing subtags should be respected.")
 
     (t/is (valid-model
-           (subschema phrasing-content "ins-phrasing")
+           (subschema element "ins-phrasing")
            [:ins [:ins [:ins [:em "text"]]]])
           "Phrasing subtags should be respected")
 
     (t/is (valid-model
-           (subschema phrasing-content "ins-phrasing")
+           (subschema element "ins-phrasing")
            [:ins [:ins "text"]])
           "Phrasing subtags should be respected")
 
     (t/is (valid-model
-           (subschema phrasing-content "del-phrasing")
+           (subschema element "del-phrasing")
            [:del [:em "text"]])
           "Phrasing subtags should be respected")
 
     (t/is (valid-model
-           (subschema phrasing-content :respatialized.document/em)
+           (subschema element :respatialized.document/em)
            [:em [:ins [:ins [:em "text"]]]])
           "Phrasing subtags should be respected")
 
     (t/is (valid-model
-           (subschema phrasing-content :respatialized.document/em)
+           (subschema element :respatialized.document/em)
            [:em [:a {:href "link"}] "something"])
           "Phrasing subtags should be respected")
 
     (t/is (not (validate
-                (subschema phrasing-content "ins-phrasing")
+                (subschema element "ins-phrasing")
                 [:ins [:ins [:ins [:p "text"]]]])))
 
     (t/is (valid-model
-           (subschema phrasing-content "a-phrasing")
+           (subschema element "a-phrasing")
            [:a {:href "something"} "link" [:em "text"]])
           "Phrasing subtags should be respected")
 
     (t/is (valid-model
-           (subschema flow-content :respatialized.document/p)
+           (subschema element :respatialized.document/p)
            [:p "text" [:img {:src "/picture.jpg"}]]))
 
     (t/is (valid-model
-           (subschema phrasing-content :respatialized.document/em)
+           (subschema element :respatialized.document/em)
            [:em "text" [:br] "more text"]))
 
-    ;; (t/is (valid-model (->element-model :phrasing-content) '([:em [:br] "text"])))
+    ;; (t/is (valid-model (->element-model :element) '([:em [:br] "text"])))
 
     (doseq [elem (set/union flow-tags phrasing-tags heading-tags)]
       (t/testing (str "model for element: <" (name elem) ">")
         (let [data (get example-forms elem
                         [elem "sample string"])]
-          (t/is (valid-model elements data)))))
+          (t/is (valid-model element data)))))
 
     (t/is (palpable? [:p "text"]))
     (t/is (not (palpable? [:p])))
 
-    (t/is (valid-model flow-content [:div [:div [:div [:p "text"]]]]))
-    ;; (t/is (valid-model phrasing-content-m [:em "something"]))
+    (t/is (valid-model element [:div [:div [:div [:p "text"]]]]))
+    ;; (t/is (valid-model element-m [:em "something"]))
     ;; h/with-condition isn't working on this?
-    ;; (t/is (valid-model (->element-model :phrasing-content) [:em]))
+    ;; (t/is (valid-model (->element-model :element) [:em]))
     )
 
 
   (t/testing "full structure"
     (doseq [[k v] example-forms]
       (t/testing (str "model for element: <" (symbol k) ">")
-                 (t/is (valid-model elements v))))
+                 (t/is (valid-model element v))))
 
     (comment
       (map (fn [[k v]] [k (valid-model elements v)]) example-forms)
@@ -389,7 +389,7 @@
                                           :href "/relative-page.html"}))
 
     (t/is (valid-model (subschema
-                        phrasing-content
+                        element
                         :respatialized.document/img)
                        [:img {:src "/pic.jpg" :width 500}]))))
 
