@@ -12,28 +12,24 @@
             [clojure.test.check.properties :as prop]
             [com.gfredericks.test.chuck.properties :as prop']
             [malli.core :as m :refer [validate]]
+            [malli.error :as me]
             [malli.generator :as mg])
   (:import [java.lang Exception]))
 
-(defmethod t/assert-expr 'valid-model [msg form]
+(defmethod t/assert-expr 'valid-schema? [msg form]
   `(let [model# ~(nth form 1)
          data# ~(nth form 2)
-         result# (validate model# data#)
-         data-rep# (get-in data# [:body :key]
-                           (if (and (contains? data# :bindings)
-                                    (= :let (:type data#)))
-                             :model-data
-                             data#))
-         model-name# (if (= :ref (get-in model# [:body :type]))
-                       (keyword (get-in model# [:body :key]))
-                       "[NULL]")]
+         result# (m/validate model# data#)
+         model-name# (last model#)]
      (t/do-report
       {:type (if result# :pass :fail)
        :message ~msg
-       :expected (str (with-out-str (clojure.pprint/pprint data-rep#))
-                      " conforms to model for "
+       :expected (str (with-out-str (clojure.pprint/pprint data#))
+                      " conforms to schema for "
                       model-name#)
-       :actual result#})
+       :actual  (if (not result#)
+                  (me/humanize (m/explain model# data#))
+                  result#)})
      result#))
 
 (t/deftest transforms
@@ -217,6 +213,9 @@
    :wbr [:wbr]
    :hr [:hr]
    :br [:br]
+   :abbr [:abbr {:title "ACME Corporation"} "ACME"]
+   :ol [:ol [:li "item"] [:li "item2"]]
+   :hgroup [:hgroup [:h1 "big header"] [:h4 "small header"]]
    :link [:link {:rel "stylesheet" :href "/main.css"}]
    :details [:details [:summary [:h4 "heading"]] [:p "text"]]
    :table [:table
@@ -264,7 +263,7 @@
                          (h/alt [:em (h/ref 'em)]
                                 [:h2 (h/ref 'h2)]))))
 
-    (t/is
+    #_(t/is
      (valid-model (->hiccup-schema :col global-attributes nil)
                   [:col])))
 
@@ -301,54 +300,54 @@
                             [:* atomic-element])
            [:p {:id "something"} "text in a paragraph"]))
 
-    (t/is (valid-model (subschema element :respatialized.document/p)
-                       [:p "something" [:a {:href "link"} "text"]])
+    (t/is (valid-schema? (subschema element :respatialized.document/p)
+                    [:p "something" [:a {:href "https://link.com"} "text"]])
           "Phrasing subtags should be respected.")
 
-    (t/is (valid-model
+    (t/is (valid-schema?
            (subschema element "a-phrasing")
-           [:a {:href "something"} [:ins "something" [:del "something" [:em "something else"]]]])
+           [:a {:href "https://something.com"} [:ins "something" [:del "something" [:em "something else"]]]])
           "Phrasing subtags should be respected.")
 
-    (t/is (valid-model
+    (t/is (valid-schema?
            (subschema element "ins-phrasing")
            [:ins [:ins [:ins [:em "text"]]]])
           "Phrasing subtags should be respected")
 
-    (t/is (valid-model
+    (t/is (valid-schema?
            (subschema element "ins-phrasing")
            [:ins [:ins "text"]])
           "Phrasing subtags should be respected")
 
-    (t/is (valid-model
+    (t/is (valid-schema?
            (subschema element "del-phrasing")
            [:del [:em "text"]])
           "Phrasing subtags should be respected")
 
-    (t/is (valid-model
+    (t/is (valid-schema?
            (subschema element :respatialized.document/em)
            [:em [:ins [:ins [:em "text"]]]])
           "Phrasing subtags should be respected")
 
-    (t/is (valid-model
+    (t/is (valid-schema?
            (subschema element :respatialized.document/em)
-           [:em [:a {:href "link"}] "something"])
+           [:em [:a {:href "https://archive.org"}] "something"])
           "Phrasing subtags should be respected")
 
-    (t/is (not (validate
+    (t/is (not (m/validate
                 (subschema element "ins-phrasing")
                 [:ins [:ins [:ins [:p "text"]]]])))
 
-    (t/is (valid-model
+    (t/is (valid-schema?
            (subschema element "a-phrasing")
-           [:a {:href "something"} "link" [:em "text"]])
+           [:a {:href "https://example.com"} "link" [:em "text"]])
           "Phrasing subtags should be respected")
 
-    (t/is (valid-model
+    (t/is (valid-schema?
            (subschema element :respatialized.document/p)
            [:p "text" [:img {:src "/picture.jpg"}]]))
 
-    (t/is (valid-model
+    (t/is (valid-schema?
            (subschema element :respatialized.document/em)
            [:em "text" [:br] "more text"]))
 
@@ -357,13 +356,15 @@
     (doseq [elem (set/union flow-tags phrasing-tags heading-tags)]
       (t/testing (str "model for element: <" (name elem) ">")
         (let [data (get example-forms elem
-                        [elem "sample string"])]
-          (t/is (valid-model element data)))))
+                        [elem "sample string"])
+              schema (subschema
+                      element (ns-kw 'respatialized.document elem))]
+          (t/is (valid-schema? schema data)))))
 
     (t/is (palpable? [:p "text"]))
     (t/is (not (palpable? [:p])))
 
-    (t/is (valid-model element [:div [:div [:div [:p "text"]]]]))
+    (t/is (valid-schema? element [:div [:div [:div [:p "text"]]]]))
     ;; (t/is (valid-model element-m [:em "something"]))
     ;; h/with-condition isn't working on this?
     ;; (t/is (valid-model (->element-model :element) [:em]))
@@ -373,22 +374,22 @@
   (t/testing "full structure"
     (doseq [[k v] example-forms]
       (t/testing (str "model for element: <" (symbol k) ">")
-                 (t/is (valid-model element v))))
+                 (t/is (m/validate element v))))
 
     (comment
-      (map (fn [[k v]] [k (valid-model elements v)]) example-forms)
+      (map (fn [[k v]] [k (valid-schema? elements v)]) example-forms)
 
       ))
 
   (t/testing "atomic elements"
 
 
-    (t/is (valid-model global-attributes {:class "a"
+    (t/is (m/validate global-attributes {:class "a"
                                           :href "http://google.com"}))
-    (t/is (valid-model global-attributes {:title "some page"
+    (t/is (m/validate global-attributes {:title "some page"
                                           :href "/relative-page.html"}))
 
-    (t/is (valid-model (subschema
+    (t/is (valid-schema? (subschema
                         element
                         :respatialized.document/img)
                        [:img {:src "/pic.jpg" :width 500}]))))
@@ -540,7 +541,7 @@
                        [p {:error (str "exception: " (.getMessage e))}])))
                  pages))]
       (doseq [[page contents] parsed-pages]
-        (t/is ((get element-validators :article)
+        (t/is ((get element-validators :respatialized.document/article)
                 contents)
               (str "page " page " did not conform to document spec"))))))
 

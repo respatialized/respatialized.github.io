@@ -12,6 +12,7 @@
    [malli.generator :as mg]
    [malli.registry :as mr]
    [malli.dot :as md]
+   [malli.error :as me]
    [malli.util :as mu]))
 
 (def block-level-tags
@@ -153,10 +154,12 @@
                    attr-model
                    [:? attr-model])]]]
     (if (nil? content-model)
-           head
+      [:and vector? head]
            (conj head [:contents content-model]))))
 
-(defn ns-kw [kw] (keyword (str *ns*) (str (name kw))))
+(defn ns-kw
+  ([ns kw] (keyword (str ns) (str (name kw))))
+  ([kw] (ns-kw *ns* kw)))
 
 (defn ref-item [i] [:schema [:ref i]])
 
@@ -168,7 +171,9 @@
                [:catn
                 [:tag [:= :a]]
                 [:attributes [:? [:map-of keyword? any?]]]
-                [:contents [:* [:schema [:ref "phrasing-content"]]]]]
+                [:contents [:altn
+                            [:atomic atomic-element]
+                            [:node [:schema [:ref "phrasing-content"]]]]]]
                "phrasing-content"
                [:orn
                 [:atomic-element atomic-element]
@@ -193,6 +198,8 @@
   ;; it works
   (m/validate sample-phrasing [:a {:href "https://google.com"} "text"])
 
+  (mg/generate sample-phrasing-2 {:size 4})
+
   (def sample-phrasing-2
     [:schema
      {:registry
@@ -204,7 +211,7 @@
        ::em (->hiccup-schema
              :em
              global-attributes
-             [:* [:schema [:ref "phrasing content"]]])
+             [:* [:schema [:ref ::phrasing-content]]])
        ::phrasing-content
        [:orn [:atomic-element atomic-element]
         [:node
@@ -217,6 +224,8 @@
      ::phrasing-content])
 
   (m/validate sample-phrasing-2 [:a {:href "https://google.com"} "text"])
+
+  (mg/generate sample-phrasing-2 {:size 4})
 
   )
 
@@ -524,13 +533,14 @@
                   :details
                   global-attributes
                   [:catn
-                   [:summary (->hiccup-schema
-                              :summary
-                              global-attributes
-                              [:orn
-                               [:flow [:* [:schema [:ref ::flow-content]]]]
-                               [:heading [:schema [:ref ::heading-content]]]])]
-                   [:contents [:schema [:ref ::flow-content]]]])
+                   [:sum
+                    (->hiccup-schema
+                     :summary
+                     global-attributes
+                     [:orn
+                      [:flow [:* [:schema [:ref ::flow-content]]]]
+                      [:heading [:schema [:ref ::heading-content]]]])]
+                   [:contents [:* [:schema [:ref ::flow-content]]]]])
        ::div (->hiccup-schema
               :div global-attributes
               [:* [:schema [:ref ::flow-content]]])
@@ -541,20 +551,21 @@
         [:*
          [:catn
           [:term
-           (->hiccup-schema
-            :dt
-            global-attributes
-            (apply conj
-                   [:orn
-                    [:atomic-element atomic-element]
-                    [:phrasing-content [:schema [:ref ::phrasing-content]]]
-                    [:heading-content [:schema [:ref ::heading-content]]]]
-                   (map (fn [t] [t [:schema [:ref (ns-kw t)]]])
-                        (set/difference flow-tags phrasing-tags heading-tags sectioning-tags))))]
+           [:+
+            (->hiccup-schema
+             :dt
+             global-attributes
+             (apply conj
+                    [:orn
+                     [:atomic-element atomic-element]
+                     [:phrasing-content [:schema [:ref ::phrasing-content]]]
+                     [:heading-content [:schema [:ref ::heading-content]]]]
+                    (map (fn [t] [t [:schema [:ref (ns-kw t)]]])
+                         (set/difference flow-tags phrasing-tags heading-tags sectioning-tags))))]]
           [:details
-           (->hiccup-schema
-            :dd global-attributes
-            [:* [:schema [:ref ::flow-content]]])]]])
+           [:+ (->hiccup-schema
+                :dd global-attributes
+                [:* [:schema [:ref ::flow-content]]])]]]])
        ::figure (->hiccup-schema
                  :figure global-attributes
                  [:altn
@@ -607,14 +618,15 @@
        ::nav (->hiccup-schema :nav global-attributes
                               [:* [:schema [:ref ::flow-content]]])
        ::ol (->hiccup-schema
-             :ol (mu/merge
-                  global-attributes
-                  [:map
-                   [:reversed {:optional true} :boolean]
-                   [:start {:optional true} [:and [:> 0] [:< 65536]]]
-                   [:type {:optional true} [:enum "a" "A" "i" "I" "1"]]])
+             :ol
+             (mu/merge
+              global-attributes
+              [:map
+               [:reversed {:optional true} :boolean]
+               [:start {:optional true} [:and [:> 0] [:< 65536]]]
+               [:type {:optional true} [:enum "a" "A" "i" "I" "1"]]])
              [:*
-              [:altn
+              [:orn
                [:li (->hiccup-schema
                      :li
                      (mu/merge
@@ -742,7 +754,7 @@
 
   (def em-gen
     (mg/generator
-     (subschema phrasing-content ::em)
+     (subschema element ::em)
      {:size 5}))
 
   (m/validate (subschema phrasing-content "a-phrasing")
@@ -836,13 +848,13 @@
                            rest (map (fn [i] [:p i]) tt)]
                        (cond
                          (or (empty? hh) (re-matches (re-pattern "\\s+") hh)) (recur (concat rest t) final)
-                         ((:p element-validators) current-elem)
+                         ((get element-validators ::p) current-elem)
                          (recur (concat rest t)
                                 (conj (first (ft-split-at final (- (count final) 1)))
                                       (conj current-elem hh)))
                          :else (recur (concat rest t) (conj final [:p hh]))))
                      (phrasing? h)
-                     (if ((:p element-validators) current-elem)
+                     (if ((get element-validators ::p) current-elem)
                        (recur t
                               (conj (first (ft-split-at final (- (count final) 1)))
                                     (conj current-elem h)))
