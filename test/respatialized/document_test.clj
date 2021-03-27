@@ -209,8 +209,7 @@
    #_ #_:script [:script {:type "text/javascript" :src "code.js"}]
    :q [:q {:cite "Anonymous"} "If you can't convince, confuse!"]
    :script [:script {:src "/resources/klipse.js" :type "text/javascript"} ""]
-   :phrasing-contents [[:em "text"]]
-   :wbr [:wbr]
+   #_ #_ :wbr [:wbr]
    :hr [:hr]
    :br [:br]
    :abbr [:abbr {:title "ACME Corporation"} "ACME"]
@@ -219,9 +218,9 @@
    :link [:link {:rel "stylesheet" :href "/main.css"}]
    :details [:details [:summary [:h4 "heading"]] [:p "text"]]
    :table [:table
-           [:caption "an example table"]
-           [:colgroup [:col]]
-           [:thead [:tr [:td "label"]]]
+            [:caption "an example table"]
+            [:colgroup [:col]]
+            [:thead [:tr [:td "label"]]]
            [:tbody [:tr [:td "a cell"]]]]
    :article [:article [:section "something"]]})
 
@@ -229,79 +228,79 @@
   (t/testing "model constructors"
 
     #_(t/is (valid-model
-           minimap-model
-           (->hiccup-model :p global-attributes
-                           (h/* atomic-element))))
+             minimap-model
+             (->hiccup-model :p global-attributes
+                             (h/* atomic-element))))
 
     #_(t/is (valid-model
-           minimap-model
-           (->hiccup-model :p global-attributes
-                           (h/* (apply h/alt [:atomic-element atomic-element]
-                                       [])))))
+             minimap-model
+             (->hiccup-model :p global-attributes
+                             (h/* (apply h/alt [:atomic-element atomic-element]
+                                         [])))))
 
     #_(t/is (valid-model minimap-model
-                       (->hiccup-model
-                        :em [])))
-
-    #_(t/is (valid-model minimap-model
-                       (h/let ['em (->hiccup-model :em [])]
                          (->hiccup-model
-                          :h2
-                          [[:em (h/ref 'em)]]))))
+                          :em [])))
 
     #_(t/is (valid-model minimap-model
-                       (h/let ['em (->hiccup-model :em [])]
-                         (->hiccup-model
-                          :h2
-                          (map elem-ref #{:em})))))
+                         (h/let ['em (->hiccup-model :em [])]
+                           (->hiccup-model
+                            :h2
+                            [[:em (h/ref 'em)]]))))
 
     #_(t/is (valid-model minimap-model
-                       (h/let ['em (->hiccup-model :em [])
-                               'h2 (->hiccup-model
-                                    :h2
-                                    (map elem-ref #{:em}))]
-                         (h/alt [:em (h/ref 'em)]
-                                [:h2 (h/ref 'h2)]))))
+                         (h/let ['em (->hiccup-model :em [])]
+                           (->hiccup-model
+                            :h2
+                            (map elem-ref #{:em})))))
+
+    #_(t/is (valid-model minimap-model
+                         (h/let ['em (->hiccup-model :em [])
+                                 'h2 (->hiccup-model
+                                      :h2
+                                      (map elem-ref #{:em}))]
+                           (h/alt [:em (h/ref 'em)]
+                                  [:h2 (h/ref 'h2)]))))
 
     #_(t/is
-     (valid-model (->hiccup-schema :col global-attributes nil)
-                  [:col])))
+       (valid-model (->hiccup-schema :col global-attributes nil)
+                    [:col])))
 
 
 
   (t/testing "content models"
 
     #_(t/is
-     (valid-model
-      minimap-model
-      (h/in-vector (h/cat
-                    [:tag (h/val :img)]
-                    [:attributes
-                     (-> global-attributes
-                         (h/with-entries [:src url])
-                         (h/with-optional-entries
-                           [:alt string-gen]
-                           [:sizes string-gen]
-                           [:width (->constrained-model #(< 0 % 8192) gen/small-integer)]
-                           [:height (->constrained-model #(< 0 % 8192) gen/small-integer)]
-                           [:loading (h/enum #{"eager" "lazy"})]
-                           [:decoding (h/enum #{"sync" "async" "auto"})]
-                           [:crossorigin (h/enum #{"anonymous" "use-credentials"})]))]))))
+       (valid-model
+        minimap-model
+        (h/in-vector (h/cat
+                      [:tag (h/val :img)]
+                      [:attributes
+                       (-> global-attributes
+                           (h/with-entries [:src url])
+                           (h/with-optional-entries
+                             [:alt string-gen]
+                             [:sizes string-gen]
+                             [:width (->constrained-model #(< 0 % 8192) gen/small-integer)]
+                             [:height (->constrained-model #(< 0 % 8192) gen/small-integer)]
+                             [:loading (h/enum #{"eager" "lazy"})]
+                             [:decoding (h/enum #{"sync" "async" "auto"})]
+                             [:crossorigin (h/enum #{"anonymous" "use-credentials"})]))]))))
 
     #_(t/is
-     (valid-model
-      minimap-model
-      (h/in-vector (h/cat [:tag (h/val :hr)] [:attributes (h/? global-attributes)]))))
+       (valid-model
+        minimap-model
+        (h/in-vector (h/cat [:tag (h/val :hr)] [:attributes (h/? global-attributes)]))))
 
     #_(t/is (valid-model minimap-model elements))
 
-    (t/is (valid-model
+    (t/is (valid-schema?
            (->hiccup-schema :p global-attributes
                             [:* atomic-element])
            [:p {:id "something"} "text in a paragraph"]))
 
     (t/is (valid-schema? (subschema element :respatialized.document/p)
-                    [:p "something" [:a {:href "https://link.com"} "text"]])
+                         [:p "something" [:a {:href "https://link.com"} "text"]])
           "Phrasing subtags should be respected.")
 
     (t/is (valid-schema?
@@ -371,28 +370,29 @@
     )
 
 
-  (t/testing "full structure"
+  (t/testing "example forms"
     (doseq [[k v] example-forms]
-      (t/testing (str "model for element: <" (symbol k) ">")
-                 (t/is (m/validate element v))))
+      (let [schema (subschema element (ns-kw 'respatialized.document k))]
+        (t/testing (str "model for element: <" (symbol k) ">")
+          (t/is (valid-schema? schema v))))))
 
-    (comment
+  (comment
       (map (fn [[k v]] [k (valid-schema? elements v)]) example-forms)
 
-      ))
+      )
 
   (t/testing "atomic elements"
 
 
     (t/is (m/validate global-attributes {:class "a"
-                                          :href "http://google.com"}))
+                                         :href "http://google.com"}))
     (t/is (m/validate global-attributes {:title "some page"
-                                          :href "/relative-page.html"}))
+                                         :href "/relative-page.html"}))
 
     (t/is (valid-schema? (subschema
-                        element
-                        :respatialized.document/img)
-                       [:img {:src "/pic.jpg" :width 500}]))))
+                          element
+                          :respatialized.document/img)
+                         [:img {:src "/pic.jpg" :width 500}]))))
 
 (comment
   (-> sample-multi-form-input
@@ -541,9 +541,10 @@
                        [p {:error (str "exception: " (.getMessage e))}])))
                  pages))]
       (doseq [[page contents] parsed-pages]
-        (t/is ((get element-validators :respatialized.document/article)
-                contents)
-              (str "page " page " did not conform to document spec"))))))
+        (let [valid-article? (get element-validators :respatialized.document/article)]
+          (t/is
+           (valid-article? contents)
+           (str "page " page " did not conform to article spec")))))))
 
 (comment
   (def pages (get-template-files "./content" ".ct"))

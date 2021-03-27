@@ -154,8 +154,8 @@
                    attr-model
                    [:? attr-model])]]]
     (if (nil? content-model)
-      [:and vector? head]
-           (conj head [:contents content-model]))))
+      head
+      (conj head [:contents content-model]))))
 
 (defn ns-kw
   ([ns kw] (keyword (str ns) (str (name kw))))
@@ -365,6 +365,33 @@
               :kbd global-attributes
               [:* [:schema [:ref ::phrasing-content]]])
        #_ ::label
+       ::link
+       [:orn
+        [:meta (->hiccup-schema
+                :link
+                (mu/merge
+                 global-attributes
+                 [:map
+                  [:itemprop {:optional true} :string]
+                  [:crossorigin {:optional true}
+                   [:enum "anonymous" "use-credentials"]]
+                  [:href {:optional true} url]
+                  [:media {:optional true} :string]
+                  [:rel {:optional true} :string]])
+                nil)]
+        [:phrasing [:schema [:ref "link-phrasing"]]]
+        [:flow (->hiccup-schema
+                :link
+                (mu/merge
+                 global-attributes
+                 [:map
+                  [:itemprop :string]
+                  [:crossorigin {:optional true}
+                   [:enum "anonymous" "use-credentials"]]
+                  [:href {:optional true} url]
+                  [:media {:optional true} :string]
+                  [:rel {:optional true} :string]])
+                nil)]]
        #_ ::map
        ::mark (->hiccup-schema
                :mark global-attributes
@@ -533,13 +560,14 @@
                   :details
                   global-attributes
                   [:catn
-                   [:sum
-                    (->hiccup-schema
-                     :summary
-                     global-attributes
-                     [:orn
-                      [:flow [:* [:schema [:ref ::flow-content]]]]
-                      [:heading [:schema [:ref ::heading-content]]]])]
+                   [:summary
+                    [:schema
+                     (->hiccup-schema
+                      :summary
+                      global-attributes
+                      [:orn
+                       [:flow [:* [:schema [:ref ::flow-content]]]]
+                       [:heading [:schema [:ref ::heading-content]]]])]]
                    [:contents [:* [:schema [:ref ::flow-content]]]]])
        ::div (->hiccup-schema
               :div global-attributes
@@ -552,37 +580,42 @@
          [:catn
           [:term
            [:+
-            (->hiccup-schema
-             :dt
-             global-attributes
-             (apply conj
-                    [:orn
-                     [:atomic-element atomic-element]
-                     [:phrasing-content [:schema [:ref ::phrasing-content]]]
-                     [:heading-content [:schema [:ref ::heading-content]]]]
-                    (map (fn [t] [t [:schema [:ref (ns-kw t)]]])
-                         (set/difference flow-tags phrasing-tags heading-tags sectioning-tags))))]]
+            [:schema
+             (->hiccup-schema
+              :dt
+              global-attributes
+              (apply conj
+                     [:orn
+                      [:atomic-element atomic-element]
+                      [:phrasing-content [:schema [:ref ::phrasing-content]]]
+                      [:heading-content [:schema [:ref ::heading-content]]]]
+                     (map (fn [t] [t [:schema [:ref (ns-kw t)]]])
+                          (set/difference flow-tags phrasing-tags heading-tags sectioning-tags))))]]]
           [:details
-           [:+ (->hiccup-schema
-                :dd global-attributes
-                [:* [:schema [:ref ::flow-content]]])]]]])
+           [:+ [:schema (->hiccup-schema
+                         :dd global-attributes
+                         [:* [:schema [:ref ::flow-content]]])]]]]])
        ::figure (->hiccup-schema
                  :figure global-attributes
                  [:altn
                   [:caption-first
                    [:catn
-                    [:figcaption (->hiccup-schema
-                                  :figcaption
-                                  global-attributes
-                                  [:* [:schema [:ref ::flow-content]]])]
+                    [:figcaption
+                     [:schema
+                      (->hiccup-schema
+                       :figcaption
+                       global-attributes
+                       [:* [:schema [:ref ::flow-content]]])]]
                     [:rest [:* [:schema [:ref ::flow-content]]]]]]
                   [:caption-last
                    [:catn
                     [:rest [:* [:schema [:ref ::flow-content]]]]
-                    [:figcaption (->hiccup-schema
-                                  :figcaption
-                                  global-attributes
-                                  [:* [:schema [:ref ::flow-content]]])]]]
+                    [:figcaption
+                     [:schema
+                      (->hiccup-schema
+                       :figcaption
+                       global-attributes
+                       [:* [:schema [:ref ::flow-content]]])]]]]
                   [:no-caption
                    [:* [:schema [:ref ::flow-content]]]]])
        ::footer
@@ -643,7 +676,29 @@
                                   [:* [:schema [:ref ::flow-content]]])
        ::table [:schema
                 {:registry
-                 {::th (->hiccup-schema
+                 {::caption (->hiccup-schema
+                             :caption
+                             global-attributes
+                             [:* [:schema [:ref ::flow-content]]])
+                  ::col (->hiccup-schema
+                         :col
+                         (mu/merge global-attributes
+                                   [:map [:span {:optional true} [:>= 1]]])
+                         nil)
+                  ::colgroup
+                  [:orn
+                   [:empty-span
+                    (->hiccup-schema
+                     :colgroup
+                     (mu/merge global-attributes
+                               [:map [:span [:>= 1]]])
+                     nil)]
+                   [:cols (->hiccup-schema
+                           :colgroup
+                           (mu/merge global-attributes
+                                     [:map [:span {:optional true} [:>= 1]]])
+                           [:* [:schema [:ref ::col]]])]]
+                  ::th (->hiccup-schema
                         :th
                         (mu/merge global-attributes
                                   [:map
@@ -672,52 +727,38 @@
                           [:rowspan {:optional true} [:and [:> 0] [:< 65534]]]
                           [:headers {:optional true} :string]])
                         [:* [:schema [:ref ::flow-content]]])
+                  ::thead (->hiccup-schema
+                           :thead
+                           global-attributes
+                           [:* [:schema [:ref ::tr]]])
+                  ::tbody (->hiccup-schema
+                           :tbody
+                           global-attributes
+                           [:* [:schema [:ref ::tr]]])
+                  ::tfoot (->hiccup-schema
+                           :tfoot
+                           global-attributes
+                           [:* [:schema [:ref ::tr]]])
                   ::tr (->hiccup-schema
-                        :tr global-attributes
-                        [:orn
-                         [:all-header [:* [:schema [:ref ::th]]]]
-                         [:rowdata [:catn [:header [:? [:schema [:ref ::th]]]]
-                                    [:data [:* [:schema [:ref ::td]]]]]]])
+                        :tr
+                        global-attributes
+                        [:*
+                         [:orn [:th [:schema [:ref ::th]]]
+                               [:td [:schema [:ref ::td]]]]])
                   ::table
                   (->hiccup-schema
                    :table
                    global-attributes
                    [:catn
-                    [:caption [:? (->hiccup-schema
-                                   :caption
-                                   global-attributes
-                                   [:* [:schema [:ref ::flow-content]]])]]
-                    [:colgroups
-                     [:*
-                      [:orn
-                       [:empty-span
-                        (->hiccup-schema
-                         :colgroup
-                         (mu/merge global-attributes
-                                   [:map [:span [:>= 1]]])
-                         nil)]
-                       [:cols
-                        (->hiccup-schema
-                         :colgroup
-                         global-attributes
-                         [:* (->hiccup-schema
-                              :col
-                              (mu/merge global-attributes
-                                        [:map [:span [:>= 1]]])
-                              nil)])]]]]
-                    [:header [:? (->hiccup-schema
-                                  :thead
-                                  global-attributes
-                                  [:* [:schema [:ref ::tr]]])]]
+                    [:caption [:? [:schema [:ref ::caption]]]]
+                    [:colgroups [:* [:schema [:ref ::colgroup]]]]
+                    [:header [:? [:schema [:ref ::thead]]]]
                     [:contents
                      [:altn
-                      [:body (->hiccup-schema :tbody
-                                              global-attributes
-                                              [:* [:schema [:ref ::tr]]])]
+                      [:body
+                       [:* [:schema [:ref ::tbody]]]]
                       [:rows [:+ [:schema [:ref ::tr]]]]]]
-                    [:footer [:? (->hiccup-schema :tfoot
-                                                  global-attributes
-                                                  [:* [:schema [:ref ::tr]]])]]])}}
+                    [:footer [:? [:schema [:ref ::tfoot]]]]])}}
                 ::table]
        ::ul (->hiccup-schema
              :ul global-attributes
