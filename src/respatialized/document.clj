@@ -566,8 +566,10 @@
                       :summary
                       global-attributes
                       [:orn
-                       [:flow [:* [:schema [:ref ::flow-content]]]]
-                       [:heading [:schema [:ref ::heading-content]]]])]]
+                       [:heading [:schema [:ref ::heading-content]]]
+                       [:phrasing [:or  ; this seems awkward
+                                   [:schema [:ref ::phrasing-content]]
+                                   [:* [:schema [:ref ::phrasing-content]]]]]])]]
                    [:contents [:* [:schema [:ref ::flow-content]]]]])
        ::div (->hiccup-schema
               :div global-attributes

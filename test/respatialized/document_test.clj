@@ -216,7 +216,7 @@
    :ol [:ol [:li "item"] [:li "item2"]]
    :hgroup [:hgroup [:h1 "big header"] [:h4 "small header"]]
    :link [:link {:rel "stylesheet" :href "/main.css"}]
-   :details [:details [:summary [:h4 "heading"]] [:p "text"]]
+   :details [:details [:summary [:span "summarized text"]] [:p "text"]]
    :table [:table
             [:caption "an example table"]
             [:colgroup [:col]]

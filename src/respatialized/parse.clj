@@ -65,12 +65,12 @@
 (def parsed-expr-model
   [:map
    [:src expr-model]
-   [:expr [:orn [:nil [:= nil]]
+   [:expr [:orn [:nil nil?]
            [:val [:any]]]]
-   [:err [:orn [:nil [:= nil]]
-          [:error [:map [:type class?]
+   [:err [:orn [:nil nil?]
+          [:error [:map [:type [:fn class?]]
                    [:message [:string]]]]]]
-   [:result [:orn [:nil [:= nil]]
+   [:result [:orn [:nil nil?]
              [:val [:any]]]]])
 
 (defn parse
@@ -119,8 +119,6 @@
   )
 
 
-
-
 (defn yank-ns
   "Pulls the namespace out of the first expression in the parse tree."
   [expr-tree]
@@ -136,9 +134,7 @@
       nil)))
 
 (comment
-  (yank-ns (parse "<%(ns test-ns)%>"))
-
-  )
+  (yank-ns (parse "<%(ns test-ns)%>")))
 
 (defn eval-all
   ([parsed-form simplify?]

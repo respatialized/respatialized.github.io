@@ -1,7 +1,8 @@
 (ns respatialized.parse-test
   (:require  [clojure.test :as t]
              [respatialized.render :refer [em link code blockquote]]
-             [minimallist.core :as m]
+             [malli.core :as m]
+             [respatialized.document :as doc]
              [respatialized.parse :refer :all]))
 
 (defn ns-refer [f]
@@ -27,19 +28,19 @@
 
   (t/testing "parsed element model"
     (t/is
-     (m/valid? parsed-expr-model
+     (m/validate parsed-expr-model
                {:src "<%=(+ 3 4)%>"
                 :expr '(+ 3 4)
                 :err nil
                 :result 7}))
     (t/is
-     (m/valid? parsed-expr-model
+     (m/validate parsed-expr-model
                {:src "<%(+ 3 4)%>"
                 :expr '(do (+ 3 4) nil)
                 :err nil
                 :result nil}))
     (t/is
-     (m/valid? parsed-expr-model
+     (m/validate parsed-expr-model
                {:src "<%((+ 3 4)%>"
                 :expr nil
                 :err {:type clojure.lang.ExceptionInfo
@@ -75,7 +76,7 @@
     (t/is (= {:expr '(+ 2 3), :src "<%=(+ 2 3)%>", :err nil, :result 5}
              (eval-parsed-expr (first (parse "<%=(+ 2 3)%>")) false)))
     (t/is (= nil
-             (eval-parsed-expr {:expr '(do (def a 3) nil), :src "<%(def a 3)%>", :err nil, :result nil}
+             (eval-parsed-expr {:expr '(do (def myvar 3) nil), :src "<%(def myvar 3)%>", :err nil, :result nil}
                                true)))
 
     (t/is (= {:expr nil,
@@ -125,8 +126,8 @@
                "<div><em>text</em>, with a comma following</div>"))))
 
   (t/testing "eval with error messages"
-    (t/is (m/valid?
-           respatialized.document/elements
+    (t/is (m/validate
+           (doc/subschema doc/element :respatialized.document/div)
            (form->hiccup {:expr nil,
                           :src "<%=((+ 2 3)%>",
                           :err {:type clojure.lang.ExceptionInfo,
