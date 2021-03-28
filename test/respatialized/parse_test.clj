@@ -127,7 +127,7 @@
 
   (t/testing "eval with error messages"
     (t/is (m/validate
-           (doc/subschema doc/element :respatialized.document/div)
+           (doc/subschema doc/html ::doc/div)
            (form->hiccup {:expr nil,
                           :src "<%=((+ 2 3)%>",
                           :err {:type clojure.lang.ExceptionInfo,

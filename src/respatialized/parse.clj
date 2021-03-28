@@ -84,11 +84,13 @@
          (conj-non-nil form after)))))
   ([src] (parse src [])))
 
-
+;; post-validator should have the following signature
+;; if it validates, return the input in a map: {:result input}
+;; if it doesn't, return a map describing the error
 
 (defn eval-parsed-expr
   ([{:keys [src expr err result]
-     :as expr-map} simplify?]
+     :as expr-map} simplify? post-validator]
    (cond err expr-map
          result result
          :else
@@ -98,13 +100,15 @@
                        {:err (merge {:type (.getClass e)
                                      :message (.getMessage e)}
                                     (select-keys (Throwable->map e)
-                                                 [:cause :phase]))}))]
+                                                 [:cause :phase]))}))
+               validated (post-validator res)]
            (cond
              (and simplify? (:result res)) ; nil is overloaded here
              (:result res)
              (and (nil? (:result res)) (nil? (:err res)))
              nil
              :else (merge expr-map res)))))
+  ([expr simplify?] (eval-parsed-expr expr simplify? (fn [e] {:result e})))
   ([expr] (eval-parsed-expr expr false)))
 
 (comment
@@ -168,16 +172,17 @@
     result))
 
 (defn eval-with-errors
-  ([parsed-form]
+  ([parsed-form post-validator]
    (let [form-nmspc (yank-ns parsed-form)
          nmspc (if form-nmspc (create-ns form-nmspc) *ns*)]
      (binding [*ns* nmspc]
        (refer-clojure)
        (clojure.walk/postwalk
         (fn [i] (if (m/validate parsed-expr-model i)
-                  (form->hiccup (eval-parsed-expr i))
+                  (form->hiccup (eval-parsed-expr i false post-validator))
                   i))
-        parsed-form)))))
+        parsed-form))))
+  ([parsed-form] (eval-with-errors parsed-form (fn [e] {:result e}))))
 
 
 (defn eval-expr-ns

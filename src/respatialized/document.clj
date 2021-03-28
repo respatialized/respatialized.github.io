@@ -38,7 +38,7 @@
 
 (def metadata-tags
   "MDN list of metadata content element tags"
-  #{:base :link :meta #_:noscript :script
+  #{#_ :base :link :meta #_:noscript :script
     :style :title})
 
 (def flow-tags
@@ -230,7 +230,7 @@
   )
 
 
-(def element
+(def html
     [:schema
      {:registry
       {"a-phrasing"
@@ -396,10 +396,12 @@
        ::mark (->hiccup-schema
                :mark global-attributes
                [:* [:schema [:ref ::phrasing-content]]])
-       ::meta (->hiccup-schema
-               :meta (mu/merge global-attributes
-                               [:map [:itemprop :string]])
-               nil)
+       ::meta [:orn
+               [:flow (->hiccup-schema
+                       :meta (mu/merge global-attributes
+                                       [:map [:itemprop :string]])
+                       nil)]
+               [:meta (->hiccup-schema :meta global-attributes nil)]]
        #_ ::meter
        #_ ::noscript
        #_ ::object
@@ -746,7 +748,7 @@
                         global-attributes
                         [:*
                          [:orn [:th [:schema [:ref ::th]]]
-                               [:td [:schema [:ref ::td]]]]])
+                          [:td [:schema [:ref ::td]]]]])
                   ::table
                   (->hiccup-schema
                    :table
@@ -778,61 +780,103 @@
               (map (fn [t] [t [:schema [:ref (ns-kw t)]]])
                    (set/difference
                     flow-tags phrasing-tags heading-tags)))
+       #_ ::base #_ []
+       ::metadata-content
+       [:orn
+        [:style [:schema (->hiccup-schema
+                          :style
+                          (mu/merge global-attributes
+                                    [:map [:media {:optional true} :string]])
+                          :string)]]
+        [:title [:schema (->hiccup-schema :title global-attributes :string)]]
+        [:script [:schema [:ref ::script]]]
+        [:meta [:schema [:ref ::meta]]]
+        [:link [:schema [:ref ::link]]]]
+       ::head (->hiccup-schema
+               :head
+               global-attributes
+               [:* [:schema [:ref ::metadata-content]]])
+       ::body (->hiccup-schema
+               :body
+               global-attributes
+               [:* [:schema [:ref ::flow-content]]])
+       ::html (->hiccup-schema
+               :html
+               global-attributes
+               [:catn [:head [:schema [:ref ::head]]]
+                [:body [:schema [:ref ::body]]]])
        ::element
        [:orn
         [:flow [:schema [:ref ::flow-content]]]
         [:heading [:schema [:ref ::heading-content]]]
-        [:phrasing [:schema [:ref ::phrasing-content]]]]
-       }}
-     ::element])
+        [:phrasing [:schema [:ref ::phrasing-content]]]]}}
+     ::html])
 
 (defn subschema [[_ meta-map orig-ref] new-ref]
   [:schema meta-map new-ref])
 
 (comment
-  (m/validate element [:em [:a {:href "http://google.com"} "link"] "more text"])
+  (m/validate html [:em [:a {:href "http://google.com"} "link"] "more text"])
 
-  (m/validate (subschema element ::em)
+  (m/validate (subschema html ::em)
               [:em [:a {:href "http://google.com"} "link"] "more text"])
 
   (def em-gen
     (mg/generator
-     (subschema element ::em)
+     (subschema html ::em)
      {:size 5}))
 
   (m/validate (subschema phrasing-content "a-phrasing")
               [:a {:href "http://google.com"} "link"])
 
-  (m/validate element [:h1 [:b "emphasized header"]])
+  (m/validate html [:h1 [:b "emphasized header"]])
 
-  (m/parse element [:h1 [:em "emphasized header"]])
+  (m/parse html [:h1 [:em "emphasized header"]])
 
-  ((m/validator element) [:h1 [:em "emphasized header"]])
+  ((m/validator html) [:h1 [:em "emphasized header"]])
 
-  (m/validate (subschema element ::p) [:p "text"])
+  (m/validate (subschema html ::p) [:p "text"])
 
-  (m/validate (subschema element ::section)
+  (m/validate (subschema html ::section)
               [:section [:h1 "header text"] "section text"]))
 
 
-(def element? (m/validator element))
+(def element? (m/validator (subschema html ::element)))
 
 (def element-validators
-  (let [kws (filter keyword? (keys (get (second element) :registry)))]
+  (let [kws (filter keyword? (keys (get (second html) :registry)))]
     (into {:atomic-element (m/validator atomic-element)}
-          (map (fn [t] [t (m/validator (subschema element (ns-kw t)))])
+          (map (fn [t] [t (m/validator (subschema html (ns-kw t)))])
                kws))))
 
-(def phrasing? (m/validator (subschema element ::phrasing-content)))
+(def element-explainers
+  (let [kws (filter keyword? (keys (get (second html) :registry)))]
+    (into {:atomic-element (m/explainer atomic-element)}
+          (map (fn [t] [t (m/explainer (subschema html (ns-kw t)))])
+               kws))))
+
+(def phrasing? (m/validator (subschema html ::phrasing-content)))
+
+(defn validate-element [elem]
+  (if (and (vector? elem)
+           (keyword? (first elem)))
+    (let [form-kw (first elem)
+          valid? (get element-validators (ns-kw form-kw))]
+      (if (valid? elem)
+                {:result elem}
+                {:err {:type ::invalid-form
+                       :message (str "Invalid <" (name form-kw) "> form")
+                       :cause ((get element-explainers (ns-kw form-kw)) elem)}}))
+    elem))
 
 ;; "content is palpable when it's neither empty or hidden;
 ;; it is content that is rendered and is substantive.
 ;; Elements whose model is flow content or phrasing content
 ;; should have at least one node which is palpable."
 (defn palpable? [c]
-    (some? (some
-            #(m/validate atomic-element %)
-            (tree-seq #(and (vector? %) (keyword? (first %))) rest c))))
+  (some? (some
+          #(m/validate atomic-element %)
+          (tree-seq #(and (vector? %) (keyword? (first %))) rest c))))
 
 
 

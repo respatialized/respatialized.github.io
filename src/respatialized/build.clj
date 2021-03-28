@@ -77,7 +77,7 @@
                '[respatialized.holotype :as holotype]
                '[respatialized.structure.fractals :as fractals]
                '[hiccup.page :as hp]
-               '[hiccup.core :refer [html]])))
+               '[hiccup.core :as hiccup])))
 
 
 
@@ -165,4 +165,5 @@
 
 (comment
   (future (-main))
+
   )

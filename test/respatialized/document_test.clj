@@ -1,8 +1,8 @@
 (ns respatialized.document-test
-  (:require [respatialized.document :refer :all]
-            [respatialized.parse :refer [parse parse-eval md5]]
+  (:require [respatialized.document :as doc :refer :all]
+            [respatialized.parse :as parse :refer [parse parse-eval md5]]
             [respatialized.build :refer [get-template-files]]
-            [hiccup.core :refer [html]]
+            [respatialized.render :refer [template->hiccup]]
             [clojure.zip :as zip]
             [clojure.set :as set]
             [clojure.test :as t]
@@ -28,7 +28,7 @@
                       " conforms to schema for "
                       model-name#)
        :actual  (if (not result#)
-                  (me/humanize (m/explain model# data#))
+                   (m/explain model# data#)
                   result#)})
      result#))
 
@@ -205,6 +205,7 @@
    :bdo [:bdo {:dir "rtl"} "right to left text"]
    :time [:time {:datetime "2020-12-31"}]
    :img [:img {:src "/sample.jpg"}]
+   :head [:head [:title "a page"] [:script {:type "text/javascript" :src "/intro.js"}] [:style "h1 {size: 3rem}"]]
    :span [:span [:img {:src "/sample.jpg"}]]
    #_ #_:script [:script {:type "text/javascript" :src "code.js"}]
    :q [:q {:cite "Anonymous"} "If you can't convince, confuse!"]
@@ -218,9 +219,9 @@
    :link [:link {:rel "stylesheet" :href "/main.css"}]
    :details [:details [:summary [:span "summarized text"]] [:p "text"]]
    :table [:table
-            [:caption "an example table"]
-            [:colgroup [:col]]
-            [:thead [:tr [:td "label"]]]
+           [:caption "an example table"]
+           [:colgroup [:col]]
+           [:thead [:tr [:td "label"]]]
            [:tbody [:tr [:td "a cell"]]]]
    :article [:article [:section "something"]]})
 
@@ -299,55 +300,55 @@
                             [:* atomic-element])
            [:p {:id "something"} "text in a paragraph"]))
 
-    (t/is (valid-schema? (subschema element :respatialized.document/p)
+    (t/is (valid-schema? (subschema html :respatialized.document/p)
                          [:p "something" [:a {:href "https://link.com"} "text"]])
           "Phrasing subtags should be respected.")
 
     (t/is (valid-schema?
-           (subschema element "a-phrasing")
+           (subschema html "a-phrasing")
            [:a {:href "https://something.com"} [:ins "something" [:del "something" [:em "something else"]]]])
           "Phrasing subtags should be respected.")
 
     (t/is (valid-schema?
-           (subschema element "ins-phrasing")
+           (subschema html "ins-phrasing")
            [:ins [:ins [:ins [:em "text"]]]])
           "Phrasing subtags should be respected")
 
     (t/is (valid-schema?
-           (subschema element "ins-phrasing")
+           (subschema html "ins-phrasing")
            [:ins [:ins "text"]])
           "Phrasing subtags should be respected")
 
     (t/is (valid-schema?
-           (subschema element "del-phrasing")
+           (subschema html "del-phrasing")
            [:del [:em "text"]])
           "Phrasing subtags should be respected")
 
     (t/is (valid-schema?
-           (subschema element :respatialized.document/em)
+           (subschema html :respatialized.document/em)
            [:em [:ins [:ins [:em "text"]]]])
           "Phrasing subtags should be respected")
 
     (t/is (valid-schema?
-           (subschema element :respatialized.document/em)
+           (subschema html :respatialized.document/em)
            [:em [:a {:href "https://archive.org"}] "something"])
           "Phrasing subtags should be respected")
 
     (t/is (not (m/validate
-                (subschema element "ins-phrasing")
+                (subschema html "ins-phrasing")
                 [:ins [:ins [:ins [:p "text"]]]])))
 
     (t/is (valid-schema?
-           (subschema element "a-phrasing")
+           (subschema html "a-phrasing")
            [:a {:href "https://example.com"} "link" [:em "text"]])
           "Phrasing subtags should be respected")
 
     (t/is (valid-schema?
-           (subschema element :respatialized.document/p)
+           (subschema html :respatialized.document/p)
            [:p "text" [:img {:src "/picture.jpg"}]]))
 
     (t/is (valid-schema?
-           (subschema element :respatialized.document/em)
+           (subschema html :respatialized.document/em)
            [:em "text" [:br] "more text"]))
 
     ;; (t/is (valid-model (->element-model :element) '([:em [:br] "text"])))
@@ -357,13 +358,13 @@
         (let [data (get example-forms elem
                         [elem "sample string"])
               schema (subschema
-                      element (ns-kw 'respatialized.document elem))]
+                      html (ns-kw 'respatialized.document elem))]
           (t/is (valid-schema? schema data)))))
 
     (t/is (palpable? [:p "text"]))
     (t/is (not (palpable? [:p])))
 
-    (t/is (valid-schema? element [:div [:div [:div [:p "text"]]]]))
+    (t/is (valid-schema? (subschema html ::doc/element) [:div [:div [:div [:p "text"]]]]))
     ;; (t/is (valid-model element-m [:em "something"]))
     ;; h/with-condition isn't working on this?
     ;; (t/is (valid-model (->element-model :element) [:em]))
@@ -372,12 +373,12 @@
 
   (t/testing "example forms"
     (doseq [[k v] example-forms]
-      (let [schema (subschema element (ns-kw 'respatialized.document k))]
+      (let [schema (subschema html (ns-kw 'respatialized.document k))]
         (t/testing (str "model for element: <" (symbol k) ">")
           (t/is (valid-schema? schema v))))))
 
   (comment
-      (map (fn [[k v]] [k (valid-schema? elements v)]) example-forms)
+      (map (fn [[k v]] [k (valid-schema? htmls v)]) example-forms)
 
       )
 
@@ -390,7 +391,7 @@
                                          :href "/relative-page.html"}))
 
     (t/is (valid-schema? (subschema
-                          element
+                          html
                           :respatialized.document/img)
                          [:img {:src "/pic.jpg" :width 500}]))))
 
@@ -526,40 +527,32 @@
 (t/deftest existing-docs
   (t/testing "parsing and rendering existing pages"
     (let [pages (get-template-files "./content" ".ct")
+          _ (respatialized.build/load-deps)
           parsed-pages
           (into {}
                 (map
                  (fn [p]
                    (try
-                     [p (-> p
-                            slurp
-                            (parse-eval [:article]
-                                        (md5 p)
-                                        '[[respatialized.render :refer :all]])
-                            (#(into [:article] sectionize-contents (rest %))))]
+                     [p (-> p slurp template->hiccup)]
                      (catch Exception e
                        [p {:error (str "exception: " (.getMessage e))}])))
                  pages))]
-      (doseq [[page contents] parsed-pages]
-        (let [valid-article? (get element-validators :respatialized.document/article)]
-          (t/is
-           (valid-article? contents)
-           (str "page " page " did not conform to article spec")))))))
+      (doseq [[page content] parsed-pages]
+        (t/is
+         (m/validate html content)
+         (str "page " page " did not conform to <html> spec"))))))
 
 (comment
   (def pages (get-template-files "./content" ".ct"))
+
+  (respatialized.build/load-deps)
 
   (def post-contents
     (into {}
           (map
            (fn [p]
              (try
-               [p (-> p
-                      slurp
-                      (parse-eval [:article]
-                                  (md5 p)
-                                  '[[respatialized.render :refer :all]])
-                      (#(into [:article] sectionize-contents (rest %))))]
+               [p (-> p slurp template->hiccup)]
                (catch Exception e
                  [p {:error (str "exception: " (.getMessage e))}])))
            pages)))

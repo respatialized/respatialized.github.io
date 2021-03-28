@@ -10,14 +10,14 @@
             [flatland.ordered.set :refer [ordered-set]]
             [flatland.ordered.map :refer [ordered-map]]
             [respatialized.styles :as styles]
-            [respatialized.document :refer [sectionize-contents]]
+            [respatialized.document :as doc :refer [sectionize-contents]]
             [respatialized.parse :refer [parse parse-eval]
              :as parse])
   (:gen-class))
 
 (defn doc-header
   "Returns a default header from a post's metadata def."
-  [{:keys [title css-files page-style]}]
+  [{:keys [title page-style]}]
   (let [page-header
         [:head
          [:title (str "Respatialized | " title)]
@@ -26,8 +26,8 @@
          [:meta {:name "viewport" :content "width=device-width, initial-scale=1.0, user-scalable=no"}]
          [:script {:type "text/javascript" :src "js/prism.js" :async "async"}]
          [:script {:type "text/javascript" :src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"}]
-         (apply hp/include-css "css/fonts.css" "css/main.css"
-                css-files)]]
+         [:link {:type "text/css" :href "css/fonts.css" :rel "stylesheet"}]
+         [:link {:type "text/css" :href "css/main.css" :rel "stylesheet"}]]]
     (if page-style (conj page-header [:style page-style]) page-header)))
 
 (defn header
@@ -205,18 +205,18 @@
 (defn template->hiccup
   "Converts a template file to a hiccup data structure for the page."
   [t]
-  (let [content (-> t parse/parse parse/eval-with-errors)
+  (let [content (-> t parse/parse (parse/eval-with-errors doc/validate-element))
         page-meta (eval 'metadata)
         body-content (into [:article {:lang "en"}]
                            sectionize-contents
                            content)]
-    (list
-    (doc-header page-meta)
+    [:html
+     (doc-header page-meta)
      [:body
       body-content
       [:footer
        {:class "mb7"}
-       [:div [:a {:href "/"} "Home"]]]])))
+       [:div [:a {:href "/"} "Home"]]]]]))
 
 ;; (defn page
 ;;   "Converts a comb/hiccup file to HTML."
