@@ -64,7 +64,10 @@ Because <%= (in-code "holotype")%> exists mostly as idiosyncratic site generatio
                     "Schema"
                     {:milestone "Possible"
                      :status "Partially implemented"
-                     :description "Spec for HTML elements and for database entries"}
+       :description "Spec for HTML elements and for database entries"}
+       "Legible HTML"
+       {:milestone "Beautiful"
+        :description "Add linebreaks to HTML output to visualize structure"}
                     "Code cleanup"
                     {:milestone "Possible"
                      :description "Remove references to old branches, experimental code, and other extraneous aspects of the codebase"}
@@ -149,3 +152,10 @@ The error message encountered during the parse/eval step gets surfaced where the
     [:dd "The full power of a programming language should be in the hands of users without needing to rebuild/recompile the whole of the underlying source code."]
         ]%>
 
+
+<%=(header {:level :h2} "Technical debt/backlog")%>
+
+<%=(ul [:span "Add capability to include page-specific scripts analogous to " [:code ":page-style"]  " for css"]
+       [:span "Refine API with " [:a {:href "https://clojure.org/news/2021/03/18/apis-serving-people-and-programs"} "clojure 1.11 option maps"]]
+       [:span "Add defaults for " [:a {:href "https://css-tricks.com/a-complete-guide-to-data-attributes/"} "data attributes"]]
+       "Derive styling from data attributes")%>
