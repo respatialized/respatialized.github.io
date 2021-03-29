@@ -172,18 +172,24 @@
     result))
 
 (defn eval-with-errors
-  ([parsed-form post-validator]
-   (let [form-nmspc (yank-ns parsed-form)
-         nmspc (if form-nmspc (create-ns form-nmspc) *ns*)]
-     (binding [*ns* nmspc]
-       (refer-clojure)
-       (clojure.walk/postwalk
-        (fn [i] (if (m/validate parsed-expr-model i)
-                  (form->hiccup (eval-parsed-expr i false post-validator))
-                  i))
-        parsed-form))))
-  ([parsed-form] (eval-with-errors parsed-form (fn [e] {:result e}))))
+  ([parsed-form form-nmspc post-validator]
+   (binding [*ns* (create-ns form-nmspc)]
+     (refer-clojure)
+     (require '[respatialized.render :refer :all])
+     (clojure.walk/postwalk
+      (fn [i] (if (m/validate parsed-expr-model i)
+                (form->hiccup (eval-parsed-expr i false post-validator))
+                i))
+      parsed-form)))
+  ([parsed-form form-nmspc] (eval-with-errors parsed-form form-nmspc (fn [e] {:result e})))
+  ([parsed-form] (eval-with-errors parsed-form (symbol (str *ns*)))))
 
+(defn eval-in-ns
+  [expr nmspc]
+  (binding [*ns* (create-ns (symbol nmspc))]
+    (do
+      (refer-clojure)
+      (eval expr))))
 
 (defn eval-expr-ns
   "Evaluates the given EDN string expr in the given ns with the given deps."

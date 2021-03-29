@@ -133,7 +133,8 @@
   [:bool :boolean]
   [:decimal :double]
   [:integer :int]
-  [:text :string]])
+  [:text :string]
+  [:nil nil?]])
 
 
 (defn has-reqd?

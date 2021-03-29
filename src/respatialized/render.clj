@@ -205,11 +205,17 @@
 (defn template->hiccup
   "Converts a template file to a hiccup data structure for the page."
   [t]
-  (let [content (-> t parse/parse (parse/eval-with-errors doc/validate-element))
-        page-meta (eval 'metadata)
-        body-content (into [:article {:lang "en"}]
-                           sectionize-contents
-                           content)]
+  (let [parsed (parse/parse t)
+        form-ns (parse/yank-ns parsed)
+        tmpl-ns (if form-ns form-ns
+                    (symbol (str "tmp-ns." (Math/abs (hash parsed)))))
+        evaluated  (parse/eval-with-errors
+                    parsed tmpl-ns doc/validate-element)
+        page-meta (parse/eval-in-ns 'metadata tmpl-ns)
+        body-content
+        (into [:article {:lang "en"}]
+              sectionize-contents
+              evaluated)]
     [:html
      (doc-header page-meta)
      [:body
