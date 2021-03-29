@@ -1,7 +1,7 @@
 (ns respatialized.build
   (:require
    [clojure.java.io :as io]
-   [hiccup.core :refer [html]]
+   [hiccup2.core :as hiccup]
    [hiccup.page :as hp]
    [respatialized.render :as render :refer :all]
    [respatialized.parse :as parse]
@@ -14,6 +14,7 @@
 
 (def template-suffix ".ct")
 (def template-suffix-regex (re-pattern "#*[.]ct$"))
+
 
 (defn template-str->hiccup
   "Attempts to parse the given string"
@@ -39,6 +40,12 @@
        (#(str out-dir "/" %))))
   ([path] (get-output-filename path "./public")))
 
+(defn hiccup->html-str [[tag head body]]
+  (str "<!DOCTYPE html>\n<html>"
+       (hiccup/html {:escape-strings? false} head)
+       (hiccup/html body)
+       "</html>"))
+
 (defn render-template-file
   ([path page-fn out-dir]
    (let [out-file (get-output-filename path out-dir)]
@@ -46,7 +53,7 @@
      (-> path
          slurp
          page-fn
-         hp/html5
+         hiccup->html-str
          (#(spit out-file %))
          )))
   ([path page-fn] (render-template-file path page-fn "public"))
@@ -77,7 +84,7 @@
                '[respatialized.holotype :as holotype]
                '[respatialized.structure.fractals :as fractals]
                '[hiccup.page :as hp]
-               '[hiccup.core :as hiccup])))
+               '[hiccup2.core :as hiccup])))
 
 
 
@@ -111,7 +118,7 @@
       (println "Parse error detected, skipping")
       old-map)
     (assoc old-map page-name {:data page-contents
-                              :html (hp/html5 page-contents)})))
+                              :html (hiccup->html-str page-contents)})))
 
 (defn write-file! [output-path html-content]
   (if (not

@@ -1,6 +1,6 @@
 (ns respatialized.render
   (:require [hiccup.page :as hp]
-            [hiccup.core :refer [html]]
+            [hiccup2.core :as hiccup]
             [hiccup.element :as elem]
             [hiccup.util :as util]
             [clojure.string :as string]

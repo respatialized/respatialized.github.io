@@ -6,7 +6,10 @@
                    (at-import "https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@900&display=swap")
                    [:h1 :h2 :h3 {:font-size "3rem"
                                  :line-height "4rem"
-                                 :color "#F72B00"}]
+  :color "#F72B00"}]
+                   [:header [:h1 {:font-size "3rem"
+                                  :line-height "4rem"
+                                  :color "#F72B00"}]]
                    [:h1 {:font-family "\"Big Shoulders Display\", sans"}]
                    [:.emphasis {:font-family "\"Share Tech Mono\", monospace"
                                 :color "#F72B00"}]
@@ -20,11 +23,11 @@
                                  :line-height "1.75rem"}]
                    [:pre {:white-space "pre-wrap"}]
                    [:article {:max-width "700px"
-                              :color "#C5C4C4"}])))%>
+  :color "#C5C4C4"}])))%>
 
 <%(def metadata
        {:title "HOLOTYPE/3"
-        :page-style page-style})%>
+       :page-style page-style})%>
 
 <%=(header {:level :h1} "HOLOTYPE/3: PAGE-SPECIFIC CSS")%>
 

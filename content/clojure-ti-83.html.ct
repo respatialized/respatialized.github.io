@@ -13,7 +13,7 @@ I was brushing up on some statistics using the <%=(link "https://openstax.org/de
 
 Clojure is an unusually expressive programming language. Its minimal syntax and aggressive polymorphism surprised me with what my intuition came up with on the fly. Here's an example. I'm not super familiar with the standard library or the idiomatic way of doing things, so I was trying to figure out how to filter a vector based on whether the elements were contained in a set.
 
-<%= [:div {:class "language-klipse code"}
+<%= [:pre {:class "language-klipse code"}
 "; uncomment the lines one by one to get a better idea:
 ;(#{3 4 5} 4)
 ;(#{3 4 5} 2)
