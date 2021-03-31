@@ -1125,3 +1125,38 @@
   (into [:article] sectionize-contents (rest actual-doc))
 
   (into [] sectionize-contents actual-doc-2))
+
+(comment
+  (defn ->tag-generator
+    ([tag]
+     (gen/fmap #(apply conj [tag] %) (gen/vector (mg/generator atomic-element))))
+    ([tag num-elements]
+     (gen/fmap #(apply conj [tag] %) (gen/vector (mg/generator atomic-element) num-elements))))
+
+  ;; proof of concept: nested divs
+  (-> (gen/recursive-gen
+       (fn [inner]
+         ;; the inner element could be programmatically
+         ;; selected based on the document tree
+         (gen/one-of [(gen/fmap #(conj [:div] %) inner)
+                      (gen/fmap #(apply conj [:div] %) (gen/vector inner))
+                      inner]))
+       (mg/generator atomic-element))
+      (gen/sample 125)
+      last)
+
+  ;; a basic test of the coherence of this approach
+  (every? #(or ((::div element-validators) %)
+               (m/validate atomic-element %))
+          (-> (gen/recursive-gen
+               (fn [inner]
+                 (gen/one-of [(gen/fmap #(conj [:div] %) inner)
+                              (gen/fmap #(apply conj [:div] %) (gen/vector inner))
+                              inner]))
+               (mg/generator atomic-element))
+              (gen/sample 20)))
+
+  (defn schema->generator [schema]
+    )
+
+  )
