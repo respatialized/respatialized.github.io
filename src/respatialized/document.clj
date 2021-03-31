@@ -1138,6 +1138,13 @@
        (fn [inner]
          ;; the inner element could be programmatically
          ;; selected based on the document tree
+         ;;
+         ;; the tricky part: inner needs to dispatch on
+         ;; the element type of its container in order to
+         ;; respect the document tree
+         ;;
+         ;; gen/bind may be helpful here, it's like
+         ;; fmap but in reverse
          (gen/one-of [(gen/fmap #(conj [:div] %) inner)
                       (gen/fmap #(apply conj [:div] %) (gen/vector inner))
                       inner]))
