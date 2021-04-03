@@ -547,6 +547,20 @@
 
   (respatialized.build/load-deps)
 
+  (def parsed-post-contents
+    (into {} (map (fn [p] [p (-> p
+                                 slurp
+                                 parse/parse
+                                 (parse/eval-with-errors
+                                  (symbol (str "tmp-"
+                                               (Math/abs (hash p))))
+                                  validate-element))])
+                  pages)))
+
+  (defn find-invalid [contents]
+    (filter #(false? (first %))
+            (map (fn [e] [(element? e) e]) contents)))
+
   (def post-contents
     (into {}
           (map

@@ -49,7 +49,7 @@
     :div :dl :em #_:embed #_:fieldset :figure
     :footer #_:form :h1 :h2 :h3 :h4 :h5 :h6
     :header :hr :i #_:iframe :img #_:input :ins
-    :kbd #_:label #_ :link :main #_:map :mark #_:math #_:menu
+    :kbd #_:label :link :main #_:map :mark #_:math #_:menu
     #_:meter :nav #_:noscript #_:object :ol #_:output
     :p #_:picture :pre #_:progress :q #_:ruby :s
     :samp :script :section #_:select :small
@@ -433,7 +433,7 @@
                     [:enum "no-referrer" "no-referrer-when-downgrade"
                      "origin" "origin-when-cross-origin" "same-origin"
                      "strict-origin" "strict-origin-when-cross-origin" ""]]
-                   [:src url]
+                   [:src {:optional true} url]
                    [:type :string]])
                  [:? :string])
        ::small (->hiccup-schema

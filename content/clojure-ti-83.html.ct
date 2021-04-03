@@ -1,6 +1,9 @@
-<% (def metadata {:title "Clojure is my TI-83"}) %>
+<% (def metadata
+     {:title "Clojure is my TI-83"
+   :scripts (list [:link {:href "https://storage.googleapis.com/app.klipse.tech/css/codemirror.css" :rel "stylesheet"}]
+                  (script {:type "text/javascript"} "window.klipse_settings = {selector: '.language-klipse'};")
+                  (script {:src "https://storage.googleapis.com/app.klipse.tech/plugin/js/klipse_plugin.js" :async "async" :type "text/javascript"} ""))}) %>
 
-<%=[:link {:href "https://storage.googleapis.com/app.klipse.tech/css/codemirror.css" :rel "stylesheet"}]%>
 <%= (header "Clojure Is My TI-83")%>
 
 <%=(header {:level :h3 :date "2019-05-20"} "Part 1")%>
@@ -27,6 +30,3 @@ Further experiments and exercises confirmed that I could indeed feel the data sl
 <%=(header {:level :h3 :date "2019-07-07"} "Part 2: Tidying Data")%>
 
 In order to do my <%=(link "https://cnx.org/contents/MBiUQmmY@23.31:i_O99VEg/1-6-Sampling-Experiment" "self-assigned math homework")%>, I needed to ensure the data provided are in an appropriate format. Here's how the book provides the data.
-
-<%=(script {} "window.klipse_settings = {selector: '.language-klipse'};")%>
-<%=(script {:src "https://storage.googleapis.com/app.klipse.tech/plugin/js/klipse_plugin.js" :async "async"} "")%>
