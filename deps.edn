@@ -15,7 +15,9 @@
   venantius/glow {:mvn/version "0.1.6"}
 
   ;; data munging
-  metosin/malli {:mvn/version "0.3.1"}
+  metosin/malli
+  {:git/url "https://github.com/metosin/malli"
+   :sha "0e5e3f1ee9bc8d6ea60dc16e59abf9cc295ab510"}
   com.gfredericks/test.chuck {:mvn/version "0.2.10"}
   org.clojure/data.finger-tree {:mvn/version "0.0.3"}
   org.flatland/ordered {:mvn/version "1.5.9"}

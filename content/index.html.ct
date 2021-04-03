@@ -5,13 +5,13 @@
 
 <%=(header {:level :h2} "recent work")%>
 <%=(ul
-       [:p [:a {:href "not-a-tree.html"} "This Website Is Not A Tree"]]
+       [:p [:a {:href "/not-a-tree.html"} "This Website Is Not A Tree"]]
        [:p "a metatextual introduction to this site as it is and as it could be."]
-       [:p [:a {:href "against-metadata.html"} "Against Metadata"]]
+       [:p [:a {:href "/against-metadata.html"} "Against Metadata"]]
        [:p "rants against the apparent fact that metadata is treated as an afterthought in program design and configuration management."]
-       [:p [:a {:href "information-cocoon.html"} "Reifying the Filter Bubble, part 1"]]
+       [:p [:a {:href "/information-cocoon.html"} "Reifying the Filter Bubble, part 1"]]
        [:p "new digital infrastructure makes a metaphor less of one."]
-       [:p [:a {:href "reifying-filter-bubble-2.html"} "Reifying the Filter Bubble, part 2"]]
+       [:p [:a {:href "/reifying-filter-bubble-2.html"} "Reifying the Filter Bubble, part 2"]]
        [:p "notes against the 'decentralization' of an impoverished internet."]
        [:p [:a {:href "/working-definition.html"} "A Working Definition"]]
        [:p "a working definition of my own ideology."])

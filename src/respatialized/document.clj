@@ -53,7 +53,7 @@
     #_:meter :nav #_:noscript #_:object :ol #_:output
     :p #_:picture :pre #_:progress :q #_:ruby :s
     :samp :script :section #_:select :small
-    :span :strong :sub :sup #_:svg #_ :table
+    :span :strong :sub :sup #_:svg :table
     #_:template #_:textarea :time :ul :var #_:video
     #_:wbr})
 
@@ -154,9 +154,12 @@
          [:attrs (if (has-reqd? attr-model)
                    attr-model
                    [:? attr-model])]]]
-    (if (nil? content-model)
-      head
-      (conj head [:contents content-model]))))
+    ;; [:and vector?
+      (if (nil? content-model)
+        head
+        (conj head [:contents content-model]))
+    ;;  ]
+    ))
 
 (defn ns-kw
   ([ns kw] (keyword (str ns) (str (name kw))))
@@ -1127,6 +1130,13 @@
   (into [] sectionize-contents actual-doc-2))
 
 (comment
+  (def sample-gen (mg/generator html {:size 50}))
+
+  )
+
+(comment
+  (require '[clojure.repl :refer [doc]])
+
   (defn ->tag-generator
     ([tag]
      (gen/fmap #(apply conj [tag] %) (gen/vector (mg/generator atomic-element))))

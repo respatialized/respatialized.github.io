@@ -158,4 +158,6 @@ The error message encountered during the parse/eval step gets surfaced where the
 <%=(ul [:span "Add capability to include page-specific scripts analogous to " [:code ":page-style"]  " for css"]
        [:span "Refine API with " [:a {:href "https://clojure.org/news/2021/03/18/apis-serving-people-and-programs"} "clojure 1.11 option maps"]]
        [:span "Add defaults for " [:a {:href "https://css-tricks.com/a-complete-guide-to-data-attributes/"} "data attributes"]]
-       "Derive styling from data attributes")%>
+       "Derive styling from data attributes"
+       "Implement descent-based search for smallest invalid hiccup forms"
+       "Fix character escaping")%>
