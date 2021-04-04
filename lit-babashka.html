@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html><head><title>Respatialized | Replicating lit with babashka</title><meta charset="utf-8"><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible"><meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport"><link href="css/fonts.css" rel="stylesheet" type="text/css"><link href="css/main.css" rel="stylesheet" type="text/css"></head><body><article lang="en"><section><header><h1>Replicating lit with babashka</h1><time datetime="2020-04-18">2020-04-18</time></header><p>I want to move some notes I took on SICP to this repo. I also want to integrate my notes with the templating system I use to write these entries. That way, I can still pipe the file into the <code>racket</code> cli for evaluation while also gaining the ability to render the prose using the features I've developed atop <code>comb</code>.</p><p>I think the best way to do so is to turn them into a lightweight literate programming format like <code>lit</code>. However, I don't want my ability to execute this code to depend on my understanding of <code>awk</code> - I want to keep as much as possible in a single language. So I'll replicate the features of <code>lit</code> using <code>babashka</code>. I haven't used it yet, and it seems like a decent enough exercise to get going with it.</p><header><h3>Goals</h3></header><ul><li>Comment out everything that's not in a code block and eliminate the code block fences so the result is an executable file.</li><li>Delimit the code blocks in such a way as to be transformed into displayable code blocks by a preprocessor that works with [:code "comb."]</li></ul><header><h3>Non-goals</h3></header><ul><li>support for multiline comments.</li></ul><p>Here's the first approximation of what's needed for this:</p><pre><code>
+<html><head><title>Respatialized | Replicating lit with babashka</title><meta charset="utf-8" /><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" /><meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport" /><script async="async" src="js/prism.js" type="text/javascript"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js" type="text/javascript"></script><link href="css/fonts.css" rel="stylesheet" type="text/css" /><link href="css/main.css" rel="stylesheet" type="text/css" /></head><body><article lang="en"><section><p></p><header><h1>Replicating lit with babashka</h1><time datetime="2020-04-18">2020-04-18</time></header><p>I want to move some notes I took on SICP to this repo. I also want to integrate my notes with the templating system I use to write these entries. That way, I can still pipe the file into the <code>racket</code> cli for evaluation while also gaining the ability to render the prose using the features I&apos;ve developed atop <code>comb</code>.</p><p>I think the best way to do so is to turn them into a lightweight literate programming format like <code>lit</code>. However, I don&apos;t want my ability to execute this code to depend on my understanding of <code>awk</code> - I want to keep as much as possible in a single language. So I&apos;ll replicate the features of <code>lit</code> using <code>babashka</code>. I haven&apos;t used it yet, and it seems like a decent enough exercise to get going with it.</p><header><h3>Goals</h3></header><ul><li>Comment out everything that&apos;s not in a code block and eliminate the code block fences so the result is an executable file.</li><li>Delimit the code blocks in such a way as to be transformed into displayable code blocks by a preprocessor that works with [:code &quot;comb.&quot;]</li></ul><header><h3>Non-goals</h3></header><ul><li>support for multiline comments.</li></ul><p>Here&apos;s the first approximation of what&apos;s needed for this:</p><pre><code>
 #!/usr/bin/env -S bb -i -o
 
-(require '[clojure.test :refer [is]])
-(def default-code-open "+begin_src")
-(def default-code-close "+end_src")
-(def default-comment ";")
+(require &apos;[clojure.test :refer [is]])
+(def default-code-open &quot;+begin_src&quot;)
+(def default-code-close &quot;+end_src&quot;)
+(def default-comment &quot;;&quot;)
 
 (defn comment-lines
-  "Comments out everything not between code fences, then removes the code fences to yield an executable script."
+  &quot;Comments out everything not between code fences, then removes the code fences to yield an executable script.&quot;
   {:test (fn []
-           (is (= (comment-lines ["plaintext to comment"])
-                  [";plaintext to comment"]))
-           (is (= (comment-lines ["+begin_src" "(code 3)" "+end_src"])
-                  ["(code 3)"]))
-           (is (= (comment-lines ["test" "+begin_src" "(+ 1 1)" "+end_src" "test3"])
-                  [";test" "(+ 1 1)" ";test3"])))}
+           (is (= (comment-lines [&quot;plaintext to comment&quot;])
+                  [&quot;;plaintext to comment&quot;]))
+           (is (= (comment-lines [&quot;+begin_src&quot; &quot;(code 3)&quot; &quot;+end_src&quot;])
+                  [&quot;(code 3)&quot;]))
+           (is (= (comment-lines [&quot;test&quot; &quot;+begin_src&quot; &quot;(+ 1 1)&quot; &quot;+end_src&quot; &quot;test3&quot;])
+                  [&quot;;test&quot; &quot;(+ 1 1)&quot; &quot;;test3&quot;])))}
   ([input-lines comment-char open-block close-block]
    (loop [lines input-lines output-lines [] block? false]
      (cond
@@ -39,24 +39,24 @@
 (clojure.test/run-tests)
 
 (comment-lines *input*)
-</code></pre><p>At the top of the shebang, I use the options provided by GNU coreutils to make the script default to reading lines from stdin and printing lines to stdout, as any other script would. This means the script isn't necessarily portable, but it's for my own interactive use, so that doesn't matter.</p><p>The body consists of a single recursive function that uses accumulator variables to keep track of whether the current line is inside or outside the code block. Because of the default namespaces, I can inline the tests right in the function definition, and just comment out the call to <code>clojure.core/run-tests</code> when I want to use the script to as part of a pipeline.</p><p>The second goal will allow me to inline the <code>babashka</code> script in this file from its source rather than just copying and pasting it.</p><p>
+</code></pre><p>At the top of the shebang, I use the options provided by GNU coreutils to make the script default to reading lines from stdin and printing lines to stdout, as any other script would. This means the script isn&apos;t necessarily portable, but it&apos;s for my own interactive use, so that doesn&apos;t matter.</p><p>The body consists of a single recursive function that uses accumulator variables to keep track of whether the current line is inside or outside the code block. Because of the default namespaces, I can inline the tests right in the function definition, and just comment out the call to <code>clojure.core/run-tests</code> when I want to use the script to as part of a pipeline.</p><p>The second goal will allow me to inline the <code>babashka</code> script in this file from its source rather than just copying and pasting it.</p><p>
 </p><header><h3>Part 2</h3></header><pre><code>#!/usr/bin/env -S bb -i -o
 
-(require '[clojure.test :refer [is]])
+(require &apos;[clojure.test :refer [is]])
 
-(def default-code-open "+begin_src")
-(def default-code-close "+end_src")
-(def default-comment ";")
+(def default-code-open &quot;+begin_src&quot;)
+(def default-code-close &quot;+end_src&quot;)
+(def default-comment &quot;;&quot;)
 
 (defn comment-lines
-  "Comments out everything not between code fences, then removes the code fences to yield an executable script."
+  &quot;Comments out everything not between code fences, then removes the code fences to yield an executable script.&quot;
   {:test (fn []
-           (is (= (comment-lines ["plaintext to comment"])
-                  [";plaintext to comment"]))
-           (is (= (comment-lines ["+begin_src" "(code \"to execute\")" "+end_src"])
-                  ["(code \"to execute\")"]))
-           (is (= (comment-lines ["test" "+begin_src" "(+ 1 1)" "+end_src" "test3"])
-                  [";test" "(+ 1 1)" ";test3"]))
+           (is (= (comment-lines [&quot;plaintext to comment&quot;])
+                  [&quot;;plaintext to comment&quot;]))
+           (is (= (comment-lines [&quot;+begin_src&quot; &quot;(code \&quot;to execute\&quot;)&quot; &quot;+end_src&quot;])
+                  [&quot;(code \&quot;to execute\&quot;)&quot;]))
+           (is (= (comment-lines [&quot;test&quot; &quot;+begin_src&quot; &quot;(+ 1 1)&quot; &quot;+end_src&quot; &quot;test3&quot;])
+                  [&quot;;test&quot; &quot;(+ 1 1)&quot; &quot;;test3&quot;]))
            )}
   ([input-lines comment-char open-block close-block]
    (loop [lines input-lines output-lines [] block? false]
