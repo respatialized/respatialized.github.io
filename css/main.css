@@ -1,0 +1,280 @@
+html {
+  line-sizing: normal;
+}
+
+body {
+  margin: 0;
+}
+
+[hidden] {
+  display: none;
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+h3 {
+  font-size: 1.17rem;
+}
+
+h4 {
+  font-size: 1.00rem;
+}
+
+h5 {
+  font-size: 0.83rem;
+}
+
+h6 {
+  font-size: 0.67rem;
+}
+
+h1 {
+  margin: 0.67em 0;
+}
+
+pre {
+  white-space: pre-wrap;
+}
+
+hr {
+  border-style: solid;
+  border-width: 1px 0 0;
+  color: inherit;
+  height: 0;
+  overflow: visible;
+}
+
+img, svg, video, canvas, audio, iframe, embed, object {
+  display: block;
+  vertical-align: middle;
+  max-width: 100%;
+}
+
+picture {
+  display: contents;
+}
+
+source {
+  display: none;
+}
+
+img, svg, video, canvas {
+  height: auto;
+}
+
+audio {
+  width: 100%;
+}
+
+img {
+  border-style: none;
+}
+
+svg {
+  overflow: hidden;
+}
+
+article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
+  display: block;
+}
+
+[type='checkbox'], [type='radio'] {
+  box-sizing: border-box;
+  padding: 0;
+}
+
+code, [class*="language-"], pre, [class*="language-"] {
+  -webkit-hyphens: none;
+  -moz-tab-size: 4;
+  word-break: normal;
+  -ms-hyphens: none;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-wrap: normal;
+  -o-tab-size: 4;
+  -moz-hyphens: none;
+  font-size: 1em;
+  tab-size: 4;
+  background: none;
+  color: black;
+  hyphens: none;
+}
+
+pre, [class*="language-"], pre, [class*="language-"],  , code, [class*="language-"], code, [class*="language-"],   {
+  text-shadow: none;
+  background: #b3d4fc;
+}
+
+pre, [class*="language-"], pre, [class*="language-"],  , code, [class*="language-"], code, [class*="language-"],   {
+  text-shadow: none;
+  background: #b3d4fc;
+}
+
+@media print {
+
+  code, [class*="language-"], pre, [class*="language-"] {
+    text-shadow: none;
+  }
+
+}
+
+pre, [class*="language-"] {
+  padding: 1em;
+  margin: .5em 0;
+  overflow: auto;
+}
+
+:not(pre), >, code, [class*="language-"], pre, [class*="language-"] {
+  background: #f5f2f0;
+}
+
+:not(pre), >, code, [class*="language-"] {
+  padding: .1em;
+  border-radius: .3em;
+  white-space: normal;
+}
+
+.token, .comment, .token, .prolog, .token, .doctype, .token, .cdata {
+  color: slategray;
+}
+
+.token, .punctuation {
+  color: #999;
+}
+
+.token, .namespace {
+  opacity: .7;
+}
+
+.token, .property, .token, .tag, .token, .boolean, .token, .number, .token, .constant, .token, .symbol, .token, .deleted {
+  color: #905;
+}
+
+.token, .selector, .token, .attr-name, .token, .string, .token, .char, .token, .builtin, .token, .inserted {
+  color: #690;
+}
+
+.token, .operator, .token, .entity, .token, .url, .language-css,  , .token, .string, .style,  , .token, .string {
+  color: #9a6e3a;
+  background: hsla(0,0%,100%,.5);
+}
+
+.token, .atrule, .token, .attr-value, .token, .keyword {
+  color: #07a;
+}
+
+.token, .function, .token, .class-name {
+  color: #DD4A68;
+}
+
+.token, .regex, .token, .important, .token, .variable {
+  color: #e90;
+}
+
+.token, .important, .token, .bold {
+  font-weight: bold;
+}
+
+.token, .italic {
+  font-style: italic;
+}
+
+@import "https://fonts.googleapis.com/css2?family=Inter:wght@600;900&display=swap";
+
+a {
+  color: #C14825;
+}
+
+body {
+  background-color: #EEE;
+  font-size: 24px;
+  font-family: IBM Plex Sans;
+  line-height: 1.35;
+  color: #222;
+  letter-spacing: -0.01rem;
+}
+
+header {
+  font-weight: 600;
+  font-family: Inter;
+}
+
+h1, h2, h3 {
+  font-size: 3rem;
+  line-height: 3rem;
+  margin-bottom: 0.6em;
+  margin-top: 0.2em;
+}
+
+h4, h5, h6 {
+  font-size: 1.5rem;
+}
+
+blockquote {
+  font-weight: 600;
+  font-size: 1.45rem;
+  font-family: Inter;
+  line-height: 2.05rem;
+}
+
+pre, code {
+  white-space: pre-wrap;
+  font-family: Recursive Mono Linear Static;
+  font-height: 0.6rem;
+  color: #222;
+  margin-bottom: 0.4em;
+}
+
+dt {
+  font-family: Inter;
+  margin-bottom: 0.2rem;
+}
+
+dd {
+  margin-bottom: 0.4rem;
+}
+
+summary {
+  margin-bottom: 0.4em;
+}
+
+article {
+  max-width: 45rem;
+  padding-left: 20px;
+  color: #222;
+}
+
+p {
+  margin-bottom: 0.4em;
+  margin-top: 0.2em;
+}
+
+table {
+  font-size: 0.95rem;
+  letter-spacing: 0.01rem;
+  line-height: 1.45em;
+  max-width: 90em;
+}
+
+td, th {
+  padding: 0.25rem;
+  text-align: left;
+}
+
+[colspan] {
+  text-align: center;
+  border-bottom: 0.5px solid;
+  border-top: 0.5px solid;
+}
+
+table {
+  border-collapse: collapse;
+  max-width: 1400px;
+}
