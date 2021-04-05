@@ -228,11 +228,17 @@ blockquote {
   line-height: 2.05rem;
 }
 
+code {
+  font-size: 0.95em;
+}
+
 pre, code {
   white-space: pre-wrap;
   font-family: Recursive;
-  font-height: 0.6rem;
-  color: #222;
+  color: #66220e;
+}
+
+pre {
   margin-bottom: 0.4em;
 }
 
