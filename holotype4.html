@@ -27,5 +27,23 @@ article {
 </p><header><h1>HOLOTYPE//4</h1></header><p>
 </p><header><h4>Computational texture generation with attractors + clustering</h4></header><header><h2>synthetic topographies / 1</h2></header><p>generate a density map using Clifford attractors and draw contour lines around the points using the density as a height estimator.</p><p>general strategy: sort the resulting values into layers based on density and draw contours around each of them.
 </p><p>
-<img alt="holotype4-1" src="./public/media/holotype4-1.png" /></p><header><h5>Other ideas</h5></header><p>Tensor attractors - what if the dynamical system was a vector instead of a point?</p><p>Parameter evolution - what if the constant parameters iterated through a space along with the point?</p><p>Displacement evolution - what if the &quot;center point&quot; was doing a random walk or otherwise evolving with the system?</p><p>Displacement maps - what if the results of an attractor&apos;s iterations were transformed by doing tensor operations with a displacement map?</p><p>Attractors in color space - what would a 3d attractor moving through the HSB color space look like?
+</p><header><h4>An example starting point</h4></header><figure><img src="/media/holotype4-1.png" /></figure><header><h4>Reducing over the time dimension</h4></header><p></p><p>Instead of writing to the image tensor on each iteration of the attractor, a more efficient approach would take an arbitrary number of iterations and reduce over all of them to produce a raster image. This resulting density map is also a necessary input for clustering / topography.</p><div><h6>Error</h6><dl><dt>Error type</dt><dd><code>class clojure.lang.Compiler$CompilerException</code></dd><dt>Error message</dt><dd><code>No value supplied for key: {:datatype :int64}</code></dd><dt>Error phase</dt><dd><code>:execution</code></dd></dl><details><summary>Source expression</summary><pre><code>&lt;% (def unbounded-tensor (tensor/new-tensor [1100 650] {:datatype :int64})) %&gt;</code></pre></details></div><div><h6>Error</h6><dl><dt>Error type</dt><dd><code>class clojure.lang.Compiler$CompilerException</code></dd><dt>Error message</dt><dd><code>clojure.lang.Var$Unbound cannot be cast to tech.v3.tensor.DirectTensor</code></dd><dt>Error phase</dt><dd><code>:execution</code></dd></dl><details><summary>Source expression</summary><pre><code>&lt;% (def total-res
+  (iter-img unbounded-tensor
+            starting-pts-de-jong
+            (tensor-de-jong 1.318 2.014 0.001 2.07)
+            (inc-tensor! [(fn [xs] (normalize xs 4 1100 (/ 1100 2)))
+                          (fn [ys] (normalize ys 4 650 (/ 650 2)))])
+            50000)) %&gt;</code></pre></details></div><div><h6>Error</h6><dl><dt>Error type</dt><dd><code>class clojure.lang.Compiler$CompilerException</code></dd><dt>Error message</dt><dd><code>clojure.lang.Var$Unbound cannot be cast to java.lang.Number</code></dd><dt>Error phase</dt><dd><code>:execution</code></dd></dl><details><summary>Source expression</summary><pre><code>&lt;% (def tens2
+  (let [log-transformed (dtype-fn/max 0.0 (dtype-fn/log10 unbounded-tensor))
+        max-log (apply max (map #(apply max %) log-transformed))
+        pixel-scale (/ 255 max-log)]
+    (tensor/compute-tensor
+     [1100 650]
+     (fn [x y]
+       (let [v (-&gt; log-transformed
+                   (.ndReadDouble x y)
+                   (* pixel-scale)
+                   (Math/round))]
+         [v v v])))))  %&gt;</code></pre></details></div><p>
+</p><header><h5>Other ideas</h5></header><p>Tensor attractors - what if the dynamical system was a vector instead of a point?</p><p>Parameter evolution - what if the constant parameters iterated through a space along with the point?</p><p>Displacement evolution - what if the &quot;center point&quot; was doing a random walk or otherwise evolving with the system?</p><p>Displacement maps - what if the results of an attractor&apos;s iterations were transformed by doing tensor operations with a displacement map?</p><p>Attractors in color space - what would a 3d attractor moving through the HSB color space look like?</p><p>Log transform the density map into a more aesthetically coherent range of shading values - this was a technique I picked up for visualizing data spanning multiple orders of magnitude from datashader.
 </p></section></article><footer class="mb7"><div><a href="/">Home</a></div></footer></body></html>
